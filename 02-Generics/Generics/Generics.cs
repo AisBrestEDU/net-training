@@ -1,5 +1,10 @@
 ﻿using System;
+using System.CodeDom;
 using System.Collections.Generic;
+using System.Linq;
+using System.ComponentModel;
+using System.Net;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Task.Generics {
 
@@ -23,8 +28,7 @@ namespace Task.Generics {
 		///   { new TimeSpan(1, 0, 0), new TimeSpan(0, 0, 30) } => "01:00:00,00:00:30",
 		/// </example>
 		public static string ConvertToString<T>(this IEnumerable<T> list) {
-			// TODO : Implement ConvertToString<T>
-			throw new NotImplementedException();
+            return string.Join(ListSeparator.ToString(), list.Select(value => value));
 		}
 
 		/// <summary>
@@ -44,9 +48,17 @@ namespace Task.Generics {
 		///  "1:00:00,0:00:30" for TimeSpan =>  { new TimeSpan(1, 0, 0), new TimeSpan(0, 0, 30) },
 		///  </example>
 		public static IEnumerable<T> ConvertToList<T>(this string list) {
-			// TODO : Implement ConvertToList<T>
-			// HINT : Use TypeConverter.ConvertFromString method to parse string value
-			throw new NotImplementedException();
+            string[] splitted = list.Split(ListSeparator);
+
+            TypeConverter converter = TypeDescriptor.GetConverter(typeof(T));
+
+            List<T> result = new List<T>();
+
+            foreach (var item in splitted) {
+                result.Add((T)converter.ConvertFrom(item));
+            }
+
+            return result;
 		}
 
 	}
@@ -60,41 +72,91 @@ namespace Task.Generics {
 		/// <param name="array">source array</param>
 		/// <param name="index1">first index</param>
 		/// <param name="index2">second index</param>
-		public static void SwapArrayElements<T>(this T[] array, int index1, int index2) {
-			// TODO : Implement SwapArrayElements<T>
-			throw new NotImplementedException();
+		public static void SwapArrayElements<T>(this T[] array, int index1, int index2)
+		{
+		    
+		    SwapElement(ref array[index1], ref array[index2]);
+
+		    void SwapElement(ref T first, ref T second)
+		    {
+		        T temp = first;
+		        first = second;
+		        second = temp;
+		    }
 		}
 
-		/// <summary>
-		///   Sorts the tuple array by specified column in ascending or descending order
-		/// </summary>
-		/// <param name="array">source array</param>
-		/// <param name="sortedColumn">index of column</param>
-		/// <param name="ascending">true if ascending order required; otherwise false</param>
-		/// <example>
-		///   source array : 
-		///   { 
-		///     { 1, "a", false },
-		///     { 3, "b", false },
-		///     { 2, "c", true  }
-		///   }
-		///   result of SortTupleArray(array, 0, true) is sort rows by first column in a ascending order: 
-		///   { 
-		///     { 1, "a", false },
-		///     { 2, "c", true  },
-		///     { 3, "b", false }
-		///   }
-		///   result of SortTupleArray(array, 1, false) is sort rows by second column in a descending order: 
-		///   {
-		///     { 2, "c", true  },
-		///     { 3, "b", false }
-		///     { 1, "a", false },
-		///   }
-		/// </example>
-		public static void SortTupleArray<T1, T2, T3>(this Tuple<T1, T2, T3>[] array, int sortedColumn, bool ascending) {
-			// TODO :SortTupleArray<T1, T2, T3>
-			// HINT : Add required constraints to generic types
-		}
+        /// <summary>
+        ///   Sorts the tuple array by specified column in ascending or descending order
+        /// </summary>
+        /// <param name="array">source array</param>
+        /// <param name="sortedColumn">index of column</param>
+        /// <param name="ascending">true if ascending order required; otherwise false</param>
+        /// <example>
+        ///   source array : 
+        ///   { 
+        ///     { 1, "a", false },
+        ///     { 3, "b", false },
+        ///     { 2, "c", true  }
+        ///   }
+        ///   result of SortTupleArray(array, 0, true) is sort rows by first column in a ascending order: 
+        ///   { 
+        ///     { 1, "a", false },
+        ///     { 2, "c", true  },
+        ///     { 3, "b", false }
+        ///   }
+        ///   result of SortTupleArray(array, 1, false) is sort rows by second column in a descending order: 
+        ///   {
+        ///     { 2, "c", true  },
+        ///     { 3, "b", false }
+        ///     { 1, "a", false },
+        ///   }
+        /// </example>
+        public static void SortTupleArray<T1, T2, T3>(this Tuple<T1, T2, T3>[] array, int sortedColumn, bool ascending)
+            where T1: IComparable<T1>
+            where T2: IComparable<T2>
+            where T3: IComparable<T3>
+        {
+
+      
+            if (sortedColumn == 0)
+            {
+                if (ascending)
+                {
+                    Array.Sort(array, (x, y) => x.Item1.CompareTo(y.Item1));
+                }
+                else
+                {
+                    Array.Sort(array, (x, y) => y.Item1.CompareTo(x.Item1));
+                }
+            }
+
+            else if (sortedColumn == 1)
+            {
+                if (ascending)
+                {
+                    Array.Sort(array, (x, y) => x.Item2.CompareTo(y.Item2));
+                }
+                else
+                {
+                    Array.Sort(array, (x, y) => y.Item2.CompareTo(x.Item2));
+                }
+            }
+
+            else if (sortedColumn == 2)
+            {
+                if (ascending)
+                {
+                    Array.Sort(array, (x, y) => x.Item3.CompareTo(y.Item3));
+                }
+                else
+                {
+                    Array.Sort(array, (x, y) => y.Item3.CompareTo(x.Item3));
+                }
+            }
+
+            else throw new IndexOutOfRangeException();
+        }
+        
 
 	}
 
@@ -105,11 +167,15 @@ namespace Task.Generics {
 	///   This code should return the same MyService object every time:
 	///   MyService singleton = Singleton<MyService>.Instance;
 	/// </example>
-	public static class Singleton<T> {
+	public static class Singleton<T>
+        where T:new()
+    {
 		// TODO : Implement generic singleton class 
 
+	    private static readonly T _Instance = new T();
+
 		public static T Instance {
-			get { throw new NotImplementedException(); }
+			get { return _Instance; }
 		}
 	}
 
@@ -135,8 +201,7 @@ namespace Task.Generics {
 		///   If the third attemp fails then this exception should be rethrow to the application.
 		/// </example>
 		public static T TimeoutSafeInvoke<T>(this Func<T> function) {
-			// TODO : Implement TimeoutSafeInvoke<T>
-			throw new NotImplementedException();
+            throw new NotImplementedException();
 		}
 
 
