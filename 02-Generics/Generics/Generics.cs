@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
+
 namespace Task.Generics {
 
 	public static class ListConverter {
@@ -23,8 +24,7 @@ namespace Task.Generics {
 		///   { new TimeSpan(1, 0, 0), new TimeSpan(0, 0, 30) } => "01:00:00,00:00:30",
 		/// </example>
 		public static string ConvertToString<T>(this IEnumerable<T> list) {
-			// TODO : Implement ConvertToString<T>
-			throw new NotImplementedException();
+			return string.Join(ListSeparator.ToString(), list);
 		}
 
 		/// <summary>
@@ -46,7 +46,17 @@ namespace Task.Generics {
 		public static IEnumerable<T> ConvertToList<T>(this string list) {
 			// TODO : Implement ConvertToList<T>
 			// HINT : Use TypeConverter.ConvertFromString method to parse string value
-			throw new NotImplementedException();
+			System.ComponentModel.TypeConverter converter = System.ComponentModel.TypeDescriptor.GetConverter(typeof(T));
+			//System.ComponentModel.TypeConverter converter = System.ComponentModel.TypeConverter()typeof(T));
+			List<T> result = new List<T>();
+			string[] strArr = list.Split(ListSeparator);
+
+			foreach (string item in strArr)
+			{
+				result.Add((T)converter.ConvertFromString(item));
+			}
+			return result;
+
 		}
 
 	}
@@ -61,8 +71,9 @@ namespace Task.Generics {
 		/// <param name="index1">first index</param>
 		/// <param name="index2">second index</param>
 		public static void SwapArrayElements<T>(this T[] array, int index1, int index2) {
-			// TODO : Implement SwapArrayElements<T>
-			throw new NotImplementedException();
+			T buffer = array[index1];
+			array[index1] = array[index2];
+			array[index2] = buffer;
 		}
 
 		/// <summary>
@@ -91,8 +102,50 @@ namespace Task.Generics {
 		///     { 1, "a", false },
 		///   }
 		/// </example>
-		public static void SortTupleArray<T1, T2, T3>(this Tuple<T1, T2, T3>[] array, int sortedColumn, bool ascending) {
-			// TODO :SortTupleArray<T1, T2, T3>
+		/// 
+		static int Comparer<T> (T x, T y, bool asc) where T : IComparable
+		{
+			if (asc) return y.CompareTo(y);
+			return x.CompareTo(y);
+		}
+		public static void SortTupleArray<T1, T2, T3>(this Tuple<T1, T2, T3>[] array, int sortedColumn, bool ascending)  {
+
+			if (sortedColumn < 0 || sortedColumn > 2)
+				throw new IndexOutOfRangeException();
+
+			object list = null;
+
+			if(sortedColumn == 0)
+			{
+				List<T1> list1 = new List<T1>();
+				foreach (var item in array)
+				{
+					list1.Add(item.Item1);
+				}
+				list = list1.ToArray();
+			}
+			if (sortedColumn == 1)
+			{
+				List<T2>  list2 = new List<T2>();
+				foreach(var item in array)
+				{
+					list2.Add(item.Item2);
+				}
+				list = list2.ToArray();
+			}
+			if (sortedColumn == 2)
+			{
+				List<T3> list3 = new List<T3>();
+				foreach (var item in array)
+				{
+					list3.Add(item.Item3);
+				}
+				list = list3.ToArray();
+			}
+
+			Array.Sort((Array)list, array);
+			if (!ascending)
+				Array.Reverse(array);
 			// HINT : Add required constraints to generic types
 		}
 
@@ -105,11 +158,13 @@ namespace Task.Generics {
 	///   This code should return the same MyService object every time:
 	///   MyService singleton = Singleton<MyService>.Instance;
 	/// </example>
-	public static class Singleton<T> {
-		// TODO : Implement generic singleton class 
+	public static class Singleton<T> where T : new()
+	{
+		private static T _instance = new T();
 
-		public static T Instance {
-			get { throw new NotImplementedException(); }
+		public static T Instance
+		{
+			get { return _instance; }
 		}
 	}
 
