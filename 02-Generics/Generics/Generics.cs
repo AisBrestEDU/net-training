@@ -23,9 +23,11 @@ namespace Task.Generics {
 		///   { new TimeSpan(1, 0, 0), new TimeSpan(0, 0, 30) } => "01:00:00,00:00:30",
 		/// </example>
 		public static string ConvertToString<T>(this IEnumerable<T> list) {
-			// TODO : Implement ConvertToString<T>
-			throw new NotImplementedException();
-		}
+            // TODO : Implement ConvertToString<T>
+            //throw new NotImplementedException();
+
+            return String.Join<T>(ListSeparator.ToString(), list);
+        }
 
 		/// <summary>
 		///   Converts the string respresentation to the list of items
