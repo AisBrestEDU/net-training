@@ -46,10 +46,19 @@ namespace Task.Generics {
 		///  "1:00:00,0:00:30" for TimeSpan =>  { new TimeSpan(1, 0, 0), new TimeSpan(0, 0, 30) },
 		///  </example>
 		public static IEnumerable<T> ConvertToList<T>(this string list) {
-			// TODO : Implement ConvertToList<T>
-			// HINT : Use TypeConverter.ConvertFromString method to parse string value
-			throw new NotImplementedException();
-		}
+            // TODO : Implement ConvertToList<T>
+            // HINT : Use TypeConverter.ConvertFromString method to parse string value
+            //throw new NotImplementedException();
+
+            var buffList = list.Split(ListSeparator);
+            var resultList = new List<T>(buffList.Length);
+
+            var con = System.ComponentModel.TypeDescriptor.GetConverter(typeof(T));
+
+            foreach (var t in buffList) resultList.Add((T)con.ConvertFromString(t));
+
+            return resultList;
+        }
 
 	}
 
