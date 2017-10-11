@@ -114,13 +114,47 @@ namespace Task.Generics
         ///   }
         /// </example>
         /// 
-    
+
         public static void SortTupleArray<T1, T2, T3>(this Tuple<T1, T2, T3>[] array, int sortedColumn, bool ascending)
+            where T1 : IComparable
+            where T2 : IComparable
+            where T3 : IComparable
+
         {
             // TODO :SortTupleArray<T1, T2, T3>
             // HINT : Add required constraints to generic types
-            //с помощью OrderBy и OrderByDescending отсортировать промежуточный массив
-            //создать копию массива со значениями  в правильно порядке и прировнять промежуточный к итоговому
+            if(sortedColumn> 2) { throw new IndexOutOfRangeException(); }
+            if (ascending)
+            {
+                if (sortedColumn == 0)
+                {
+                    Array.Sort(array, (x, y) => x.Item1.CompareTo(y.Item1));
+                }
+                else if(sortedColumn == 1)
+                {
+                    Array.Sort(array, (x, y) => x.Item2.CompareTo(y.Item2));
+                }
+                else  if (sortedColumn == 2)
+                {
+                    Array.Sort(array, (x, y) => x.Item3.CompareTo(y.Item3));
+                }
+            }
+            else
+            {
+                if (sortedColumn == 0)
+                {
+                    Array.Sort(array, (x, y) => y.Item1.CompareTo(x.Item1));
+                }
+                else if (sortedColumn == 1)
+                {
+                    Array.Sort(array, (x, y) => y.Item2.CompareTo(x.Item2));
+                }
+                else if(sortedColumn == 2)
+                {
+                    Array.Sort(array, (x, y) => y.Item3.CompareTo(x.Item3));
+                }
+            }
+           
         }
 
     }
@@ -133,12 +167,14 @@ namespace Task.Generics
     ///   MyService singleton = Singleton<MyService>.Instance;
     /// </example>
     public static class Singleton<T>
+        where T : new ()
     {
         // TODO : Implement generic singleton class 
-
+        private static readonly T value = new T();
+        
         public static T Instance
         {
-            get { throw new NotImplementedException(); }
+            get { return value; }
         }
     }
 
@@ -167,7 +203,30 @@ namespace Task.Generics
         public static T TimeoutSafeInvoke<T>(this Func<T> function)
         {
             // TODO : Implement TimeoutSafeInvoke<T>
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+
+            int MaxCountError = 3;
+            int CountError = 0;
+            T buff = default(T);
+
+            while (true)
+            {
+                try
+                {
+                    buff = function.Invoke();
+                    break;
+                }
+                catch (Exception e)
+                {
+                    if (++CountError == MaxCountError)
+                        throw e;
+                    else
+                        System.Diagnostics.Trace.WriteLine(e.ToString());
+                }
+            }
+
+
+            return buff;
         }
 
 
@@ -197,7 +256,7 @@ namespace Task.Generics
         public static Predicate<T> CombinePredicates<T>(Predicate<T>[] predicates)
         {
             // TODO : Implement CombinePredicates<T>
-            throw new NotImplementedException();
+            return arg => { foreach (var t in predicates) if (!t(arg)) return false; return true; };
         }
 
     }
