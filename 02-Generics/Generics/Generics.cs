@@ -114,6 +114,8 @@ namespace Task.Generics {
 
             Array.Sort(array, (a, b) =>
             {
+                
+                var buff = new Dictionary<int, Func<Tuple<T1, T2, T3>, IComparable>>();
                 IComparable x, y;
                 switch (sortedColumn)
                 {
