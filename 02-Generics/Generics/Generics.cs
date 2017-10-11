@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Net;
 
 namespace Task.Generics {
 
@@ -48,7 +51,7 @@ namespace Task.Generics {
 			// TODO : Implement ConvertToList<T>
 			// HINT : Use TypeConverter.ConvertFromString method to parse string value
 
-			System.ComponentModel.TypeConverter converter = System.ComponentModel.TypeDescriptor.GetConverter(typeof(T));
+			TypeConverter converter = TypeDescriptor.GetConverter(typeof(T));
 			
 			var result = new List<T>{ };
 			string[] array = list.Split(ListSeparator);
@@ -129,7 +132,7 @@ namespace Task.Generics {
 
 			if (ascending)
 			{
-				Array.Sort(array,(a,b)=>GetItemByIndex(a,sortedColumn).CompareTo(GetItemByIndex(b,sortedColumn)));
+				Array.Sort(array, (a, b) => GetItemByIndex(a, sortedColumn).CompareTo(GetItemByIndex(b, sortedColumn)));
 			}
 
 			else
@@ -148,53 +151,58 @@ namespace Task.Generics {
 		/// </example>
 		public static class Singleton<T> where T : new() {
 		// TODO : Implement generic singleton class
-		private static readonly Lazy<T> _lazy = new Lazy<T>(() => new T());
+		private static readonly Lazy<T> _instance = new Lazy<T>(() => new T());
 
-		public static T Instance {
-				get { return _lazy.Value; }
+			public static T Instance
+			{
+				get { return _instance.Value; }
 			}
 		}
 
 
 		public static class FunctionExtentions {
+
+			public const int Limit = 2;
+
 			/// <summary>
-			///   Tries to invoke the specified function up to 3 times if the result is unavailable 
+			///     Tries to invoke the specified function up to 3 times if the result is unavailable
 			/// </summary>
 			/// <param name="function">specified function</param>
 			/// <returns>
-			///   Returns the result of specified function, if WebException occurs duaring request then exception should be logged into trace 
-			///   and the new request should be started (up to 3 times).
+			///     Returns the result of specified function, if WebException occurs duaring request then exception should be logged
+			///     into trace
+			///     and the new request should be started (up to 3 times).
 			/// </returns>
 			/// <example>
-			///   Sometimes if network is unstable it is required to try several request to get data:
-			///   
-			///   Func<string> f1 = ()=>(new System.Net.WebClient()).DownloadString("http://www.google.com/");
-			///   string data = f1.TimeoutSafeInvoke();
-			///   
-			///   If the first attemp to download data is failed by WebException then exception should be logged to trace log and the second attemp should be started.
-			///   The second attemp has the same workflow.
-			///   If the third attemp fails then this exception should be rethrow to the application.
+			///     Sometimes if network is unstable it is required to try several request to get data:
+			///     Func
+			///     <string>
+			///         f1 = ()=>(new System.Net.WebClient()).DownloadString("http://www.google.com/");
+			///         string data = f1.TimeoutSafeInvoke();
+			///         If the first attemp to download data is failed by WebException then exception should be logged to trace log and
+			///         the second attemp should be started.
+			///         The second attemp has the same workflow.
+			///         If the third attemp fails then this exception should be rethrow to the application.
 			/// </example>
 			public static T TimeoutSafeInvoke<T>(this Func<T> function)
 			{
 				// TODO : Implement TimeoutSafeInvoke<T>
 
-				const int limit = 2;
 				int count = 0;
 
-				while (count < limit)
+				while (count < Limit)
 					try
 					{
 						return function();
 					}
-					catch (System.Net.WebException ex)
+					catch (WebException ex)
 					{
-						System.Diagnostics.Trace.WriteLine(ex);
+						Trace.WriteLine(ex);
 						count++;
 					}
 
 				return function();
-		}
+			}
 
 			/// <summary>
 			///   Combines several predicates using logical AND operator 
