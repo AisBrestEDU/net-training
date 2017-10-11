@@ -114,12 +114,12 @@ namespace Task.Generics {
 
             Array.Sort(array, (a, b) =>
             {
-                dynamic x, y;
+                IComparable x, y;
                 switch (sortedColumn)
                 {
-                    case 0: x = a.Item1; y = b.Item1; break;
-                    case 1: x = a.Item2; y = b.Item2; break;
-                    case 2: x = a.Item3; y = b.Item3; break;
+                    case 0: x = (IComparable)a.Item1; y = (IComparable)b.Item1; break;
+                    case 1: x = (IComparable)a.Item2; y = (IComparable)b.Item2; break;
+                    case 2: x = (IComparable)a.Item3; y = (IComparable)b.Item3; break;
                     default: throw new Exception();
                 }
 
@@ -218,9 +218,11 @@ namespace Task.Generics {
 		///       })
 		/// </example>
 		public static Predicate<T> CombinePredicates<T>(Predicate<T>[] predicates) {
-			// TODO : Implement CombinePredicates<T>
-			throw new NotImplementedException();
-		}
+            // TODO : Implement CombinePredicates<T>
+            //throw new NotImplementedException();
+
+            return arg => { foreach (var t in predicates) if (!t(arg)) return false; return true; };
+        }
 
 	}
 
