@@ -183,7 +183,7 @@ namespace Task.Generics {
                     buff = function.Invoke();
                     break;
                 }
-                catch (Exception e)
+                catch (System.Net.WebException e)
                 {
                     if (++CountError == MaxCountError)
                         throw;
