@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using System.ComponentModel;
+using System.Diagnostics;
 
 namespace Task.Generics {
 
@@ -44,10 +45,9 @@ namespace Task.Generics {
 		///  "1:00:00,0:00:30" for TimeSpan =>  { new TimeSpan(1, 0, 0), new TimeSpan(0, 0, 30) },
 		///  </example>
 		public static IEnumerable<T> ConvertToList<T>(this string list) {
-			// TODO : Implement ConvertToList<T>
-			// HINT : Use TypeConverter.ConvertFromString method to parse string value
-			System.ComponentModel.TypeConverter converter = System.ComponentModel.TypeDescriptor.GetConverter(typeof(T));
-			//System.ComponentModel.TypeConverter converter = System.ComponentModel.TypeConverter()typeof(T));
+
+			var converter = TypeDescriptor.GetConverter(typeof(T));
+			
 			List<T> result = new List<T>();
 			string[] strArr = list.Split(ListSeparator);
 
@@ -110,13 +110,13 @@ namespace Task.Generics {
 			if (index == 2) return tupleObject.Item3;
 			return null;
 		}
-		private static int Comparer<T> (T x, T y, bool asc) where T : IComparable
-		{
-			if (asc) return x.CompareTo(y); ;
-			return y.CompareTo(x);
-		}
 		public static void SortTupleArray<T1, T2, T3>(this Tuple<T1, T2, T3>[] array, int sortedColumn, bool ascending)
 		{
+			int Comparer<T>(T x, T y, bool asc) where T : IComparable
+			{
+				if (asc) return x.CompareTo(y); ;
+				return y.CompareTo(x);
+			}
 
 			if (sortedColumn < 0 || sortedColumn > 2)
 				throw new IndexOutOfRangeException();
@@ -135,7 +135,7 @@ namespace Task.Generics {
 			catch(Exception ex)
 			{
 				//log(ex.Message, ex.StackTrace);
-				throw ex;
+				throw;
 			}
 		}
 
@@ -182,7 +182,8 @@ namespace Task.Generics {
 		public static T TimeoutSafeInvoke<T>(this Func<T> function) {
 
 			int attempt = 1;
-			while (attempt < 3 )
+			
+			while (attempt < 4 )
 			{
 				try
 				{
@@ -190,19 +191,13 @@ namespace Task.Generics {
 				}
 				catch (Exception ex)
 				{
-					System.Diagnostics.Trace.WriteLine(ex.ToString());
+					if (attempt < 3)	Trace.WriteLine(ex.ToString());
+					else	throw;
 					attempt++;
 				}
 			}
 
-			try
-			{
-				return function.Invoke();
-			}
-			catch(Exception ex)
-			{
-				throw ex;
-			}
+			return default(T);
 		}
 
 
