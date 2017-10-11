@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Net;
 
 namespace Task.Generics
 {
@@ -81,8 +82,7 @@ namespace Task.Generics
         public static void SwapArrayElements<T>(this T[] array, int index1, int index2)
         {
             // TODO : Implement SwapArrayElements<T>
-             T swapingElment;
-            swapingElment = array[index1];
+            T swapingElment = array[index1];
             array[index1] = array[index2];
             array[index2] = swapingElment;
         }
@@ -123,40 +123,25 @@ namespace Task.Generics
         {
             // TODO :SortTupleArray<T1, T2, T3>
             // HINT : Add required constraints to generic types
-            if(sortedColumn> 2) { throw new IndexOutOfRangeException(); }
-            if (ascending)
+            if (sortedColumn > 2) { throw new IndexOutOfRangeException(); }
+            IComparable GetItemByIndex(Tuple<T1, T2, T3> element, int index)
             {
-                if (sortedColumn == 0)
-                {
-                    Array.Sort(array, (x, y) => x.Item1.CompareTo(y.Item1));
-                }
-                else if(sortedColumn == 1)
-                {
-                    Array.Sort(array, (x, y) => x.Item2.CompareTo(y.Item2));
-                }
-                else  if (sortedColumn == 2)
-                {
-                    Array.Sort(array, (x, y) => x.Item3.CompareTo(y.Item3));
-                }
+                if (index == 0) return element.Item1;
+                if (index == 1) return element.Item2;
+                return element.Item3;
             }
+            
+            if (ascending)
+
+            {
+                Array.Sort(array, (a, b) => GetItemByIndex(a, sortedColumn).CompareTo(GetItemByIndex(b, sortedColumn)));
+            }
+
             else
             {
-                if (sortedColumn == 0)
-                {
-                    Array.Sort(array, (x, y) => y.Item1.CompareTo(x.Item1));
-                }
-                else if (sortedColumn == 1)
-                {
-                    Array.Sort(array, (x, y) => y.Item2.CompareTo(x.Item2));
-                }
-                else if(sortedColumn == 2)
-                {
-                    Array.Sort(array, (x, y) => y.Item3.CompareTo(x.Item3));
-                }
+                Array.Sort(array, (a, b) => GetItemByIndex(b, sortedColumn).CompareTo(GetItemByIndex(a, sortedColumn)));
             }
-           
         }
-
     }
 
     /// <summary>
@@ -167,11 +152,11 @@ namespace Task.Generics
     ///   MyService singleton = Singleton<MyService>.Instance;
     /// </example>
     public static class Singleton<T>
-        where T : new ()
+        where T : new()
     {
         // TODO : Implement generic singleton class 
         private static readonly T value = new T();
-        
+
         public static T Instance
         {
             get { return value; }
@@ -202,9 +187,36 @@ namespace Task.Generics
         /// </example>
         public static T TimeoutSafeInvoke<T>(this Func<T> function)
         {
-            // TODO : Implement TimeoutSafeInvoke<T>
-            //throw new NotImplementedException();
+            //// TODO : Implement TimeoutSafeInvoke<T>
+            ////throw new NotImplementedException();
 
+            //    int MaxCountError = 3;
+            //    int CountError = 0;
+            //    T buff = default(T);
+
+            //    while (++CountError != MaxCountError)
+            //    {
+            //        try
+            //        {
+
+
+            //            buff = function.Invoke();
+            //            break;
+
+            //        }
+            //        catch (WebException ErrorTimeoutSafeInvoke)
+            //        {
+
+
+            //            System.Diagnostics.Trace.WriteLine(ErrorTimeoutSafeInvoke.ToString());
+
+            //        }
+            //    }
+
+
+            //    return buff;
+            ////}
+            //System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(ErrorTimeoutSafeInvoke.InnerException).Throw();
             int MaxCountError = 3;
             int CountError = 0;
             T buff = default(T);
@@ -216,18 +228,19 @@ namespace Task.Generics
                     buff = function.Invoke();
                     break;
                 }
-                catch (Exception e)
+                catch (WebException ErrorTimeoutSafeInvoke)
                 {
                     if (++CountError == MaxCountError)
-                        throw e;
+                        throw ErrorTimeoutSafeInvoke;
                     else
-                        System.Diagnostics.Trace.WriteLine(e.ToString());
+                        System.Diagnostics.Trace.WriteLine(ErrorTimeoutSafeInvoke.ToString());
                 }
             }
 
 
             return buff;
         }
+
 
 
         /// <summary>
@@ -251,15 +264,19 @@ namespace Task.Generics
         ///   var result = CombinePredicates(new Predicate<int>[] {
         ///            x=> x>-10,
         ///            x=> x<10
-        ///       })
+        //})
         /// </example>
         public static Predicate<T> CombinePredicates<T>(Predicate<T>[] predicates)
         {
             // TODO : Implement CombinePredicates<T>
-            return arg => { foreach (var t in predicates) if (!t(arg)) return false; return true; };
+            return combinetedResult => { foreach (var predicatesElement in predicates)
+                    if (!predicatesElement(combinetedResult))
+                    {
+                        return false;
+                    }            
+                        return true; 
+              };
         }
 
     }
-
-
 }
