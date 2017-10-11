@@ -137,12 +137,15 @@ namespace Task.Generics {
 	///   MyService singleton = Singleton<MyService>.Instance;
 	/// </example>
 	public static class Singleton<T> {
-		// TODO : Implement generic singleton class 
+        // TODO : Implement generic singleton class 
 
-		public static T Instance {
-			get { throw new NotImplementedException(); }
-		}
-	}
+        private static readonly Lazy<T> qwerty = new Lazy<T>();
+
+        public static T Instance
+        {
+            get { return qwerty.Value; }
+        }
+    }
 
 
 
