@@ -3,8 +3,8 @@
 Materials for self-education:
 
 ###MSDN:
-1. [Iterators (C# Programming Guide)](http://msdn.microsoft.com/en-us/library/dscyy5s0(v=vs.110).aspx)
-2. [Collections and Data Structures](http://msdn.microsoft.com/en-us/library/7y3x785f(v=vs.110).aspx)
+1. [Iterators (C# Programming Guide)](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/concepts/iterators)
+2. [Collections and Data Structures](https://docs.microsoft.com/en-us/dotnet/standard/collections/index)
 
 ###Eric Lippert’s Blog:
 1. [Iterator Blocks, Part One](http://blogs.msdn.com/b/ericlippert/archive/2009/07/09/iterator-blocks-part-one.aspx)
