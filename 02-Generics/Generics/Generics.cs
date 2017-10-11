@@ -225,8 +225,8 @@ namespace Task.Generics {
             //throw new NotImplementedException();
 
             return (arg) => {
-                foreach (var item in predicates)
-                    if (!item(arg)) return false;
+                foreach (var p in predicates)
+                    if (!p(arg)) return false;
 
                  return true;
             };
