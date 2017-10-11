@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace Collections.Tasks {
 
@@ -28,10 +29,26 @@ namespace Collections.Tasks {
         ///   2 => { 1, 1 }
         ///   12 => { 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144 }
         /// </example>
-        public static IEnumerable<int> GetFibonacciSequence(int count) {
-            // TODO : Implement Fibonacci sequence generator
-            throw new NotImplementedException();
-        }
+        public static IEnumerable<int> GetFibonacciSequence(int count)
+        {
+	        // TODO : Implement Fibonacci sequence generator
+	        //throw new NotImplementedException();
+
+	        if (count < 0)
+	        {
+		        throw new ArgumentException();
+	        }
+
+	        var prev = 1;
+	        var next = 0;
+	        for (var i = 0; i < count; i++)
+	        {
+		        var sum = prev + next;
+		        prev = next;
+		        next = sum;
+		        yield return sum;
+	        }
+		}
 
         /// <summary>
         ///    Parses the input string sequence into words
@@ -47,37 +64,81 @@ namespace Collections.Tasks {
         /// </example>
         public static IEnumerable<string> Tokenize(TextReader reader) {
             char[] delimeters = new[] { ',', ' ', '.', '\t', '\n' };
-            // TODO : Implement the tokenizer
-            throw new NotImplementedException();
-        }
+			// TODO : Implement the tokenizer
+			//throw new NotImplementedException();
 
+			if (reader == null)
+			{
+				throw new ArgumentNullException();
+			}
 
+			while (true)
+	        {
+		        var line = reader.ReadLine();
+		        if (line != null)
+		        {
+					var words = line.Split(delimeters, StringSplitOptions.RemoveEmptyEntries);
+			        foreach (var item in words)
+			        {
+				        yield return item;
+			        }
+		        }
+		        else
+		        {
+			        yield break;
+		        }
+	        }
+		}
 
-        /// <summary>
-        ///   Traverses a tree using the depth-first strategy
-        /// </summary>
-        /// <typeparam name="T">tree node type</typeparam>
-        /// <param name="root">the tree root</param>
-        /// <returns>
-        ///   Returns the sequence of all tree node data in depth-first order
-        /// </returns>
-        /// <example>
-        ///    source tree (root = 1):
-        ///    
-        ///                      1
-        ///                    / | \
-        ///                   2  6  7
-        ///                  / \     \
-        ///                 3   4     8
-        ///                     |
-        ///                     5   
-        ///                   
-        ///    result = { 1, 2, 3, 4, 5, 6, 7, 8 } 
-        /// </example>
-        public static IEnumerable<T> DepthTraversalTree<T>(ITreeNode<T> root) {
-            // TODO : Implement the tree depth traversal algorithm
-            throw new NotImplementedException(); 
-        }
+		/// <summary>
+		///   Traverses a tree using the depth-first strategy
+		/// </summary>
+		/// <typeparam name="T">tree node type</typeparam>
+		/// <param name="root">the tree root</param>
+		/// <returns>
+		///   Returns the sequence of all tree node data in depth-first order
+		/// </returns>
+		/// <example>
+		///    source tree (root = 1):
+		///    
+		///                      1
+		///                    / | \
+		///                   2  6  7
+		///                  / \     \
+		///                 3   4     8
+		///                     |
+		///                     5   
+		///                   
+		///    result = { 1, 2, 3, 4, 5, 6, 7, 8 } 
+		/// </example>
+		public static IEnumerable<T> DepthTraversalTree<T>(ITreeNode<T> root) {
+			// TODO : Implement the tree depth traversal algorithm
+			//throw new NotImplementedException();
+
+			if (root == null)
+			{
+				throw new ArgumentNullException();
+			}
+
+			Stack<ITreeNode<T>> stack = new Stack<ITreeNode<T>>();
+			stack.Push(root);
+
+			while (stack.Count > 0)
+			{
+				var value = stack.Pop();
+				yield return value.Data;
+
+				if (value.Children == null)
+				{
+					continue;
+				}
+
+				foreach (var child in value.Children.Reverse())
+				{
+					stack.Push(child);
+				}
+			}
+		}
 
         /// <summary>
         ///   Traverses a tree using the width-first strategy
@@ -101,9 +162,32 @@ namespace Collections.Tasks {
         ///    result = { 1, 2, 3, 4, 5, 6, 7, 8 } 
         /// </example>
         public static IEnumerable<T> WidthTraversalTree<T>(ITreeNode<T> root) {
-            // TODO : Implement the tree width traversal algorithm
-            throw new NotImplementedException();
-        }
+			// TODO : Implement the tree width traversal algorithm
+
+			if (root == null)
+	        {
+		        throw new ArgumentNullException();
+	        }
+
+	        Queue<ITreeNode<T>> stack = new Queue<ITreeNode<T>>();
+	        stack.Enqueue(root);
+
+	        while (stack.Count > 0)
+	        {
+		        var value = stack.Dequeue();
+		        yield return value.Data;
+
+		        if (value.Children == null)
+		        {
+			        continue;
+		        }
+
+		        foreach (var child in value.Children)
+		        {
+			        stack.Enqueue(child);
+		        }
+	        }
+		}
 
 
 
@@ -126,10 +210,16 @@ namespace Collections.Tasks {
         /// </example>
         public static IEnumerable<T[]> GenerateAllPermutations<T>(T[] source, int count) {
             // TODO : Implement GenerateAllPermutations method
-            throw new NotImplementedException();
-        }
+            //throw new NotImplementedException();
+	        if (source.Length < count)
+	        {
+		        throw new ArgumentOutOfRangeException();
+	        }
 
-    }
+			return new List<T[]>();
+		}
+
+	}
 
     public static class DictionaryExtentions {
         
