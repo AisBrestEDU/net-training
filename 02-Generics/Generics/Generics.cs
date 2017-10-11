@@ -103,50 +103,40 @@ namespace Task.Generics {
 		///   }
 		/// </example>
 		/// 
-		static int Comparer<T> (T x, T y, bool asc) where T : IComparable
+		private static object GetItem<T1, T2, T3>(this Tuple<T1, T2, T3> tupleObject, int index)
 		{
-			if (asc) return y.CompareTo(y);
-			return x.CompareTo(y);
+			if (index == 0) return tupleObject.Item1;
+			if (index == 1) return tupleObject.Item2;
+			if (index == 2) return tupleObject.Item3;
+			return null;
 		}
-		public static void SortTupleArray<T1, T2, T3>(this Tuple<T1, T2, T3>[] array, int sortedColumn, bool ascending)  {
+		private static int Comparer<T> (T x, T y, bool asc) where T : IComparable
+		{
+			if (asc) return x.CompareTo(y); ;
+			return y.CompareTo(x);
+		}
+		public static void SortTupleArray<T1, T2, T3>(this Tuple<T1, T2, T3>[] array, int sortedColumn, bool ascending)
+		{
 
 			if (sortedColumn < 0 || sortedColumn > 2)
 				throw new IndexOutOfRangeException();
+			if (array.Length <= 0)
+				throw new IndexOutOfRangeException();
 
-			object list = null;
-
-			if(sortedColumn == 0)
+			try
 			{
-				List<T1> list1 = new List<T1>();
-				foreach (var item in array)
+				Array.Sort(array, (x, y) =>
 				{
-					list1.Add(item.Item1);
-				}
-				list = list1.ToArray();
+					var item1 = x.GetItem(sortedColumn);
+					var item2 = y.GetItem(sortedColumn);
+					return Comparer((IComparable)item1, (IComparable)item2, ascending);
+				});
 			}
-			if (sortedColumn == 1)
+			catch(Exception ex)
 			{
-				List<T2>  list2 = new List<T2>();
-				foreach(var item in array)
-				{
-					list2.Add(item.Item2);
-				}
-				list = list2.ToArray();
+				//log(ex.Message, ex.StackTrace);
+				throw ex;
 			}
-			if (sortedColumn == 2)
-			{
-				List<T3> list3 = new List<T3>();
-				foreach (var item in array)
-				{
-					list3.Add(item.Item3);
-				}
-				list = list3.ToArray();
-			}
-
-			Array.Sort((Array)list, array);
-			if (!ascending)
-				Array.Reverse(array);
-			// HINT : Add required constraints to generic types
 		}
 
 	}
@@ -190,8 +180,29 @@ namespace Task.Generics {
 		///   If the third attemp fails then this exception should be rethrow to the application.
 		/// </example>
 		public static T TimeoutSafeInvoke<T>(this Func<T> function) {
-			// TODO : Implement TimeoutSafeInvoke<T>
-			throw new NotImplementedException();
+
+			int attempt = 1;
+			while (attempt < 3 )
+			{
+				try
+				{
+					return function.Invoke();
+				}
+				catch (Exception ex)
+				{
+					System.Diagnostics.Trace.WriteLine(ex.ToString());
+					attempt++;
+				}
+			}
+
+			try
+			{
+				return function.Invoke();
+			}
+			catch(Exception ex)
+			{
+				throw ex;
+			}
 		}
 
 
@@ -219,8 +230,16 @@ namespace Task.Generics {
 		///       })
 		/// </example>
 		public static Predicate<T> CombinePredicates<T>(Predicate<T>[] predicates) {
-			// TODO : Implement CombinePredicates<T>
-			throw new NotImplementedException();
+
+			return delegate (T item)
+			{
+				foreach (var predicate in predicates)
+				{
+					if (!predicate(item))
+						return false;
+				}
+				return true;
+			};
 		}
 
 	}
