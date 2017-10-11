@@ -110,22 +110,21 @@ namespace Task.Generics {
             // TODO :SortTupleArray<T1, T2, T3>
             // HINT : Add required constraints to generic types
 
-            if (!(sortedColumn >= 0 && sortedColumn < array.Length)) throw new IndexOutOfRangeException();
+            if (!(sortedColumn >= 0 && sortedColumn < 3)) throw new IndexOutOfRangeException();
+
+            var buff = new Dictionary<int, Func<Tuple<T1, T2, T3>, IComparable>>()
+                {
+                    {0,(arg)=>{return (IComparable) arg.Item1; } },
+                    {1,(arg)=>{return (IComparable) arg.Item2; } },
+                    {2,(arg)=>{return (IComparable) arg.Item3; } }
+                };
 
             Array.Sort(array, (a, b) =>
             {
-                
-                var buff = new Dictionary<int, Func<Tuple<T1, T2, T3>, IComparable>>();
-                IComparable x, y;
-                switch (sortedColumn)
-                {
-                    case 0: x = (IComparable)a.Item1; y = (IComparable)b.Item1; break;
-                    case 1: x = (IComparable)a.Item2; y = (IComparable)b.Item2; break;
-                    case 2: x = (IComparable)a.Item3; y = (IComparable)b.Item3; break;
-                    default: throw new Exception();
-                }
+                var x = buff[sortedColumn].Invoke(a);
+                var y = buff[sortedColumn].Invoke(b);
 
-                return (ascending) ? ((IComparable)x).CompareTo(y) : -((IComparable)x).CompareTo(y);
+                return (ascending) ? (x).CompareTo(y) : -(x).CompareTo(y);
             });
         }
 
