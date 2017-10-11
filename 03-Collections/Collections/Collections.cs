@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace Collections.Tasks {
 
@@ -29,8 +30,24 @@ namespace Collections.Tasks {
         ///   12 => { 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144 }
         /// </example>
         public static IEnumerable<int> GetFibonacciSequence(int count) {
-            // TODO : Implement Fibonacci sequence generator
-            throw new NotImplementedException();
+            int n1 = 0, n2 = 1, n = 0;
+            List<int> result = new List<int>();
+            result.Add(n2);
+            int index = 2;
+
+            if (count == 0) return new List<int>();
+            if (count < 0) throw new ArgumentException();
+
+            while (index <= count)
+            {
+                n = n1 + n2;
+                n1 = n2;
+                n2 = n;
+                result.Add(n);
+                index++;
+            }
+
+            return result;
         }
 
         /// <summary>
@@ -47,8 +64,29 @@ namespace Collections.Tasks {
         /// </example>
         public static IEnumerable<string> Tokenize(TextReader reader) {
             char[] delimeters = new[] { ',', ' ', '.', '\t', '\n' };
-            // TODO : Implement the tokenizer
-            throw new NotImplementedException();
+
+            String fromReader = "";
+
+            if (reader is null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            try
+            {
+                while (reader.Peek() != -1)
+                {
+                    fromReader += reader.ReadLine();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+
+            List<string> splittedWords = fromReader.Split(delimeters, StringSplitOptions.RemoveEmptyEntries).ToList();
+
+            return splittedWords;
         }
 
 
@@ -74,9 +112,28 @@ namespace Collections.Tasks {
         ///                   
         ///    result = { 1, 2, 3, 4, 5, 6, 7, 8 } 
         /// </example>
-        public static IEnumerable<T> DepthTraversalTree<T>(ITreeNode<T> root) {
-            // TODO : Implement the tree depth traversal algorithm
-            throw new NotImplementedException(); 
+        public static IEnumerable<T> DepthTraversalTree<T>(ITreeNode<T> root)
+        {
+            if (root is null) throw new ArgumentNullException();
+
+            Stack<ITreeNode<T>> stack = new Stack<ITreeNode<T>>();
+
+            stack.Push(root);
+
+            while (stack.Count > 0)
+            {
+                ITreeNode<T> current = stack.Pop();
+                yield return current.Data;
+                if (!(current.Children is null))
+                {
+                    IEnumerable<ITreeNode<T>> list = current.Children;
+                    for (int i = list.Count() - 1; i >= 0; i--)
+                    {
+                        stack.Push(list.ElementAt(i));
+                    }
+                }
+            }
+
         }
 
         /// <summary>
@@ -101,9 +158,26 @@ namespace Collections.Tasks {
         ///    result = { 1, 2, 3, 4, 5, 6, 7, 8 } 
         /// </example>
         public static IEnumerable<T> WidthTraversalTree<T>(ITreeNode<T> root) {
-            // TODO : Implement the tree width traversal algorithm
-            throw new NotImplementedException();
+            if(root is null) throw new ArgumentNullException();
+
+            Queue<ITreeNode<T>> nodeQueue = new Queue<ITreeNode<T>>();
+
+
+            nodeQueue.Enqueue(root);
+            while (nodeQueue.Count > 0)
+            {
+                ITreeNode<T> current = nodeQueue.Dequeue();
+                yield return current.Data;
+                if (!(current.Children is null))
+                {
+                    foreach (var currentChild in current.Children)
+                    {
+                        nodeQueue.Enqueue(currentChild);
+                    }
+                }
+            }
         }
+
 
 
 
