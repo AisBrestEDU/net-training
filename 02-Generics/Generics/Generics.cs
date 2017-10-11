@@ -3,6 +3,7 @@ using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Net;
 using System.Runtime.InteropServices.ComTypes;
 using System.Security.Cryptography.X509Certificates;
@@ -29,7 +30,7 @@ namespace Task.Generics {
 		///   { new TimeSpan(1, 0, 0), new TimeSpan(0, 0, 30) } => "01:00:00,00:00:30",
 		/// </example>
 		public static string ConvertToString<T>(this IEnumerable<T> list) {
-            return string.Join(ListSeparator.ToString(), list.Select(value => value));
+		    return string.Join(ListSeparator.ToString(), list);
 		}
 
 		/// <summary>
@@ -75,16 +76,10 @@ namespace Task.Generics {
 		/// <param name="index2">second index</param>
 		public static void SwapArrayElements<T>(this T[] array, int index1, int index2)
 		{
-		    
-		    SwapElement(ref array[index1], ref array[index2]);
-
-		    void SwapElement(ref T first, ref T second)
-		    {
-		        T temp = first;
-		        first = second;
-		        second = temp;
-		    }
-		}
+		    var temp = array[index1];
+		    array[index1] = array[index2];
+		    array[index2] = temp;
+        }
 
 	    /// <summary>
 	    ///   Sorts the tuple array by specified column in ascending or descending order
@@ -154,14 +149,8 @@ namespace Task.Generics {
 	public static class Singleton<T>
         where T:new()
     {
-		// TODO : Implement generic singleton class 
-
-	    private static readonly T _Instance = new T();
-
-		public static T Instance {
-			get { return _Instance; }
-		}
-	}
+        public static T Instance { get; } = new T();
+    }
 
 
 
@@ -187,33 +176,29 @@ namespace Task.Generics {
 		public static T TimeoutSafeInvoke<T>(this Func<T> function)
 		{
 		    T result;
-		    int count = 1;
+		    int count = 0;
 
 		    while (count < 3)
 		    {
-                try
+		        try
 		        {
-                    result = function();
-		            return result;
+		            return function();
 		        }
 		        catch (WebException ex)
 		        {
-		            System.Diagnostics.Trace.WriteLine(ex);
-		            count++;
+
+		            if (count != 2)
+		            {
+		                Trace.WriteLine(ex);
+		                count++;
+		            }
+		            else throw;
 		        }
 		    }
 
-		    try
-		    {
-		        result = function();
-		        return result;
-		    }
-		    catch (WebException ex)
-		    {
-		        throw ex;
-		    }
+		    return default(T);
 
-		}
+        }
 
 
 		/// <summary>
