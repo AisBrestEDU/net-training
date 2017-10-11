@@ -176,7 +176,7 @@ namespace Task.Generics {
             int CountError = 0;
             T buff = default(T);
 
-            for (; ; )
+            while(true)
             {
                 try
                 {
@@ -185,7 +185,10 @@ namespace Task.Generics {
                 }
                 catch (Exception e)
                 {
-                    if (++CountError == MaxCountError) throw e;
+                    if (++CountError == MaxCountError)
+                        throw e;
+                    else
+                        System.Diagnostics.Trace.WriteLine(e.ToString());
                 }
             }
 
