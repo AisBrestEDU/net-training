@@ -25,7 +25,7 @@ namespace Task.Generics {
 		public static string ConvertToString<T>(this IEnumerable<T> list) {
 			// TODO : Implement ConvertToString<T>
 
-			return string.Join<T>(ListSeparator.ToString(), list);
+			return string.Join(ListSeparator.ToString(), list);
 		}
 
 		/// <summary>
@@ -51,7 +51,7 @@ namespace Task.Generics {
 			System.ComponentModel.TypeConverter converter = System.ComponentModel.TypeDescriptor.GetConverter(typeof(T));
 			
 			var result = new List<T>{ };
-			var array = list.Split(ListSeparator);
+			string[] array = list.Split(ListSeparator);
 
 			foreach (var item in array)
 			{
@@ -64,7 +64,6 @@ namespace Task.Generics {
 
 	public static class ArrayExtentions
 	{
-
 		/// <summary>
 		///   Swaps the one element of source array with another
 		/// </summary>
@@ -107,52 +106,35 @@ namespace Task.Generics {
 		///   }
 		/// </example>
 		public static void SortTupleArray<T1, T2, T3>(this Tuple<T1, T2, T3>[] array, int sortedColumn, bool ascending)
-			where T1 : IComparable<T1>
-			where T2 : IComparable<T2>
-			where T3 : IComparable<T3>
+			where T1 : IComparable
+			where T2 : IComparable
+			where T3 : IComparable
 		{
 			// TODO :SortTupleArray<T1, T2, T3>
 			// HINT : Add required constraints to generic types
 
-			if (sortedColumn == 0)
+			if (array.Length + 1 < sortedColumn)
 			{
-				if (ascending == true)
-				{
-					Array.Sort(array, (a, b) => a.Item1.CompareTo(b.Item1));
-				}
-				else
-				{
-					Array.Sort(array, (a, b) => b.Item1.CompareTo(a.Item1));
-				}
+				throw new IndexOutOfRangeException();
 			}
 
-			else if (sortedColumn == 1)
+
+			IComparable GetItemByIndex(Tuple<T1, T2, T3> element, int index)
 			{
-				if (ascending == true)
-				{
-					Array.Sort(array, (a, b) => a.Item2.CompareTo(b.Item2));
-				}
-				else
-				{
-					Array.Sort(array, (a, b) => b.Item2.CompareTo(a.Item2));
-				}
+				if (index == 0) return element.Item1;
+				if (index == 1) return element.Item2;
+				return element.Item3;
 			}
 
-			else if (sortedColumn == 2)
+
+			if (ascending)
 			{
-				if (ascending == true)
-				{
-					Array.Sort(array, (a, b) => a.Item3.CompareTo(b.Item3));
-				}
-				else
-				{
-					Array.Sort(array, (a, b) => b.Item3.CompareTo(a.Item3));
-				}
+				Array.Sort(array,(a,b)=>GetItemByIndex(a,sortedColumn).CompareTo(GetItemByIndex(b,sortedColumn)));
 			}
 
 			else
 			{
-				throw new IndexOutOfRangeException();
+				Array.Sort(array, (a, b) => GetItemByIndex(b, sortedColumn).CompareTo(GetItemByIndex(a, sortedColumn)));
 			}
 		}
 	}
@@ -193,11 +175,26 @@ namespace Task.Generics {
 			///   The second attemp has the same workflow.
 			///   If the third attemp fails then this exception should be rethrow to the application.
 			/// </example>
-			public static T TimeoutSafeInvoke<T>(this Func<T> function) {
+			public static T TimeoutSafeInvoke<T>(this Func<T> function)
+			{
 				// TODO : Implement TimeoutSafeInvoke<T>
-				throw new NotImplementedException();
-			}
 
+				const int limit = 2;
+				int count = 0;
+
+				while (count < limit)
+					try
+					{
+						return function();
+					}
+					catch (System.Net.WebException ex)
+					{
+						System.Diagnostics.Trace.WriteLine(ex);
+						count++;
+					}
+
+				return function();
+		}
 
 			/// <summary>
 			///   Combines several predicates using logical AND operator 
@@ -221,11 +218,22 @@ namespace Task.Generics {
 			///            x=> x>-10,
 			///            x=> x<10
 			///       })
-			/// </example>
-			public static Predicate<T> CombinePredicates<T>(Predicate<T>[] predicates) {
-				// TODO : Implement CombinePredicates<T>
-				throw new NotImplementedException();
-			}
+		/// </example>
+		public static Predicate<T> CombinePredicates<T>(Predicate<T>[] predicates)
+		{
+			// TODO : Implement CombinePredicates<T>
 
+			return delegate (T item)
+			{
+				foreach (Predicate<T> predicate in predicates)
+				{
+					if (!predicate(item))
+					{
+						return false;
+					}
+				}
+				return true;
+			};
 		}
 	}
+}
