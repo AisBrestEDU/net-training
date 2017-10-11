@@ -116,11 +116,10 @@ namespace Task.Generics {
 			// TODO :SortTupleArray<T1, T2, T3>
 			// HINT : Add required constraints to generic types
 
-			if (array.Length + 1 < sortedColumn)
+			if (sortedColumn < 0 || sortedColumn > 2 )
 			{
 				throw new IndexOutOfRangeException();
 			}
-
 
 			IComparable GetItemByIndex(Tuple<T1, T2, T3> element, int index)
 			{
@@ -128,7 +127,6 @@ namespace Task.Generics {
 				if (index == 1) return element.Item2;
 				return element.Item3;
 			}
-
 
 			if (ascending)
 			{
