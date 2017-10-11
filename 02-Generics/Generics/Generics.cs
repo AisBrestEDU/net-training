@@ -72,9 +72,13 @@ namespace Task.Generics {
 		/// <param name="index1">first index</param>
 		/// <param name="index2">second index</param>
 		public static void SwapArrayElements<T>(this T[] array, int index1, int index2) {
-			// TODO : Implement SwapArrayElements<T>
-			throw new NotImplementedException();
-		}
+            // TODO : Implement SwapArrayElements<T>
+            //throw new NotImplementedException();
+
+            var buff = array[index1];
+            array[index1] = array[index2];
+            array[index2] = buff;
+        }
 
 		/// <summary>
 		///   Sorts the tuple array by specified column in ascending or descending order
@@ -103,9 +107,25 @@ namespace Task.Generics {
 		///   }
 		/// </example>
 		public static void SortTupleArray<T1, T2, T3>(this Tuple<T1, T2, T3>[] array, int sortedColumn, bool ascending) {
-			// TODO :SortTupleArray<T1, T2, T3>
-			// HINT : Add required constraints to generic types
-		}
+            // TODO :SortTupleArray<T1, T2, T3>
+            // HINT : Add required constraints to generic types
+
+            if (!(sortedColumn >= 0 && sortedColumn < array.Length)) throw new IndexOutOfRangeException();
+
+            Array.Sort(array, (a, b) =>
+            {
+                dynamic x, y;
+                switch (sortedColumn)
+                {
+                    case 0: x = a.Item1; y = b.Item1; break;
+                    case 1: x = a.Item2; y = b.Item2; break;
+                    case 2: x = a.Item3; y = b.Item3; break;
+                    default: throw new Exception();
+                }
+
+                return (ascending) ? ((IComparable)x).CompareTo(y) : -((IComparable)x).CompareTo(y);
+            });
+        }
 
 	}
 
