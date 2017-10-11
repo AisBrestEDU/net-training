@@ -186,7 +186,7 @@ namespace Task.Generics {
                 catch (Exception e)
                 {
                     if (++CountError == MaxCountError)
-                        throw e;
+                        throw;
                     else
                         System.Diagnostics.Trace.WriteLine(e.ToString());
                 }
@@ -224,7 +224,7 @@ namespace Task.Generics {
             // TODO : Implement CombinePredicates<T>
             //throw new NotImplementedException();
 
-            return arg => {
+            return (arg) => {
                 foreach (var item in predicates)
                     if (!item(arg)) return false;
 
