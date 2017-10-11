@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.ComponentModel;
 using System.Net;
+using System.Runtime.InteropServices.ComTypes;
 using System.Security.Cryptography.X509Certificates;
 
 namespace Task.Generics {
@@ -85,76 +86,59 @@ namespace Task.Generics {
 		    }
 		}
 
-        /// <summary>
-        ///   Sorts the tuple array by specified column in ascending or descending order
-        /// </summary>
-        /// <param name="array">source array</param>
-        /// <param name="sortedColumn">index of column</param>
-        /// <param name="ascending">true if ascending order required; otherwise false</param>
-        /// <example>
-        ///   source array : 
-        ///   { 
-        ///     { 1, "a", false },
-        ///     { 3, "b", false },
-        ///     { 2, "c", true  }
-        ///   }
-        ///   result of SortTupleArray(array, 0, true) is sort rows by first column in a ascending order: 
-        ///   { 
-        ///     { 1, "a", false },
-        ///     { 2, "c", true  },
-        ///     { 3, "b", false }
-        ///   }
-        ///   result of SortTupleArray(array, 1, false) is sort rows by second column in a descending order: 
-        ///   {
-        ///     { 2, "c", true  },
-        ///     { 3, "b", false }
-        ///     { 1, "a", false },
-        ///   }
-        /// </example>
-        public static void SortTupleArray<T1, T2, T3>(this Tuple<T1, T2, T3>[] array, int sortedColumn, bool ascending)
-            where T1: IComparable<T1>
-            where T2: IComparable<T2>
-            where T3: IComparable<T3>
+	    /// <summary>
+	    ///   Sorts the tuple array by specified column in ascending or descending order
+	    /// </summary>
+	    /// <param name="array">source array</param>
+	    /// <param name="sortedColumn">index of column</param>
+	    /// <param name="ascending">true if ascending order required; otherwise false</param>
+	    /// <example>
+	    ///   source array : 
+	    ///   { 
+	    ///     { 1, "a", false },
+	    ///     { 3, "b", false },
+	    ///     { 2, "c", true  }
+	    ///   }
+	    ///   result of SortTupleArray(array, 0, true) is sort rows by first column in a ascending order: 
+	    ///   { 
+	    ///     { 1, "a", false },
+	    ///     { 2, "c", true  },
+	    ///     { 3, "b", false }
+	    ///   }
+	    ///   result of SortTupleArray(array, 1, false) is sort rows by second column in a descending order: 
+	    ///   {
+	    ///     { 2, "c", true  },
+	    ///     { 3, "b", false }
+	    ///     { 1, "a", false },
+	    ///   }
+	    /// </example>
+	    /// 
+	    /// 
+
+	    public static IComparable GetItem<T1, T2, T3>(this Tuple<T1, T2, T3> obj, int columnIndex)
         {
+	        if (columnIndex == 0) return (IComparable)obj.Item1;
+	        if (columnIndex == 1) return (IComparable)obj.Item2;
+	        if (columnIndex == 2) return (IComparable)obj.Item3;
+	        return null;
+	    }
 
-      
-            if (sortedColumn == 0)
-            {
-                if (ascending)
+
+	    public static void SortTupleArray<T1, T2, T3>(this Tuple<T1, T2, T3>[] array, int sortedColumn, bool ascending)
+            where T1: IComparable
+            where T2: IComparable
+            where T3: IComparable
+        {
+            if (ascending)
                 {
-                    Array.Sort(array, (x, y) => x.Item1.CompareTo(y.Item1));
+                    Array.Sort(array, (x, y) => x.GetItem(sortedColumn).CompareTo(y.GetItem(sortedColumn)));
                 }
                 else
                 {
-                    Array.Sort(array, (x, y) => y.Item1.CompareTo(x.Item1));
+                    Array.Sort(array, (x, y) => y.GetItem(sortedColumn).CompareTo(x.GetItem(sortedColumn)));
                 }
-            }
 
-            else if (sortedColumn == 1)
-            {
-                if (ascending)
-                {
-                    Array.Sort(array, (x, y) => x.Item2.CompareTo(y.Item2));
-                }
-                else
-                {
-                    Array.Sort(array, (x, y) => y.Item2.CompareTo(x.Item2));
-                }
-            }
-
-            else if (sortedColumn == 2)
-            {
-                if (ascending)
-                {
-                    Array.Sort(array, (x, y) => x.Item3.CompareTo(y.Item3));
-                }
-                else
-                {
-                    Array.Sort(array, (x, y) => y.Item3.CompareTo(x.Item3));
-                }
-            }
-
-            else throw new IndexOutOfRangeException();
+            if (sortedColumn > 3) throw new IndexOutOfRangeException();
         }
         
 
@@ -200,8 +184,35 @@ namespace Task.Generics {
 		///   The second attemp has the same workflow.
 		///   If the third attemp fails then this exception should be rethrow to the application.
 		/// </example>
-		public static T TimeoutSafeInvoke<T>(this Func<T> function) {
-            throw new NotImplementedException();
+		public static T TimeoutSafeInvoke<T>(this Func<T> function)
+		{
+		    T result;
+		    int count = 1;
+
+		    while (count < 3)
+		    {
+                try
+		        {
+                    result = function();
+		            return result;
+		        }
+		        catch (WebException ex)
+		        {
+		            System.Diagnostics.Trace.WriteLine(ex);
+		            count++;
+		        }
+		    }
+
+		    try
+		    {
+		        result = function();
+		        return result;
+		    }
+		    catch (WebException ex)
+		    {
+		        throw ex;
+		    }
+
 		}
 
 
@@ -228,9 +239,16 @@ namespace Task.Generics {
 		///            x=> x<10
 		///       })
 		/// </example>
-		public static Predicate<T> CombinePredicates<T>(Predicate<T>[] predicates) {
-			// TODO : Implement CombinePredicates<T>
-			throw new NotImplementedException();
+		public static Predicate<T> CombinePredicates<T>(Predicate<T>[] predicates)
+		{
+		    return arg =>
+		    {
+		        foreach (var pr in predicates)
+		        {
+		            if (!pr(arg)) return false;
+		        }
+		        return true;
+		    };
 		}
 
 	}
