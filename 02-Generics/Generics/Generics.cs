@@ -169,9 +169,29 @@ namespace Task.Generics {
 		///   If the third attemp fails then this exception should be rethrow to the application.
 		/// </example>
 		public static T TimeoutSafeInvoke<T>(this Func<T> function) {
-			// TODO : Implement TimeoutSafeInvoke<T>
-			throw new NotImplementedException();
-		}
+            // TODO : Implement TimeoutSafeInvoke<T>
+            //throw new NotImplementedException();
+
+            int MaxCountError = 3;
+            int CountError = 0;
+            T buff = default(T);
+
+            for (; ; )
+            {
+                try
+                {
+                    buff = function.Invoke();
+                    break;
+                }
+                catch (Exception e)
+                {
+                    if (++CountError == MaxCountError) throw e;
+                }
+            }
+
+
+            return buff;
+        }
 
 
 		/// <summary>
