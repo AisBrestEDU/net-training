@@ -224,7 +224,12 @@ namespace Task.Generics {
             // TODO : Implement CombinePredicates<T>
             //throw new NotImplementedException();
 
-            return arg => { foreach (var t in predicates) if (!t(arg)) return false; return true; };
+            return arg => {
+                foreach (var item in predicates)
+                    if (!item(arg)) return false;
+
+                 return true;
+            };
         }
 
 	}
