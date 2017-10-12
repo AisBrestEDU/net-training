@@ -30,7 +30,21 @@ namespace Collections.Tasks {
         /// </example>
         public static IEnumerable<int> GetFibonacciSequence(int count) {
             // TODO : Implement Fibonacci sequence generator
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+
+            if (count < 0) throw new ArgumentException();
+            if (count == 0) yield break;
+
+            int a = 1; int b = 0;
+
+            yield return a;
+
+            while (--count > 0)
+            {
+                yield return a += b;
+                b = a - b;
+             }
+          
         }
 
         /// <summary>
