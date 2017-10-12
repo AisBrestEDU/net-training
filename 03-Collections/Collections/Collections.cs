@@ -1,21 +1,24 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
-namespace Collections.Tasks {
-
+namespace Collections.Tasks
+{
     /// <summary>
     ///  Tree node item 
     /// </summary>
     /// <typeparam name="T">the type of tree node data</typeparam>
-    public interface ITreeNode<T> {
-        T Data { get; set; }                             // Custom data
+    public interface ITreeNode<T>
+    {
+        T Data { get; set; } // Custom data
         IEnumerable<ITreeNode<T>> Children { get; set; } // List of childrens
     }
 
 
-    public class Task {
-
+    public class Task
+    {
         /// <summary> Generate the Fibonacci sequence f(x) = f(x-1)+f(x-2) </summary>
         /// <param name="count">the size of a required sequence</param>
         /// <returns>
@@ -28,9 +31,28 @@ namespace Collections.Tasks {
         ///   2 => { 1, 1 }
         ///   12 => { 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144 }
         /// </example>
-        public static IEnumerable<int> GetFibonacciSequence(int count) {
+        public static IEnumerable<int> GetFibonacciSequence(int count)
+        {
             // TODO : Implement Fibonacci sequence generator
-            throw new NotImplementedException();
+            if (count < 0)
+            {
+                throw new ArgumentException();
+            }
+            int[] fibs = new int[count];
+            if (count > 0)
+            {
+                fibs[0] = 1;
+                int prev = 0;
+                int next = 1;
+                for (int i = 1; i < count; i++)
+                {
+                    int sum = prev + next;
+                    prev = next;
+                    next = sum;
+                    fibs[i] = (sum);
+                }
+            }
+            return fibs;
         }
 
         /// <summary>
@@ -45,12 +67,27 @@ namespace Collections.Tasks {
         ///  "TextReader is the abstract base class of StreamReader and StringReader, which ..." => 
         ///   {"TextReader","is","the","abstract","base","class","of","StreamReader","and","StringReader","which",...}
         /// </example>
-        public static IEnumerable<string> Tokenize(TextReader reader) {
-            char[] delimeters = new[] { ',', ' ', '.', '\t', '\n' };
+        public static IEnumerable<string> Tokenize(TextReader reader)
+        {
+            char[] delimeters = new[] {',', ' ', '.', '\t', '\n'};
             // TODO : Implement the tokenizer
-            throw new NotImplementedException();
-        }
 
+            if (reader is null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            string splitingString = "";
+
+            while (reader.Peek() != -1)
+            {
+                splitingString = splitingString + reader.ReadLine();
+            }
+
+
+            List<string> list = splitingString.Split(delimeters, StringSplitOptions.RemoveEmptyEntries).ToList();
+            return list;
+        }
 
 
         /// <summary>
@@ -74,9 +111,25 @@ namespace Collections.Tasks {
         ///                   
         ///    result = { 1, 2, 3, 4, 5, 6, 7, 8 } 
         /// </example>
-        public static IEnumerable<T> DepthTraversalTree<T>(ITreeNode<T> root) {
+        public static IEnumerable<T> DepthTraversalTree<T>(ITreeNode<T> root)
+        {
             // TODO : Implement the tree depth traversal algorithm
-            throw new NotImplementedException(); 
+            if (root == null)
+                throw new ArgumentNullException();
+            Stack<ITreeNode<T>> nodeTree = new Stack<ITreeNode<T>>();
+            nodeTree.Push(root);
+            List<T> resultList = new List<T>();
+            while (nodeTree.Count > 0)
+            {
+                ITreeNode<T> current = nodeTree.Pop();
+                resultList.Add(current.Data);
+                if (current.Children == null) continue;
+                for (int i = current.Children.Count() - 1; i >= 0; i--)
+                {
+                    nodeTree.Push(current.Children.ElementAt(i));
+                }
+            }
+            return resultList;
         }
 
         /// <summary>
@@ -100,12 +153,24 @@ namespace Collections.Tasks {
         ///                   
         ///    result = { 1, 2, 3, 4, 5, 6, 7, 8 } 
         /// </example>
-        public static IEnumerable<T> WidthTraversalTree<T>(ITreeNode<T> root) {
+        public static IEnumerable<T> WidthTraversalTree<T>(ITreeNode<T> root)
+        {
             // TODO : Implement the tree width traversal algorithm
-            throw new NotImplementedException();
+            if (root == null)
+                throw new ArgumentNullException();
+            Queue<ITreeNode<T>> nodeQueue = new Queue<ITreeNode<T>>();
+
+
+            nodeQueue.Enqueue(root);
+            while (nodeQueue.Count > 0)
+            {
+                var current = nodeQueue.Dequeue();
+                yield return current.Data;
+                if (!(current.Children is null))
+                    foreach (var currentChild in current.Children)
+                        nodeQueue.Enqueue(currentChild);
+            }
         }
-
-
 
         /// <summary>
         ///   Generates all permutations of specified length from source array
@@ -124,15 +189,15 @@ namespace Collections.Tasks {
         ///   source = { 1,2,3,4 }, count=4 => {{1,2,3,4}}
         ///   source = { 1,2,3,4 }, count=5 => ArgumentOutOfRangeException
         /// </example>
-        public static IEnumerable<T[]> GenerateAllPermutations<T>(T[] source, int count) {
+        public static IEnumerable<T[]> GenerateAllPermutations<T>(T[] source, int count)
+        {
             // TODO : Implement GenerateAllPermutations method
             throw new NotImplementedException();
         }
-
     }
 
-    public static class DictionaryExtentions {
-        
+    public static class DictionaryExtentions
+    {
         /// <summary>
         ///    Gets a value from the dictionary cache or build new value
         /// </summary>
@@ -151,10 +216,11 @@ namespace Collections.Tasks {
         ///   Person value = cache.GetOrBuildValue(10, ()=>LoadPersonById(10) );  // should return a loaded Person and put it into the cache
         ///   Person cached = cache.GetOrBuildValue(10, ()=>LoadPersonById(10) );  // should get a Person from the cache
         /// </example>
-        public static TValue GetOrBuildValue<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, Func<TValue> builder) {
+        public static TValue GetOrBuildValue<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key,
+            Func<TValue> builder)
+        {
             // TODO : Implement GetOrBuildValue method for cache
             throw new NotImplementedException();
         }
-
     }
 }
