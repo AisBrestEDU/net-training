@@ -189,7 +189,12 @@ namespace Collections.Tasks {
             var result = new List<T[]>();
             var sourceM = new List<T[]>();
             var buff = new List<T[]>();
-            foreach (var t in source) { result.Add(new T[] { t }); sourceM.Add(new T[] { t }); }
+
+            foreach (var t in source)
+            {
+                result.Add(new T[] { t });
+                sourceM.Add(new T[] { t });
+            }
 
             if (count == 1) return result;
 
@@ -199,14 +204,20 @@ namespace Collections.Tasks {
                 //проходим по всему стартоваму набору и строим комбинации=>для каждого иследуемого элимента со всеми элиментами 
                 //"больше (больше=>ближе к концу массива)" чем последний элимент в иследуемом элименте.
                 for (int j = 0; j < result.Count; j++)
+                {
                     //ка присваиваеться индекс элимента который "больше" чем последний элимент в иследуемом элименте
                     for (int k = source.ToList().FindIndex(x => x.Equals(result[j].Last())) + 1; k < sourceM.Count; k++)
+                    {
                         buff.Add(result[j].Concat<T>(sourceM[k]).ToArray());
+                    }                    
+                }               
 
                 //удаляем комбинации которые меньше необходимой(для текущей итерации) дленны
                 for (int j = 0; j < buff.Count; j++) if (buff[j].Length != i + 1) buff.RemoveAt(j);
 
-                result.Clear(); result.AddRange(buff); buff.Clear();
+                result.Clear();
+                result.AddRange(buff);
+                buff.Clear();
             }
 
             return result;
