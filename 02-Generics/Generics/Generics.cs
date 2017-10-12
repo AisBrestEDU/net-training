@@ -115,9 +115,9 @@ namespace Task.Generics {
             // HINT : Add required constraints to generic types
 
             var buff = new Func<Tuple<T1, T2, T3>, IComparable>[]{
-                    (arg)=>{return (IComparable) arg.Item1; },
-                    (arg)=>{return (IComparable) arg.Item2; },
-                    (arg)=>{return (IComparable) arg.Item3; }
+                    (arg)=>{return  arg.Item1; },
+                    (arg)=>{return  arg.Item2; },
+                    (arg)=>{return  arg.Item3; }
                 };
 
             if (!(sortedColumn >= 0 && sortedColumn < buff.Length)) throw new IndexOutOfRangeException();
