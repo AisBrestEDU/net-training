@@ -105,6 +105,8 @@ namespace Collections.Tasks {
         public static IEnumerable<T> DepthTraversalTree<T>(ITreeNode<T> root) {
             // TODO : Implement the tree depth traversal algorithm
             throw new NotImplementedException(); 
+
+
         }
 
         /// <summary>
@@ -130,7 +132,20 @@ namespace Collections.Tasks {
         /// </example>
         public static IEnumerable<T> WidthTraversalTree<T>(ITreeNode<T> root) {
             // TODO : Implement the tree width traversal algorithm
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+
+            if (root == null) throw new ArgumentNullException();
+
+            var buff = new Queue<ITreeNode<T>>();
+            buff.Enqueue(root);
+
+            while(buff.Count>0)
+            {
+                var node = buff.Dequeue();
+                foreach (var n in node.Children ?? new List<ITreeNode<T>>()) buff.Enqueue(n);
+                yield return node.Data;
+            }
+
         }
 
 
