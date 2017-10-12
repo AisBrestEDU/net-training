@@ -21,8 +21,8 @@ namespace EnumerableTask {
         ///    { "a", "A", "", null } => { "A", "A", "", null }
         /// </example>
         public IEnumerable<string> GetUppercaseStrings(IEnumerable<string> data) {
-            // TODO : Implement GetUppercaseStrings
-            throw new NotImplementedException();
+			// TODO : Implement GetUppercaseStrings
+			return data.Select( s => s?.ToUpper());
         }
 
         /// <summary> Transforms an each string from sequence to its length</summary>
@@ -37,7 +37,7 @@ namespace EnumerableTask {
         /// </example>
         public IEnumerable<int> GetStringsLength(IEnumerable<string> data) {
             // TODO : Implement GetStringsLength
-            throw new NotImplementedException();
+				return data.Select( s => s?.Length ?? 0);
         }
 
         /// <summary>Transforms int sequence to its square sequence, f(x) = x * x </summary>
@@ -51,9 +51,9 @@ namespace EnumerableTask {
         ///   { -1, -2, -3, -4, -5 } => { 1, 4, 9, 16, 25 }
         /// </example>
         public IEnumerable<long> GetSquareSequence(IEnumerable<int> data) {
-            // TODO : Implement GetSquareSequence
-            throw new NotImplementedException();
-        }
+			// TODO : Implement GetSquareSequence
+			return data.Select( i => (long)i * i);
+		}
 
         /// <summary>Transforms int sequence to its moving sum sequence, 
         ///          f[n] = x[0] + x[1] + x[2] +...+ x[n] 
@@ -71,8 +71,12 @@ namespace EnumerableTask {
         ///   { 1, -1, 1, -1, -1 } => { 1, 0, 1, 0, 1 }
         /// </example>
         public IEnumerable<long> GetMovingSumSequence(IEnumerable<int> data) {
-            // TODO : Implement GetMovingSumSequence
-            throw new NotImplementedException();
+			int sum = 0;
+			foreach (var item in data)
+			{
+				sum += item;
+				yield return sum;
+			}
         }
 
 
@@ -92,9 +96,8 @@ namespace EnumerableTask {
         ///  { "a","b","c" }, prefix=null => exception
         /// </example>
         public IEnumerable<string> GetPrefixItems(IEnumerable<string> data, string prefix) {
-            // TODO : Implement GetPrefixItems
-            throw new NotImplementedException();
-        }
+			throw new NotImplementedException();
+		}
 
         /// <summary> Returns every second item from source sequence</summary>
         /// <typeparam name="T">the type of the elements of data</typeparam>
@@ -106,9 +109,9 @@ namespace EnumerableTask {
         ///  { "a" } => { }
         /// </example>
         public IEnumerable<T> GetEvenItems<T>(IEnumerable<T> data) {
-            // TODO : Implement GetEvenItems
-            throw new NotImplementedException();
-        }
+			// TODO : Implement GetEvenItems
+			throw new NotImplementedException();
+		}
 
         /// <summary> Propagate every item in sequence its position times</summary>
         /// <typeparam name="T">the type of the elements of data</typeparam>
