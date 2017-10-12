@@ -63,7 +63,7 @@ namespace Collections.Tasks {
         ///   {"TextReader","is","the","abstract","base","class","of","StreamReader","and","StringReader","which",...}
         /// </example>
         public static IEnumerable<string> Tokenize(TextReader reader) {
-            char[] delimeters = new[] { ',', ' ', '.', '\t', '\n' };
+            char[] delimeters = { ',', ' ', '.', '\t', '\n' };
 
             String fromReader = "";
 
@@ -181,6 +181,7 @@ namespace Collections.Tasks {
 
 
 
+        /// <inheritdoc />
         /// <summary>
         ///   Generates all permutations of specified length from source array
         /// </summary>
@@ -190,17 +191,22 @@ namespace Collections.Tasks {
         /// <returns>
         ///    All permuations of specified length
         /// </returns>
-        /// <exception cref="System.InvalidArgumentException">count is less then 0 or greater then the source length</exception>
+        /// <exception cref="!:System.InvalidArgumentException">count is less then 0 or greater then the source length</exception>
         /// <example>
-        ///   source = { 1,2,3,4 }, count=1 => {{1},{2},{3},{4}}
-        ///   source = { 1,2,3,4 }, count=2 => {{1,2},{1,3},{1,4},{2,3},{2,4},{3,4}}
-        ///   source = { 1,2,3,4 }, count=3 => {{1,2,3},{1,2,4},{1,3,4},{2,3,4}}
-        ///   source = { 1,2,3,4 }, count=4 => {{1,2,3,4}}
-        ///   source = { 1,2,3,4 }, count=5 => ArgumentOutOfRangeException
+        ///   source = { 1,2,3,4 }, count=1 =&gt; {{1},{2},{3},{4}}
+        ///   source = { 1,2,3,4 }, count=2 =&gt; {{1,2},{1,3},{1,4},{2,3},{2,4},{3,4}}
+        ///   source = { 1,2,3,4 }, count=3 =&gt; {{1,2,3},{1,2,4},{1,3,4},{2,3,4}}
+        ///   source = { 1,2,3,4 }, count=4 =&gt; {{1,2,3,4}}
+        ///   source = { 1,2,3,4 }, count=5 =&gt; ArgumentOutOfRangeException
         /// </example>
-        public static IEnumerable<T[]> GenerateAllPermutations<T>(T[] source, int count) {
-            // TODO : Implement GenerateAllPermutations method
-            throw new NotImplementedException();
+
+        
+
+
+
+        public static IEnumerable<T[]> GenerateAllPermutations<T>(T[] source, int count)
+        {
+           throw new NotImplementedException();
         }
 
     }
@@ -226,8 +232,17 @@ namespace Collections.Tasks {
         ///   Person cached = cache.GetOrBuildValue(10, ()=>LoadPersonById(10) );  // should get a Person from the cache
         /// </example>
         public static TValue GetOrBuildValue<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, Func<TValue> builder) {
-            // TODO : Implement GetOrBuildValue method for cache
-            throw new NotImplementedException();
+            if (dictionary.ContainsKey(key))
+            {
+                return dictionary[key];
+            }
+
+            else
+            {
+                var value = builder();
+                dictionary.Add(key, value);
+                return value;
+            }
         }
 
     }
