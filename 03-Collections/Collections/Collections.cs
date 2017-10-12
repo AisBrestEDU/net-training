@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace Collections.Tasks {
 
@@ -30,7 +31,21 @@ namespace Collections.Tasks {
         /// </example>
         public static IEnumerable<int> GetFibonacciSequence(int count) {
             // TODO : Implement Fibonacci sequence generator
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+
+            if (count < 0) throw new ArgumentException();
+            if (count == 0) yield break;
+
+            int a = 1; int b = 0;
+
+            yield return a;
+
+            while (--count > 0)
+            {
+                yield return a += b;
+                b = a - b;
+             }
+          
         }
 
         /// <summary>
@@ -48,7 +63,21 @@ namespace Collections.Tasks {
         public static IEnumerable<string> Tokenize(TextReader reader) {
             char[] delimeters = new[] { ',', ' ', '.', '\t', '\n' };
             // TODO : Implement the tokenizer
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+
+            if (reader == null) throw new ArgumentNullException();
+
+            while (true)
+            {
+                var str = reader.ReadLine();
+
+                if (str == null) break;
+
+                var wordArr = str.Split(delimeters, StringSplitOptions.RemoveEmptyEntries);
+
+                foreach (var w in wordArr) yield return w;
+            }
+            
         }
 
 
@@ -76,7 +105,20 @@ namespace Collections.Tasks {
         /// </example>
         public static IEnumerable<T> DepthTraversalTree<T>(ITreeNode<T> root) {
             // TODO : Implement the tree depth traversal algorithm
-            throw new NotImplementedException(); 
+            //throw new NotImplementedException();
+
+            if (root == null) throw new ArgumentNullException();
+
+            var buff = new Stack<ITreeNode<T>>();
+            buff.Push(root);
+
+            while (buff.Count > 0)
+            {
+                var node = buff.Pop();
+                foreach (var n in (node.Children ?? new List<ITreeNode<T>>()).Reverse()) buff.Push(n);
+                yield return node.Data;
+            }
+
         }
 
         /// <summary>
@@ -102,7 +144,20 @@ namespace Collections.Tasks {
         /// </example>
         public static IEnumerable<T> WidthTraversalTree<T>(ITreeNode<T> root) {
             // TODO : Implement the tree width traversal algorithm
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+
+            if (root == null) throw new ArgumentNullException();
+
+            var buff = new Queue<ITreeNode<T>>();
+            buff.Enqueue(root);
+
+            while(buff.Count>0)
+            {
+                var node = buff.Dequeue();
+                foreach (var n in node.Children ?? new List<ITreeNode<T>>()) buff.Enqueue(n);
+                yield return node.Data;
+            }
+
         }
 
 
@@ -126,10 +181,50 @@ namespace Collections.Tasks {
         /// </example>
         public static IEnumerable<T[]> GenerateAllPermutations<T>(T[] source, int count) {
             // TODO : Implement GenerateAllPermutations method
-            throw new NotImplementedException();
-        }
+            //throw new NotImplementedException();
 
+            if (count > source.Count()) throw new ArgumentOutOfRangeException();
+            if (count == 0) return new List<T[]> { };
+
+            var result = new List<T[]>();
+            var sourceM = new List<T[]>();
+            var buff = new List<T[]>();
+
+            foreach (var t in source)
+            {
+                result.Add(new T[] { t });
+                sourceM.Add(new T[] { t });
+            }
+
+            if (count == 1) return result;
+
+            //повторяем пока неполучим комбинации нужной длинны
+            for (int i = 1; i < count; i++)
+            {
+                //проходим по всему стартоваму набору и строим комбинации=>для каждого иследуемого элимента со всеми элиментами 
+                //"больше (больше=>ближе к концу массива)" чем последний элимент в иследуемом элименте.
+                for (int j = 0; j < result.Count; j++)
+                {
+                    //ка присваиваеться индекс элимента который "больше" чем последний элимент в иследуемом элименте
+                    for (int k = source.ToList().FindIndex(x => x.Equals(result[j].Last())) + 1; k < sourceM.Count; k++)
+                    {
+                        buff.Add(result[j].Concat<T>(sourceM[k]).ToArray());
+                    }                    
+                }               
+
+                //удаляем комбинации которые меньше необходимой(для текущей итерации) дленны
+                for (int j = 0; j < buff.Count; j++) if (buff[j].Length != i + 1) buff.RemoveAt(j);
+
+                result.Clear();
+                result.AddRange(buff);
+                buff.Clear();
+            }
+
+            return result;
+        }
     }
+
+
 
     public static class DictionaryExtentions {
         
@@ -153,7 +248,17 @@ namespace Collections.Tasks {
         /// </example>
         public static TValue GetOrBuildValue<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, Func<TValue> builder) {
             // TODO : Implement GetOrBuildValue method for cache
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+
+            if (dictionary.ContainsKey(key))
+            {
+                return dictionary[key];
+            }
+            else
+            {
+                dictionary.Add(key, builder.Invoke());
+                return dictionary[key];
+            }
         }
 
     }
