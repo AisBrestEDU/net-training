@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace Collections.Tasks {
 
@@ -104,8 +105,19 @@ namespace Collections.Tasks {
         /// </example>
         public static IEnumerable<T> DepthTraversalTree<T>(ITreeNode<T> root) {
             // TODO : Implement the tree depth traversal algorithm
-            throw new NotImplementedException(); 
+            //throw new NotImplementedException();
 
+            if (root == null) throw new ArgumentNullException();
+
+            var buff = new Stack<ITreeNode<T>>();
+            buff.Push(root);
+
+            while (buff.Count > 0)
+            {
+                var node = buff.Pop();
+                foreach (var n in (node.Children ?? new List<ITreeNode<T>>()).Reverse()) buff.Push(n);
+                yield return node.Data;
+            }
 
         }
 
@@ -169,10 +181,39 @@ namespace Collections.Tasks {
         /// </example>
         public static IEnumerable<T[]> GenerateAllPermutations<T>(T[] source, int count) {
             // TODO : Implement GenerateAllPermutations method
-            throw new NotImplementedException();
-        }
+            //throw new NotImplementedException();
 
+            if (count > source.Count()) throw new ArgumentOutOfRangeException();
+            if (count == 0) return new List<T[]> { };
+
+            var result = new List<T[]>();
+            var sourceM = new List<T[]>();
+            var buff = new List<T[]>();
+            foreach (var t in source) { result.Add(new T[] { t }); sourceM.Add(new T[] { t }); }
+
+            if (count == 1) return result;
+
+            //повторяем пока неполучим комбинации нужной длинны
+            for (int i = 1; i < count; i++)
+            {
+                //проходим по всему стартоваму набору и строим комбинации=>для каждого иследуемого элимента со всеми элиментами 
+                //"больше (больше=>ближе к концу массива)" чем последний элимент в иследуемом элименте.
+                for (int j = 0; j < result.Count; j++)
+                    //ка присваиваеться индекс элимента который "больше" чем последний элимент в иследуемом элименте
+                    for (int k = source.ToList().FindIndex(x => x.Equals(result[j].Last())) + 1; k < sourceM.Count; k++)
+                        buff.Add(result[j].Concat<T>(sourceM[k]).ToArray());
+
+                //удаляем комбинации которые меньше необходимой(для текущей итерации) дленны
+                for (int j = 0; j < buff.Count; j++) if (buff[j].Length != i + 1) buff.RemoveAt(j);
+
+                result.Clear(); result.AddRange(buff); buff.Clear();
+            }
+
+            return result;
+        }
     }
+
+
 
     public static class DictionaryExtentions {
         
