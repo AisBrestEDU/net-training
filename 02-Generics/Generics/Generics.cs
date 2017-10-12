@@ -103,40 +103,30 @@ namespace Task.Generics {
 		///   }
 		/// </example>
 		/// 
-		private static object GetItem<T1, T2, T3>(this Tuple<T1, T2, T3> tupleObject, int index)
+		private static IComparable GetItem<T1, T2, T3>(this Tuple<T1, T2, T3> tupleObject, int index)
+			where T1: IComparable
+			where T2 : IComparable
+			where T3 : IComparable
 		{
 			if (index == 0) return tupleObject.Item1;
 			if (index == 1) return tupleObject.Item2;
 			if (index == 2) return tupleObject.Item3;
 			return null;
 		}
-		public static void SortTupleArray<T1, T2, T3>(this Tuple<T1, T2, T3>[] array, int sortedColumn, bool ascending)
+		public static void SortTupleArray<T1, T2, T3>(this Tuple<T1, T2, T3>[] array, int sortedColumn, bool ascending) 
+			where T1 : IComparable
+			where T2 : IComparable
+			where T3 : IComparable
 		{
-			int Comparer<T>(T x, T y, bool asc) where T : IComparable
-			{
-				if (asc) return x.CompareTo(y); ;
-				return y.CompareTo(x);
-			}
-
-			if (sortedColumn < 0 || sortedColumn > 2)
-				throw new IndexOutOfRangeException();
-			if (array.Length <= 0)
+			if (sortedColumn < 0 || sortedColumn > 3)
 				throw new IndexOutOfRangeException();
 
-			try
+			Array.Sort(array, (x, y) =>
 			{
-				Array.Sort(array, (x, y) =>
-				{
-					var item1 = x.GetItem(sortedColumn);
-					var item2 = y.GetItem(sortedColumn);
-					return Comparer((IComparable)item1, (IComparable)item2, ascending);
-				});
-			}
-			catch(Exception ex)
-			{
-				//log(ex.Message, ex.StackTrace);
-				throw;
-			}
+				var item1 = x.GetItem(sortedColumn);
+				var item2 = y.GetItem(sortedColumn);
+				return (ascending) ? item1.CompareTo(item2) : item2.CompareTo(item1);
+			});
 		}
 
 	}
@@ -187,7 +177,7 @@ namespace Task.Generics {
 			{
 				try
 				{
-					return function.Invoke();
+					return function();
 				}
 				catch (Exception ex)
 				{
