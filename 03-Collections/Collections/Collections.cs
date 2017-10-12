@@ -62,7 +62,21 @@ namespace Collections.Tasks {
         public static IEnumerable<string> Tokenize(TextReader reader) {
             char[] delimeters = new[] { ',', ' ', '.', '\t', '\n' };
             // TODO : Implement the tokenizer
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+
+            if (reader == null) throw new ArgumentNullException();
+
+            while (true)
+            {
+                var str = reader.ReadLine();
+
+                if (str == null) break;
+
+                var wordArr = str.Split(delimeters, StringSplitOptions.RemoveEmptyEntries);
+
+                foreach (var w in wordArr) yield return w;
+            }
+            
         }
 
 
