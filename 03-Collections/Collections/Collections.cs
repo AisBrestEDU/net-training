@@ -208,18 +208,33 @@ namespace Collections.Tasks {
         ///   source = { 1,2,3,4 }, count=4 => {{1,2,3,4}}
         ///   source = { 1,2,3,4 }, count=5 => ArgumentOutOfRangeException
         /// </example>
-        public static IEnumerable<T[]> GenerateAllPermutations<T>(T[] source, int count) {
-            // TODO : Implement GenerateAllPermutations method
-            //throw new NotImplementedException();
-	        if (source.Length < count)
-	        {
-		        throw new ArgumentOutOfRangeException();
-	        }
+		public static IEnumerable<T[]> GenerateAllPermutations<T>(T[] source, int count)
+		{
+			// TODO : Implement GenerateAllPermutations method
+			throw new NotImplementedException();
 
-			return new List<T[]>();
+			//var arr = new T[count];
+			//if (count > source.Length)
+			//{
+			//	throw new ArgumentOutOfRangeException();
+			//}
+
+			//var idx = new int[count];
+			//for (int i = 0; i < count; i++)
+			//{
+			//	idx[i] = i;
+			//}
+
+			//for (int i = 0; i < count; i++)
+			//{
+			//	arr[i] = source[idx[i]];
+			//}
+
+			//return new List<T[]>();
 		}
-
 	}
+}
+
 
     public static class DictionaryExtentions {
         
@@ -241,10 +256,21 @@ namespace Collections.Tasks {
         ///   Person value = cache.GetOrBuildValue(10, ()=>LoadPersonById(10) );  // should return a loaded Person and put it into the cache
         ///   Person cached = cache.GetOrBuildValue(10, ()=>LoadPersonById(10) );  // should get a Person from the cache
         /// </example>
-        public static TValue GetOrBuildValue<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, Func<TValue> builder) {
-            // TODO : Implement GetOrBuildValue method for cache
-            throw new NotImplementedException();
-        }
+        public static TValue GetOrBuildValue<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, Func<TValue> builder)
+        {
+			// TODO : Implement GetOrBuildValue method for cache
+			//throw new NotImplementedException();
 
-    }
+	        if (dictionary.ContainsKey(key))
+	        {
+		        return dictionary[key];
+	        }
+
+	        else
+	        {
+		        TValue newValue = builder();
+				dictionary.Add(key,newValue);
+		        return dictionary[key];
+	        }
+	}
 }
