@@ -191,9 +191,37 @@ namespace Collections.Tasks {
 			// TODO : Implement GenerateAllPermutations method
 			if (count > source.Length || count < 0)
 				throw new ArgumentOutOfRangeException();
-		
-			//	List<T> list = new List<T>();
-		//	if (count == 1)
+			if (count == 0)
+				return Enumerable.Empty<T[]>();
+
+			List<T[]> list = new List<T[]>();
+
+			void fun(List<T> innerList, int startIndex, int currentCount)
+			{
+				if (currentCount == 1)
+				{
+					for (int i = startIndex; i < source.Length; i++)
+					{
+						innerList.Add(source[i]);
+						list.Add(innerList.ToArray());
+						innerList.RemoveAt(innerList.Count - 1);
+					}
+				}
+				else
+				{
+					for(int i = startIndex; i <= source.Length - currentCount; i++)
+					{
+						innerList.Add(source[i]);
+						fun(innerList, i + 1, currentCount - 1);
+						innerList.RemoveAt(innerList.Count - 1);
+					}
+				}
+			}
+
+			fun(new List<T>(), 0, count);
+			return list;
+		}	
+			//	if (count == 1)
 		//	{
 		//		foreach (var item in source)
 		//		{
@@ -217,7 +245,7 @@ namespace Collections.Tasks {
 		//			}
 		//		}
 		//	}
-		//}
+		
    }
 
     public static class DictionaryExtentions {
