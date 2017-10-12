@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace Collections.Tasks {
 
@@ -29,9 +30,21 @@ namespace Collections.Tasks {
         ///   12 => { 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144 }
         /// </example>
         public static IEnumerable<int> GetFibonacciSequence(int count) {
-            // TODO : Implement Fibonacci sequence generator
-            throw new NotImplementedException();
-        }
+			if (count < 0)
+				throw new ArgumentException();
+
+			int temp;
+			int previous = 0, current = 1;
+			
+			for (int i = 0; i < count; i++)
+			{
+				yield return current;
+				temp = current;
+				current += previous;
+				previous = temp;
+				
+			}
+		}
 
         /// <summary>
         ///    Parses the input string sequence into words
@@ -46,10 +59,21 @@ namespace Collections.Tasks {
         ///   {"TextReader","is","the","abstract","base","class","of","StreamReader","and","StringReader","which",...}
         /// </example>
         public static IEnumerable<string> Tokenize(TextReader reader) {
-            char[] delimeters = new[] { ',', ' ', '.', '\t', '\n' };
-            // TODO : Implement the tokenizer
-            throw new NotImplementedException();
-        }
+			char[] delimeters = new[] { ',', ' ', '.', '\t', '\n' };
+
+			if (reader == null)		throw new ArgumentNullException();
+			
+			string line = reader.ReadLine();
+			while (line != null)
+			{
+				string[] words = line.Split(delimeters, StringSplitOptions.RemoveEmptyEntries);
+				foreach (var item in words)
+				{
+					yield return item;
+				}
+				line = reader.ReadLine();
+			}
+		}
 
 
 
@@ -75,61 +99,126 @@ namespace Collections.Tasks {
         ///    result = { 1, 2, 3, 4, 5, 6, 7, 8 } 
         /// </example>
         public static IEnumerable<T> DepthTraversalTree<T>(ITreeNode<T> root) {
-            // TODO : Implement the tree depth traversal algorithm
-            throw new NotImplementedException(); 
-        }
 
-        /// <summary>
-        ///   Traverses a tree using the width-first strategy
-        /// </summary>
-        /// <typeparam name="T">tree node type</typeparam>
-        /// <param name="root">the tree root</param>
-        /// <returns>
-        ///   Returns the sequence of all tree node data in width-first order
-        /// </returns>
-        /// <example>
-        ///    source tree (root = 1):
-        ///    
-        ///                      1
-        ///                    / | \
-        ///                   2  3  4
-        ///                  / \     \
-        ///                 5   6     7
-        ///                     |
-        ///                     8   
-        ///                   
-        ///    result = { 1, 2, 3, 4, 5, 6, 7, 8 } 
-        /// </example>
-        public static IEnumerable<T> WidthTraversalTree<T>(ITreeNode<T> root) {
-            // TODO : Implement the tree width traversal algorithm
-            throw new NotImplementedException();
-        }
+			if (root == null)
+				throw new ArgumentNullException();
+
+			var deepFirst = new Stack<ITreeNode<T>>();
+			deepFirst.Push(root);
+
+			while (deepFirst.Count > 0)
+			{
+				var lastElement = deepFirst.Pop();
+				yield return lastElement.Data;
+
+				if (lastElement.Children != null)
+				{
+					var arrayChildren = lastElement.Children.ToArray().Reverse();
+					foreach (var item in arrayChildren)
+					{
+						deepFirst.Push(item);
+					}
+				}
+			}
+		}
+
+		/// <summary>
+		///   Traverses a tree using the width-first strategy
+		/// </summary>
+		/// <typeparam name="T">tree node type</typeparam>
+		/// <param name="root">the tree root</param>
+		/// <returns>
+		///   Returns the sequence of all tree node data in width-first order
+		/// </returns>
+		/// <example>
+		///    source tree (root = 1):
+		///    
+		///                      1
+		///                    / | \
+		///                   2  3  4
+		///                  / \     \
+		///                 5   6     7
+		///                     |
+		///                     8   
+		///                   
+		///    result = { 1, 2, 3, 4, 5, 6, 7, 8 } 
+		/// </example>
+		public static IEnumerable<T> WidthTraversalTree<T>(ITreeNode<T> root) {
+			// TODO : Implement the tree width traversal algorithm
+
+			if (root == null)
+				throw new ArgumentNullException();
+
+			Queue<ITreeNode<T>> widthFirst = new Queue<ITreeNode<T>>();
+			widthFirst.Enqueue(root);
+
+			while (widthFirst.Count > 0)
+			{
+				ITreeNode<T> current = widthFirst.Dequeue();
+				yield return current.Data;
+
+				if (current.Children != null)
+				{
+					foreach (var item in current.Children)
+					{
+						widthFirst.Enqueue(item);
+					}
+				}
+			}
+		}
 
 
 
-        /// <summary>
-        ///   Generates all permutations of specified length from source array
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="source">source array</param>
-        /// <param name="count">permutation length</param>
-        /// <returns>
-        ///    All permuations of specified length
-        /// </returns>
-        /// <exception cref="System.InvalidArgumentException">count is less then 0 or greater then the source length</exception>
-        /// <example>
-        ///   source = { 1,2,3,4 }, count=1 => {{1},{2},{3},{4}}
-        ///   source = { 1,2,3,4 }, count=2 => {{1,2},{1,3},{1,4},{2,3},{2,4},{3,4}}
-        ///   source = { 1,2,3,4 }, count=3 => {{1,2,3},{1,2,4},{1,3,4},{2,3,4}}
-        ///   source = { 1,2,3,4 }, count=4 => {{1,2,3,4}}
-        ///   source = { 1,2,3,4 }, count=5 => ArgumentOutOfRangeException
-        /// </example>
-        public static IEnumerable<T[]> GenerateAllPermutations<T>(T[] source, int count) {
-            // TODO : Implement GenerateAllPermutations method
-            throw new NotImplementedException();
-        }
+		/// <summary>
+		///   Generates all permutations of specified length from source array
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="source">source array</param>
+		/// <param name="count">permutation length</param>
+		/// <returns>
+		///    All permuations of specified length
+		/// </returns>
+		/// <exception cref="System.InvalidArgumentException">count is less then 0 or greater then the source length</exception>
+		/// <example>
+		///   source = { 1,2,3,4 }, count=1 => {{1},{2},{3},{4}}
+		///   source = { 1,2,3,4 }, count=2 => {{1,2},{1,3},{1,4},{2,3},{2,4},{3,4}}
+		///   source = { 1,2,3,4 }, count=3 => {{1,2,3},{1,2,4},{1,3,4},{2,3,4}}
+		///   source = { 1,2,3,4 }, count=4 => {{1,2,3,4}}
+		///   source = { 1,2,3,4 }, count=5 => ArgumentOutOfRangeException
+		/// </example>
+		public static IEnumerable<T[]> GenerateAllPermutations<T>(T[] source, int count)
+		{
+			// TODO : Implement GenerateAllPermutations method
+			if (count > source.Length || count < 0)
+				throw new ArgumentOutOfRangeException();
+		
+			//	List<T> list = new List<T>();
+		//	if (count == 1)
+		//	{
+		//		foreach (var item in source)
+		//		{
+		//			yield return new T[] { item };
+		//		}
+		//	}
 
-    }
+		//	else
+		//	{
+		//		for (int start = 0; start <= source.Length - count; start++)
+		//		{
+		//			for (int j = start + 1; j <= source.Length - count + 1; j++)
+		//			{
+		//				list.Add(source[start]);
+		//				for (int i = 0; i < count - 1; i++)
+		//				{
+		//					list.Add(source[j + i]);
+		//				}
+		//				yield return list.ToArray();
+		//				list.Clear();
+		//			}
+		//		}
+		//	}
+		//}
+   }
 
     public static class DictionaryExtentions {
         
@@ -152,8 +241,13 @@ namespace Collections.Tasks {
         ///   Person cached = cache.GetOrBuildValue(10, ()=>LoadPersonById(10) );  // should get a Person from the cache
         /// </example>
         public static TValue GetOrBuildValue<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, Func<TValue> builder) {
-            // TODO : Implement GetOrBuildValue method for cache
-            throw new NotImplementedException();
+			if (dictionary.ContainsKey(key))
+				return dictionary[key];
+			else
+			{
+				dictionary.Add(key, builder());
+				return dictionary[key];
+			}
         }
 
     }
