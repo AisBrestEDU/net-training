@@ -110,13 +110,13 @@ namespace Task.Generics {
             // TODO :SortTupleArray<T1, T2, T3>
             // HINT : Add required constraints to generic types
 
-            if (!(sortedColumn >= 0 && sortedColumn < 3)) throw new IndexOutOfRangeException();
-
-            var buff=new Func<Tuple<T1, T2, T3>, IComparable>[]{
+            var buff = new Func<Tuple<T1, T2, T3>, IComparable>[]{
                     (arg)=>{return (IComparable) arg.Item1; } ,
                     (arg)=>{return (IComparable) arg.Item2; },
                     (arg)=>{return (IComparable) arg.Item3; }
                 };
+
+            if (!(sortedColumn >= 0 && sortedColumn < buff.Length)) throw new IndexOutOfRangeException();
 
             Array.Sort(array, (a, b) =>
             {
