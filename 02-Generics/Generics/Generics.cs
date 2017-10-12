@@ -106,12 +106,16 @@ namespace Task.Generics {
 		///     { 1, "a", false },
 		///   }
 		/// </example>
-		public static void SortTupleArray<T1, T2, T3>(this Tuple<T1, T2, T3>[] array, int sortedColumn, bool ascending) {
+		public static void SortTupleArray<T1, T2, T3>(this Tuple<T1, T2, T3>[] array, int sortedColumn, bool ascending)
+            where T1: IComparable
+            where T2: IComparable
+            where T3: IComparable
+        {
             // TODO :SortTupleArray<T1, T2, T3>
             // HINT : Add required constraints to generic types
 
             var buff = new Func<Tuple<T1, T2, T3>, IComparable>[]{
-                    (arg)=>{return (IComparable) arg.Item1; } ,
+                    (arg)=>{return (IComparable) arg.Item1; },
                     (arg)=>{return (IComparable) arg.Item2; },
                     (arg)=>{return (IComparable) arg.Item3; }
                 };
