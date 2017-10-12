@@ -112,11 +112,10 @@ namespace Task.Generics {
 
             if (!(sortedColumn >= 0 && sortedColumn < 3)) throw new IndexOutOfRangeException();
 
-            var buff = new Dictionary<int, Func<Tuple<T1, T2, T3>, IComparable>>()
-                {
-                    {0,(arg)=>{return (IComparable) arg.Item1; } },
-                    {1,(arg)=>{return (IComparable) arg.Item2; } },
-                    {2,(arg)=>{return (IComparable) arg.Item3; } }
+            var buff=new Func<Tuple<T1, T2, T3>, IComparable>[]{
+                    (arg)=>{return (IComparable) arg.Item1; } ,
+                    (arg)=>{return (IComparable) arg.Item2; },
+                    (arg)=>{return (IComparable) arg.Item3; }
                 };
 
             Array.Sort(array, (a, b) =>
