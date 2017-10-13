@@ -529,10 +529,11 @@ namespace EnumerableTest
             int expected = (new EventLog("System", ".")).Entries.Count;
             var task = new Task();
             int actual = task.GetSpecificEventEntriesCount(EventLogEntryType.Error)
-                        +task.GetSpecificEventEntriesCount(EventLogEntryType.FailureAudit)
-                        +task.GetSpecificEventEntriesCount(EventLogEntryType.Information)
-                        +task.GetSpecificEventEntriesCount(EventLogEntryType.SuccessAudit)
-                        +task.GetSpecificEventEntriesCount(EventLogEntryType.Warning);
+                         + task.GetSpecificEventEntriesCount(EventLogEntryType.FailureAudit)
+                         + task.GetSpecificEventEntriesCount(EventLogEntryType.Information)
+                         + task.GetSpecificEventEntriesCount(EventLogEntryType.SuccessAudit)
+                         + task.GetSpecificEventEntriesCount(EventLogEntryType.Warning)
+                         + task.GetSpecificEventEntriesCount(0);
             Assert.IsTrue(expected == actual);
         }
         #endregion GetSpecificEventEntriesCount tests
