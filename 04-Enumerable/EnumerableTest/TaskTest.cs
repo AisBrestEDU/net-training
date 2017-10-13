@@ -576,7 +576,7 @@ namespace EnumerableTest
             Task target = new Task();
             var actual = target.GetIEnumerableTypesNames(assembly);
             foreach (var item in actual.OrderBy(x => x)) Console.Write(item + ","); Console.WriteLine();
-            Assert.IsTrue(expected.IsEqual(actual.OrderBy(x => x)), assertMessage);
+            Assert.IsTrue(expected.OrderBy(x => x).IsEqual(actual.OrderBy(x => x)), assertMessage);
         }
 
         [TestMethod()] [TestCategory("GetIEnumerableTypesNames")]
@@ -588,7 +588,7 @@ namespace EnumerableTest
                +"DictionaryBase,DiscretionaryAcl,Evidence,GenericAcl,Hashtable,ICollection,ICollection`1,IdentityReferenceCollection,IDictionary,IDictionary`2,"
                +"IEnumerable`1,IList,IList`1,IProducerConsumerCollection`1,IResourceReader,KeyCollection,KeyContainerPermissionAccessEntryCollection,KeyedCollection`2,"
                +"List`1,NamedPermissionSet,PermissionSet,Queue,RawAcl,ReadOnlyCollection`1,ReadOnlyCollectionBase,ReadOnlyPermissionSet,ResourceReader,ResourceSet,SortedList,"
-               +"Stack,String,SystemAcl,ValueCollection").Split(new[] {','}),
+               + "Stack,String,SystemAcl,ValueCollection,ArraySegment`1,ReadOnlyDictionary`2,IReadOnlyCollection`1,IReadOnlyList`1,IReadOnlyDictionary`2").Split(new[] {','}),
                 "GetIEnumerableTypesNames should return right results"
                 );
         }
