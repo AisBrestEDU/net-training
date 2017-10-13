@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace Collections.Tasks {
+namespace Collections.Tasks
+{
 
-    /// <summary>
-    ///  Tree node item 
-    /// </summary>
-    /// <typeparam name="T">the type of tree node data</typeparam>
-    public interface ITreeNode<T> {
+	/// <summary>
+	///  Tree node item 
+	/// </summary>
+	/// <typeparam name="T">the type of tree node data</typeparam>
+	public interface ITreeNode<T> {
         T Data { get; set; }                             // Custom data
         IEnumerable<ITreeNode<T>> Children { get; set; } // List of childrens
     }
@@ -188,7 +189,6 @@ namespace Collections.Tasks {
 		/// </example>
 		public static IEnumerable<T[]> GenerateAllPermutations<T>(T[] source, int count)
 		{
-			// TODO : Implement GenerateAllPermutations method
 			if (count > source.Length || count < 0)
 				throw new ArgumentOutOfRangeException();
 			if (count == 0)
@@ -196,57 +196,32 @@ namespace Collections.Tasks {
 
 			List<T[]> list = new List<T[]>();
 
-			void fun(List<T> innerList, int startIndex, int currentCount)
+			void AddPermutationsToList(Stack<T> Permutation, int currentIndex)
 			{
-				if (currentCount == 1)
+				if (count - Permutation.Count == 1)
 				{
-					for (int i = startIndex; i < source.Length; i++)
+					for (int i = currentIndex; i < source.Length; i++)
 					{
-						innerList.Add(source[i]);
-						list.Add(innerList.ToArray());
-						innerList.RemoveAt(innerList.Count - 1);
+						Permutation.Push(source[i]);
+						list.Add(Permutation.Reverse().ToArray());
+						Permutation.Pop();
 					}
 				}
 				else
 				{
-					for(int i = startIndex; i <= source.Length - currentCount; i++)
+					for(int i = currentIndex; i <= source.Length - (count - Permutation.Count); i++)
 					{
-						innerList.Add(source[i]);
-						fun(innerList, i + 1, currentCount - 1);
-						innerList.RemoveAt(innerList.Count - 1);
+						Permutation.Push(source[i]);
+						AddPermutationsToList(Permutation, i + 1);
+						Permutation.Pop();
 					}
 				}
 			}
 
-			fun(new List<T>(), 0, count);
+			AddPermutationsToList(new Stack<T>(), 0);
 			return list;
 		}	
-			//	if (count == 1)
-		//	{
-		//		foreach (var item in source)
-		//		{
-		//			yield return new T[] { item };
-		//		}
-		//	}
-
-		//	else
-		//	{
-		//		for (int start = 0; start <= source.Length - count; start++)
-		//		{
-		//			for (int j = start + 1; j <= source.Length - count + 1; j++)
-		//			{
-		//				list.Add(source[start]);
-		//				for (int i = 0; i < count - 1; i++)
-		//				{
-		//					list.Add(source[j + i]);
-		//				}
-		//				yield return list.ToArray();
-		//				list.Clear();
-		//			}
-		//		}
-		//	}
-		
-   }
+	}
 
     public static class DictionaryExtentions {
         
