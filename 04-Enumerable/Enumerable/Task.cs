@@ -71,32 +71,30 @@ namespace EnumerableTask {
         ///   { 1, -1, 1, -1, -1 } => { 1, 0, 1, 0, 1 }
         /// </example>
         public IEnumerable<long> GetMovingSumSequence(IEnumerable<int> data) {
-			int sum = 0;
-			foreach (var item in data)
-			{
-				sum += item;
-				yield return sum;
-			}
-        }
+			long sum = 0;
+			return data.Select(item => sum += item);
+			//return data.Sum();
+		}
 
 
-        /// <summary> Filters a string sequence by a prefix value (case insensitive)</summary>
-        /// <param name="data">source string sequence</param>
-        /// <param name="prefix">prefix value to filter</param>
-        /// <returns>
-        ///  Returns items from data that started with required prefix (case insensitive)
-        /// </returns>
-        /// <exception cref="System.ArgumentNullException">prefix is null</exception>
-        /// <example>
-        ///  { "aaa", "bbbb", "ccc", null }, prefix="b"  =>  { "bbbb" }
-        ///  { "aaa", "bbbb", "ccc", null }, prefix="B"  =>  { "bbbb" }
-        ///  { "a","b","c" }, prefix="D"  => { }
-        ///  { "a","b","c" }, prefix=""   => { "a","b","c" }
-        ///  { "a","b","c", null }, prefix=""   => { "a","b","c" }
-        ///  { "a","b","c" }, prefix=null => exception
-        /// </example>
-        public IEnumerable<string> GetPrefixItems(IEnumerable<string> data, string prefix) {
-			throw new NotImplementedException();
+		/// <summary> Filters a string sequence by a prefix value (case insensitive)</summary>
+		/// <param name="data">source string sequence</param>
+		/// <param name="prefix">prefix value to filter</param>
+		/// <returns>
+		///  Returns items from data that started with required prefix (case insensitive)
+		/// </returns>
+		/// <exception cref="System.ArgumentNullException">prefix is null</exception>
+		/// <example>
+		///  { "aaa", "bbbb", "ccc", null }, prefix="b"  =>  { "bbbb" }
+		///  { "aaa", "bbbb", "ccc", null }, prefix="B"  =>  { "bbbb" }
+		///  { "a","b","c" }, prefix="D"  => { }
+		///  { "a","b","c" }, prefix=""   => { "a","b","c" }
+		///  { "a","b","c", null }, prefix=""   => { "a","b","c" }
+		///  { "a","b","c" }, prefix=null => exception
+		/// </example>
+		public IEnumerable<string> GetPrefixItems(IEnumerable<string> data, string prefix) {
+			if (prefix == null) throw new ArgumentNullException();
+			return data.Where(item => item?.StartsWith(prefix.ToLower()) ?? false);
 		}
 
         /// <summary> Returns every second item from source sequence</summary>
@@ -109,8 +107,7 @@ namespace EnumerableTask {
         ///  { "a" } => { }
         /// </example>
         public IEnumerable<T> GetEvenItems<T>(IEnumerable<T> data) {
-			// TODO : Implement GetEvenItems
-			throw new NotImplementedException();
+			return data.Where((item, index) => index % 2 != 0);
 		}
 
         /// <summary> Propagate every item in sequence its position times</summary>
@@ -127,9 +124,8 @@ namespace EnumerableTask {
         ///   { 1,2,3,4,5} => { 1, 2,2, 3,3,3, 4,4,4,4, 5,5,5,5,5 }
         /// </example>
         public IEnumerable<T> PropagateItemsByPositionIndex<T>(IEnumerable<T> data) {
-            // TODO : Implement PropagateItemsByPositionIndex
-            throw new NotImplementedException();
-        }
+			return data.SelectMany((item, index) => Enumerable.Repeat(item, index + 1));
+		}
 
         /// <summary>Finds all used char in string sequence</summary>
         /// <param name="data">source string sequence</param>
@@ -144,9 +140,9 @@ namespace EnumerableTask {
         ///   { } => { }
         /// </example>
         public IEnumerable<char> GetUsedChars(IEnumerable<string> data) {
-            // TODO : Implement GetUsedChars
-            throw new NotImplementedException();
-        }
+			// TODO : Implement GetUsedChars
+			return data.Where(item => item != null).SelectMany(item => item.ToArray()).Distinct();
+		}
 
 
         /// <summary> Converts a source sequence to a string</summary>
@@ -162,9 +158,8 @@ namespace EnumerableTask {
         ///   { "", "" } => ","
         /// </example>
         public string GetStringOfSequence<T>(IEnumerable<T> data) {
-            // TODO : Implement GetStringOfSequence
-            throw new NotImplementedException();
-        }
+			return string.Join(",", data.Select(item => item?.ToString() ?? "null"));
+		}
 
         /// <summary> Finds the 3 largest numbers from a sequence</summary>
         /// <param name="data">source sequence</param>
