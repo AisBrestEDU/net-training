@@ -309,7 +309,6 @@ namespace EnumerableTask {
 	        return data.Count(n=>char.IsDigit(n));
         }
 
-
        
         /// <summary>Counts the system log events of required type</summary>
         /// <param name="value">the type of log event (Error, Event, Information etc)</param>
@@ -319,6 +318,7 @@ namespace EnumerableTask {
         public int GetSpecificEventEntriesCount(EventLogEntryType value) {
             // TODO : Implement GetSpecificEventEntriesCount
             EventLogEntryCollection systemEvents = (new EventLog("System", ".")).Entries;
+
             throw new NotImplementedException();
         }
 
@@ -440,8 +440,9 @@ namespace EnumerableTask {
         ///   {"ab","ba","aabb","baba"} => {"a","b"}
         /// </example>
         public IEnumerable<char> GetCommonChars(IEnumerable<string> data) {
-            // TODO : Implement GetCommonChars
-            throw new NotImplementedException();
+			// TODO : Implement GetCommonChars
+
+			throw new NotImplementedException();
         }
 
         /// <summary> Calculates sum of all integers from object array </summary>
@@ -595,9 +596,7 @@ namespace EnumerableTask {
         public string GetNextVersionFromList(IEnumerable<string> versions, string currentVersion) {
 			// TODO : Implement GetNextVersionFromList
 
-	        //var r = versions.SkipWhile(n => n.Equals(currentVersion));
-
-			throw new NotImplementedException();
+	        return versions.SkipWhile(n => !n.Equals(currentVersion)).FirstOrDefault(n => !n.Equals(currentVersion));
         }
 
         /// <summary>
