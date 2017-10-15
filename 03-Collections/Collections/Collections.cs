@@ -67,7 +67,7 @@ namespace Collections.Tasks {
 
             String fromReader = "";
 
-            if (reader is null)
+            if (reader == null)
             {
                 throw new ArgumentNullException();
             }
@@ -114,7 +114,7 @@ namespace Collections.Tasks {
         /// </example>
         public static IEnumerable<T> DepthTraversalTree<T>(ITreeNode<T> root)
         {
-            if (root is null) throw new ArgumentNullException();
+            if (root == null) throw new ArgumentNullException();
 
             Stack<ITreeNode<T>> stack = new Stack<ITreeNode<T>>();
 
@@ -124,7 +124,7 @@ namespace Collections.Tasks {
             {
                 ITreeNode<T> current = stack.Pop();
                 yield return current.Data;
-                if (!(current.Children is null))
+                if (!(current.Children == null))
                 {
                     IEnumerable<ITreeNode<T>> list = current.Children;
                     for (int i = list.Count() - 1; i >= 0; i--)
@@ -158,7 +158,7 @@ namespace Collections.Tasks {
         ///    result = { 1, 2, 3, 4, 5, 6, 7, 8 } 
         /// </example>
         public static IEnumerable<T> WidthTraversalTree<T>(ITreeNode<T> root) {
-            if(root is null) throw new ArgumentNullException();
+            if(root == null) throw new ArgumentNullException();
 
             Queue<ITreeNode<T>> nodeQueue = new Queue<ITreeNode<T>>();
 
@@ -168,7 +168,7 @@ namespace Collections.Tasks {
             {
                 ITreeNode<T> current = nodeQueue.Dequeue();
                 yield return current.Data;
-                if (!(current.Children is null))
+                if (!(current.Children == null))
                 {
                     foreach (var currentChild in current.Children)
                     {
@@ -206,8 +206,87 @@ namespace Collections.Tasks {
 
         public static IEnumerable<T[]> GenerateAllPermutations<T>(T[] source, int count)
         {
-           throw new NotImplementedException();
+            if (count > source.Length || count < 0) throw new ArgumentOutOfRangeException();
+
+            if (count == 0) return new List<T[]>(); 
+
+            int[] combIndexes = new int[count];
+
+            for (int i = 0; i < count; i++)
+            {
+                combIndexes[i] = i;
+            }
+
+            List<T[]> result = new List<T[]>();
+
+            result.Add(AddComb(combIndexes, source, count));
+
+            while (NextComb(combIndexes, count, source.Length))
+            {
+                result.Add(AddComb(combIndexes, source, count));        
+            }
+
+            return result;
         }
+
+
+        static T[] AddComb<T>(int[] comb, T[] source, int k)
+        {
+            T[] buf = new T[k];
+
+            for (int i = 0; i < k; i++)
+            {
+                buf[i] = source[comb[i]];
+            }
+
+            return buf;
+        }
+
+        static bool NextComb(int[] comb, int k, int n)
+        {
+            int i = k - 1;
+            ++comb[i];
+            while ((i >= 0) && (comb[i] >= n - k + 1 + i))
+            {
+                try
+                {
+                    --i;
+                    ++comb[i];
+                }
+                catch (Exception)
+                {
+                    break;
+                }
+            }
+
+            if (comb[0] > n - k)
+            {
+                return false;
+            }
+
+            for (i = i + 1; i < k; ++i)
+            {
+                comb[i] = comb[i - 1] + 1;
+            }
+
+            return true;
+
+        }
+        static IEnumerable<T[]> PrintFirstCombo<T>(int[] comb, T[] source, int k)
+        {
+            List<T[]> result = new List<T[]>();
+            T[] firstCombo = new T[k];
+
+            for (int i = 0; i < k; i++)
+            {
+                firstCombo[i] = source[comb[i]];
+            }
+            result.Add(firstCombo);
+
+            return result ;
+        }
+
+        
 
     }
 
