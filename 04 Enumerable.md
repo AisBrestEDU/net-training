@@ -3,8 +3,8 @@
 Materials for self-education:
 
 ###MSDN:
-1. [Standard Query Operators Overview](http://msdn.microsoft.com/en-us/library/bb397896.aspx)
-2. [LINQ to Objects](http://msdn.microsoft.com/en-us/library/bb397919.aspx)
+1. [Standard Query Operators Overview](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/concepts/linq/standard-query-operators-overview)
+2. [LINQ to Objects](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/concepts/linq/linq-to-objects)
 3. [101 LINQ Samples](http://code.msdn.microsoft.com/101-LINQ-Samples-3fb9811b)
 
 ###Test task:
