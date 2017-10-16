@@ -532,7 +532,9 @@ namespace EnumerableTask {
         /// </example>
         public IEnumerable<int> GetFirstNegativeSubsequence(IEnumerable<int> data) {
             // TODO : Implement GetFirstNegativeSubsequence
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+
+            return data.SkipWhile(x => x >= 0).TakeWhile(x => x < 0);
         }
 
 
