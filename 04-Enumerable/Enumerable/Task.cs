@@ -135,7 +135,9 @@ namespace EnumerableTask {
         /// </example>
         public IEnumerable<T> PropagateItemsByPositionIndex<T>(IEnumerable<T> data) {
             // TODO : Implement PropagateItemsByPositionIndex
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+
+            return data.SelectMany((x, n) => Enumerable.Repeat(x, n+1));
         }
 
         /// <summary>Finds all used char in string sequence</summary>
