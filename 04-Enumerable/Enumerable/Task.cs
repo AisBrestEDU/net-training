@@ -589,7 +589,9 @@ namespace EnumerableTask {
         /// </example>
         public IEnumerable<int> GetSumOfVectors(IEnumerable<int> vector1, IEnumerable<int> vector2) {
             // TODO : Implement GetSumOfVectors
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+
+            return vector1.Zip(vector2, (v1, v2) => v1 + v2);
         }
 
         /// <summary>
