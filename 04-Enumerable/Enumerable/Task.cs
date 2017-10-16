@@ -99,7 +99,9 @@ namespace EnumerableTask {
         /// </example>
         public IEnumerable<string> GetPrefixItems(IEnumerable<string> data, string prefix) {
             // TODO : Implement GetPrefixItems
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+
+            return data.Where(x => x.StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
         }
 
         /// <summary> Returns every second item from source sequence</summary>
