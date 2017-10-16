@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net.Sockets;
 using System.Reflection;
 
 namespace EnumerableTask
@@ -178,9 +179,9 @@ namespace EnumerableTask
         /// </example>
         public IEnumerable<char> GetUsedChars(IEnumerable<string> data) {
             // TODO : Implement GetUsedChars
-            throw new NotImplementedException();
-        }
 
+            return data.Where(item=>item!=null).SelectMany(item => item.ToCharArray()).Distinct();
+        }
 
         /// <summary> Converts a source sequence to a string</summary>
         /// <typeparam name="T">the type of the elements of data</typeparam>
@@ -216,7 +217,7 @@ namespace EnumerableTask
         /// </example>
         public IEnumerable<int> Get3TopItems(IEnumerable<int> data) {
             // TODO : Implement Get3TopItems
-            throw new NotImplementedException();
+            return data.Select(item => item).Reverse().Take(3);
         }
 
         /// <summary> Calculates the count of numbers that are greater then 10</summary>
@@ -232,7 +233,7 @@ namespace EnumerableTask
         /// </example>
         public int GetCountOfGreaterThen10(IEnumerable<int> data) {
             // TODO : Implement GetCountOfGreaterThen10
-            throw new NotImplementedException();
+            return data.Count(item => item > 10);
         }
 
 
@@ -248,7 +249,7 @@ namespace EnumerableTask
         /// </example>
         public string GetFirstContainsFirst(IEnumerable<string> data) {
             // TODO : Implement GetFirstContainsFirst
-            throw new NotImplementedException();
+            return data.FirstOrDefault(item => item?.ToLower().Contains("first")??false);
         }
 
         /// <summary> Counts the number of unique strings with length=3 </summary>
