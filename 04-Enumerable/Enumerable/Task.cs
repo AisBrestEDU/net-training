@@ -245,7 +245,9 @@ namespace EnumerableTask {
         /// </example>
         public int GetCountOfStringsWithLengthEqualsTo3(IEnumerable<string> data) {
             // TODO : Implement GetCountOfStringsWithLengthEqualsTo3
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+
+            return data.Where(x=>(x?.Length ?? 0)==3).Distinct().Count();
         }
 
         /// <summary> Counts the number of each strings in sequence </summary>
