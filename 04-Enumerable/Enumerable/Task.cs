@@ -78,7 +78,9 @@ namespace EnumerableTask {
         /// </example>
         public IEnumerable<long> GetMovingSumSequence(IEnumerable<int> data) {
             // TODO : Implement GetMovingSumSequence
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+
+            return data.Select((x, n) => (long)x+data.Take(n).Sum());
         }
 
 
