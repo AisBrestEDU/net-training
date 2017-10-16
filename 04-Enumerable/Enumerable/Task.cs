@@ -504,7 +504,9 @@ namespace EnumerableTask {
         /// </example>
         public bool IsSequenceHasNulls(IEnumerable<string> data) {
             // TODO : Implement IsSequenceHasNulls
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+
+            return data.Any(x => x is null);
         }
 
         /// <summary> Determines whether all strings in sequence are uppercase</summary>
