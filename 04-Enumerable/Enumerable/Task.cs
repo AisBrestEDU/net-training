@@ -413,7 +413,9 @@ namespace EnumerableTask {
         /// </example>
         public IEnumerable<string> CombineNumbersAndFruits(IEnumerable<string> numbers, IEnumerable<string> fruits) {
             // TODO : Implement CombinesNumbersAndFruits
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+
+            return numbers.Zip(fruits, (n, f) => $"{n} {f}");
         }
 
 
@@ -582,7 +584,8 @@ namespace EnumerableTask {
         /// </example>
         public string GetNextVersionFromList(IEnumerable<string> versions, string currentVersion) {
             // TODO : Implement GetNextVersionFromList
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+            return versions.SkipWhile(x => x != currentVersion).Skip(1).FirstOrDefault();
         }
 
         /// <summary>
@@ -649,9 +652,11 @@ namespace EnumerableTask {
             //throw new NotImplementedException();
 
             //return boys.SelectMany(x => girls.Select(y =>$"{x}+{y}"));
+
             return from b in boys
                    from g in girls
                    select $"{b}+{g}";
+
         }
 
 
