@@ -174,7 +174,9 @@ namespace EnumerableTask {
         /// </example>
         public string GetStringOfSequence<T>(IEnumerable<T> data) {
             // TODO : Implement GetStringOfSequence
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+
+            return String.Join(",", data.Select(x => x?.ToString() ?? "null"));
         }
 
         /// <summary> Finds the 3 largest numbers from a sequence</summary>
