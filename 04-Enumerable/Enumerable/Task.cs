@@ -608,7 +608,12 @@ namespace EnumerableTask {
         /// </example>
         public int GetProductOfVectors(IEnumerable<int> vector1, IEnumerable<int> vector2) {
             // TODO : Implement GetProductOfVectors
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+
+            //return from v1 in vector1
+            //       join v2 in vector2 on
+
+            return vector1.Zip(vector2,(v1,v2)=>v1*v2).Sum();
         }
 
 
