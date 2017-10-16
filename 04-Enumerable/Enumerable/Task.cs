@@ -648,7 +648,10 @@ namespace EnumerableTask {
             // TODO : Implement GetAllPairs
             //throw new NotImplementedException();
 
-            return boys.SelectMany(x => girls.Select(y =>$"{x}+{y}"));
+            //return boys.SelectMany(x => girls.Select(y =>$"{x}+{y}"));
+            return from b in boys
+                   from g in girls
+                   select $"{b}+{g}";
         }
 
 
