@@ -647,7 +647,9 @@ namespace EnumerableTask {
         /// </example>
         public double GetAverageOfDoubleValues(IEnumerable<object> data) {
             // TODO : Implement GetAverageOfDoubleValues
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+
+            return data.OfType<System.Double>().DefaultIfEmpty().Average();
         }
 
     }
