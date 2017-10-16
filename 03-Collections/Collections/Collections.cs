@@ -74,10 +74,10 @@ namespace Collections.Tasks {
 
 			while (true)
 	        {
-		        var line = reader.ReadLine();
+		        string line = reader.ReadLine();
 		        if (line != null)
 		        {
-					var words = line.Split(delimeters, StringSplitOptions.RemoveEmptyEntries);
+					string[] words = line.Split(delimeters, StringSplitOptions.RemoveEmptyEntries);
 			        foreach (var item in words)
 			        {
 				        yield return item;
@@ -120,12 +120,12 @@ namespace Collections.Tasks {
 				throw new ArgumentNullException();
 			}
 
-			Stack<ITreeNode<T>> stack = new Stack<ITreeNode<T>>();
+			var stack = new Stack<ITreeNode<T>>();
 			stack.Push(root);
 
 			while (stack.Count > 0)
 			{
-				var value = stack.Pop();
+				ITreeNode<T> value = stack.Pop();
 				yield return value.Data;
 
 				if (value.Children == null)
@@ -169,12 +169,12 @@ namespace Collections.Tasks {
 		        throw new ArgumentNullException();
 	        }
 
-	        Queue<ITreeNode<T>> stack = new Queue<ITreeNode<T>>();
+	        var stack = new Queue<ITreeNode<T>>();
 	        stack.Enqueue(root);
 
 	        while (stack.Count > 0)
 	        {
-		        var value = stack.Dequeue();
+		        ITreeNode<T> value = stack.Dequeue();
 		        yield return value.Data;
 
 		        if (value.Children == null)
@@ -188,7 +188,6 @@ namespace Collections.Tasks {
 		        }
 	        }
 		}
-
 
 
         /// <summary>
@@ -211,26 +210,46 @@ namespace Collections.Tasks {
 		public static IEnumerable<T[]> GenerateAllPermutations<T>(T[] source, int count)
 		{
 			// TODO : Implement GenerateAllPermutations method
-			throw new NotImplementedException();
+			//throw new NotImplementedException();
 
-			//var arr = new T[count];
-			//if (count > source.Length)
-			//{
-			//	throw new ArgumentOutOfRangeException();
-			//}
+			var stack = new Stack<int>();
+			var result = new T[count];
 
-			//var idx = new int[count];
-			//for (int i = 0; i < count; i++)
-			//{
-			//	idx[i] = i;
-			//}
+			if (count < 0 || count > source.Length)
+			{
+				throw new ArgumentOutOfRangeException();
+			}
 
-			//for (int i = 0; i < count; i++)
-			//{
-			//	arr[i] = source[idx[i]];
-			//}
+			if (count == 0)
+			{
+				yield break;
+			}
 
-			//return new List<T[]>();
+			stack.Push(0);
+			result[0] = source[0];
+
+			while (stack.Count > 0)
+			{
+				while (stack.Count != count)
+				{
+					if (stack.Peek() + 1 <= source.Length)
+					{
+						result[stack.Count] = source[stack.Peek() + 1];
+						stack.Push(stack.Peek() + 1);
+					}
+				}
+
+				yield return result;
+
+				while (stack.Count > 0 && source.Length - stack.Peek() - 1 <= count - stack.Count)
+					stack.Pop();
+
+				if (stack.Count > 0)
+				{
+					stack.Push(stack.Pop() + 1);
+					result[stack.Count - 1] = source[stack.Peek()];
+				}
+			}
 		}
 	}
 }
