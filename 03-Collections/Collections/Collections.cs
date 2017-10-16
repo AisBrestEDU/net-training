@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -178,8 +179,57 @@ namespace Collections.Tasks
         /// </example>
         public static IEnumerable<T[]> GenerateAllPermutations<T>(T[] source, int count)
         {
-            // TODO : Implement GenerateAllPermutations method
-            throw new NotImplementedException();
+            if (count > source.Length || count < 0) throw new ArgumentOutOfRangeException();
+
+            if (count == 0) return new List<T[]>();
+
+            var combIndexes = new int[count];
+
+            for (var i = 0; i < count; i++)
+                combIndexes[i] = i;
+
+            var result = new List<T[]>();
+
+            result.Add(getComb(combIndexes, source, count));
+
+            while (nextCombination(combIndexes, count, source.Length))
+                result.Add(getComb(combIndexes, source, count));
+
+            return result;
+        }
+        
+        private static T[] getComb<T>(int[] comb, T[] source, int k)
+        {
+            var buf = new T[k];
+
+            for (var i = 0; i < k; i++)
+                buf[i] = source[comb[i]];
+
+            return buf;
+        }
+
+        private static bool nextCombination(int[] comb, int k, int n)
+        {
+            var i = k - 1;
+            ++comb[i];
+            while (i >= 0 && comb[i] >= n - k + 1 + i)
+                try
+                {
+                    --i;
+                    ++comb[i];
+                }
+                catch (Exception)
+                {
+                    break;
+                }
+
+            if (comb[0] > n - k)
+                return false;
+
+            for (i = i + 1; i < k; ++i)
+                comb[i] = comb[i - 1] + 1;
+
+            return true;
         }
     }
 
