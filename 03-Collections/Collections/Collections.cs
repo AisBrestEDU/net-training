@@ -60,14 +60,14 @@ namespace Collections.Tasks
         ///   {"TextReader","is","the","abstract","base","class","of","StreamReader","and","StringReader","which",...}
         /// </example>
         public static IEnumerable<string> Tokenize(TextReader reader) {
-			char[] delimeters = new[] { ',', ' ', '.', '\t', '\n' };
+			char[] delimeters = { ',', ' ', '.', '\t', '\n' };
 
 			if (reader == null)		throw new ArgumentNullException();
 			
-			string line = reader.ReadLine();
+			var line = reader.ReadLine();
 			while (line != null)
 			{
-				string[] words = line.Split(delimeters, StringSplitOptions.RemoveEmptyEntries);
+				var words = line.Split(delimeters, StringSplitOptions.RemoveEmptyEntries);
 				foreach (var item in words)
 				{
 					yield return item;
@@ -150,12 +150,12 @@ namespace Collections.Tasks
 			if (root == null)
 				throw new ArgumentNullException();
 
-			Queue<ITreeNode<T>> widthFirst = new Queue<ITreeNode<T>>();
+			var widthFirst = new Queue<ITreeNode<T>>();
 			widthFirst.Enqueue(root);
 
 			while (widthFirst.Count > 0)
 			{
-				ITreeNode<T> current = widthFirst.Dequeue();
+				var current = widthFirst.Dequeue();
 				yield return current.Data;
 
 				if (current.Children != null)
@@ -194,7 +194,9 @@ namespace Collections.Tasks
 			if (count == 0)
 				return Enumerable.Empty<T[]>();
 
-			List<T[]> list = new List<T[]>();
+			var list = new List<T[]>();
+			AddPermutationsToList(new Stack<T>(), 0);
+			return list;
 
 			void AddPermutationsToList(Stack<T> Permutation, int currentIndex)
 			{
@@ -209,7 +211,7 @@ namespace Collections.Tasks
 				}
 				else
 				{
-					for(int i = currentIndex; i <= source.Length - (count - Permutation.Count); i++)
+					for (int i = currentIndex; i <= source.Length - (count - Permutation.Count); i++)
 					{
 						Permutation.Push(source[i]);
 						AddPermutationsToList(Permutation, i + 1);
@@ -217,9 +219,6 @@ namespace Collections.Tasks
 					}
 				}
 			}
-
-			AddPermutationsToList(new Stack<T>(), 0);
-			return list;
 		}	
 	}
 
