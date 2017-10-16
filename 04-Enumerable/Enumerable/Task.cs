@@ -485,7 +485,9 @@ namespace EnumerableTask {
         /// </example>
         public int GetTotalStringsLength(IEnumerable<string> data) {
             // TODO : Implement GetTotalStringsLength
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+
+            return data.OfType<string>().Aggregate(0, (length, item) => length + item?.Length ?? 0);
         }
 
         /// <summary> Determines whether sequence has null elements</summary>
