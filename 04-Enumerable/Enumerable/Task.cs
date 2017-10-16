@@ -523,6 +523,7 @@ namespace EnumerableTask {
         public bool IsAllStringsAreUppercase(IEnumerable<string> data) {
             // TODO : Implement IsAllStringsAreUppercase
             throw new NotImplementedException();
+
         }
 
         /// <summary> Finds first subsequence of negative integers </summary>
@@ -645,7 +646,9 @@ namespace EnumerableTask {
         /// </example>
         public IEnumerable<string> GetAllPairs(IEnumerable<string> boys, IEnumerable<string> girls) {
             // TODO : Implement GetAllPairs
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+
+            return boys.SelectMany(x => girls.Select(y =>$"{x}+{y}"));
         }
 
 
