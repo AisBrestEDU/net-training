@@ -278,10 +278,10 @@ namespace EnumerableTask {
         ///   Returns the number of System log entries of specified type
         /// </returns>
         public int GetSpecificEventEntriesCount(EventLogEntryType value) {
-            // TODO : Implement GetSpecificEventEntriesCount
             EventLogEntryCollection systemEvents = (new EventLog("System", ".")).Entries;
-            throw new NotImplementedException();
-        }
+			var events = systemEvents.Cast<EventLogEntry>();
+			return events.Count(item => item.EntryType == value);
+		}
 
 
         /// <summary> Finds all exported types names which implement IEnumerable</summary>
@@ -296,8 +296,11 @@ namespace EnumerableTask {
         ///    
         /// </example>
         public IEnumerable<string> GetIEnumerableTypesNames(Assembly assembly) {
-            // TODO : Implement GetIEnumerableTypesNames
-            throw new NotImplementedException();
+			// TODO : Implement GetIEnumerableTypesNames
+			throw new NotImplementedException();
+			// incorect result
+			return assembly.ExportedTypes.Where(itemType => itemType.GetInterfaces().Contains(typeof(System.Collections.IEnumerable))).Select(x=> x.Name);
+			
         }
 
         /// <summary>Calculates sales sum by quarter</summary>
@@ -312,9 +315,9 @@ namespace EnumerableTask {
         ///    {(1/1/2010, 10)  , (4/4/2010, 10), (10/10/2010, 10) } => { 10, 10, 0, 10 }
         /// </example>
         public int[] GetQuarterSales(IEnumerable<Tuple<DateTime, int>> sales) {
-            // TODO : Implement GetQuarterSales
-            throw new NotImplementedException();
-        }
+			// TODO : Implement GetQuarterSales
+			throw new NotImplementedException();
+		}
 
 
          /// <summary> Sorts string by length and alphabet </summary>
@@ -328,8 +331,7 @@ namespace EnumerableTask {
         ///  {"c","cc","b","bb","a,"aa"} => {"a","b","c","aa","bb","cc"}
         /// </example>
         public IEnumerable<string> SortStringsByLengthAndAlphabet(IEnumerable<string> data) {
-            // TODO : Implement SortStringsByLengthAndAlphabet
-            throw new NotImplementedException();
+			return data.OrderBy(x => x.Length).ThenBy(x => x);
         }
 
         /// <summary> Finds all missing digits </summary>
@@ -343,9 +345,9 @@ namespace EnumerableTask {
         ///   {"a","b","c","9876543210"} => {}
         /// </example>
         public IEnumerable<char> GetMissingDigits(IEnumerable<string> data) {
-            // TODO : Implement GetMissingDigits
-            throw new NotImplementedException();
-        }
+			string numbers = "0123456789";
+			return numbers.Except(data.SelectMany(item => item.Where(ch => Char.IsDigit(ch))));
+		}
 
 
         /// <summary> Sorts digit names </summary>
@@ -361,8 +363,8 @@ namespace EnumerableTask {
         ///   {"one","one","one","zero"} => {"zero","one","one","one"}
         /// </example>
         public IEnumerable<string> SortDigitNamesByNumericOrder(IEnumerable<string> data) {
-            // TODO : Implement SortDigitNamesByNumericOrder
-            throw new NotImplementedException();
+			var numbersNames = new string[] { "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine" };
+			return data.OrderBy(item => Array.IndexOf(numbersNames, item));
         }
 
         /// <summary> Combines numbers and fruits </summary>
@@ -379,8 +381,7 @@ namespace EnumerableTask {
         ///  { }, {"apple", "bananas" } => { }
         /// </example>
         public IEnumerable<string> CombineNumbersAndFruits(IEnumerable<string> numbers, IEnumerable<string> fruits) {
-            // TODO : Implement CombinesNumbersAndFruits
-            throw new NotImplementedException();
+			return numbers.Zip(fruits, (first, second) => first + " " + second);
         }
 
 
