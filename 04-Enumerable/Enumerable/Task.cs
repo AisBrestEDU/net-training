@@ -193,7 +193,9 @@ namespace EnumerableTask {
         /// </example>
         public IEnumerable<int> Get3TopItems(IEnumerable<int> data) {
             // TODO : Implement Get3TopItems
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+
+            return data.Reverse().Take(3);
         }
 
         /// <summary> Calculates the count of numbers that are greater then 10</summary>
