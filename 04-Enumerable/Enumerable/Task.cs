@@ -22,7 +22,9 @@ namespace EnumerableTask {
         /// </example>
         public IEnumerable<string> GetUppercaseStrings(IEnumerable<string> data) {
             // TODO : Implement GetUppercaseStrings
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+
+            return data.Select(x => (x != null)? x.ToUpper() : x);
         }
 
         /// <summary> Transforms an each string from sequence to its length</summary>
@@ -38,6 +40,7 @@ namespace EnumerableTask {
         public IEnumerable<int> GetStringsLength(IEnumerable<string> data) {
             // TODO : Implement GetStringsLength
             throw new NotImplementedException();
+
         }
 
         /// <summary>Transforms int sequence to its square sequence, f(x) = x * x </summary>
