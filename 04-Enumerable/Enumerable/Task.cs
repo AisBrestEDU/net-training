@@ -211,7 +211,9 @@ namespace EnumerableTask {
         /// </example>
         public int GetCountOfGreaterThen10(IEnumerable<int> data) {
             // TODO : Implement GetCountOfGreaterThen10
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+
+            return data.Where(x => x > 10).Count();
         }
 
 
