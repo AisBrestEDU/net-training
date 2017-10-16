@@ -5,6 +5,7 @@ using System.Text;
 using System.Reflection;
 using System.IO;
 using System.Diagnostics;
+using System.Collections;
 
 namespace EnumerableTask {
 
@@ -195,9 +196,9 @@ namespace EnumerableTask {
         ///   { 1, 2, 3, 11 } => 1
         ///   { 1, 20, 30, 40 } => 3
         /// </example>
-        public int GetCountOfGreaterThen10(IEnumerable<int> data) {
-            // TODO : Implement GetCountOfGreaterThen10
-            throw new NotImplementedException();
+        public int GetCountOfGreaterThen10(IEnumerable<int> data)
+        {
+            return data.Count(item => item > 10);
         }
 
 
@@ -211,9 +212,9 @@ namespace EnumerableTask {
         ///   { "a", "IT IS FIRST", "first item", "I am really first!" } => "IT IS FIRST"
         ///   { } => null
         /// </example>
-        public string GetFirstContainsFirst(IEnumerable<string> data) {
-            // TODO : Implement GetFirstContainsFirst
-            throw new NotImplementedException();
+        public string GetFirstContainsFirst(IEnumerable<string> data)
+        {
+            return data.FirstOrDefault(item => item?.ToLower().Contains("first") ?? false);
         }
 
         /// <summary> Counts the number of unique strings with length=3 </summary>
@@ -227,9 +228,9 @@ namespace EnumerableTask {
         ///   { "aaa", "aaa", "aaa", "bbb" } => 2   ("aaa", "bbb") 
         ///   { } => 0
         /// </example>
-        public int GetCountOfStringsWithLengthEqualsTo3(IEnumerable<string> data) {
-            // TODO : Implement GetCountOfStringsWithLengthEqualsTo3
-            throw new NotImplementedException();
+        public int GetCountOfStringsWithLengthEqualsTo3(IEnumerable<string> data)
+        {
+            return data.Where(item => item?.Length.Equals(3) ?? false).Distinct().Count();
         }
 
         /// <summary> Counts the number of each strings in sequence </summary>
@@ -243,9 +244,12 @@ namespace EnumerableTask {
         ///   { "aaa", "aaa", "aaa" } =>  { ("aaa", 3) } 
         ///   { } => { }
         /// </example>
-        public IEnumerable<Tuple<string,int>> GetCountOfStrings(IEnumerable<string> data) {
-            // TODO : Implement GetCountOfStrings
-            throw new NotImplementedException();
+        public IEnumerable<Tuple<string,int>> GetCountOfStrings(IEnumerable<string> data)
+        {
+            return data.GroupBy(item => item,
+                (key, value) =>
+                    new Tuple<string, int>(key,
+                        value.Count())); 
         }
 
         /// <summary> Counts the number of strings with max length in sequence </summary>
@@ -260,9 +264,11 @@ namespace EnumerableTask {
         ///   { "", null, "", null } => 4
         ///   { } => { }
         /// </example>
-        public int GetCountOfStringsWithMaxLength(IEnumerable<string> data) {
-            // TODO : Implement GetCountOfStringsWithMaxLength
-            throw new NotImplementedException();
+        public int GetCountOfStringsWithMaxLength(IEnumerable<string> data)
+        {
+            return data.Any()
+                ? data.GroupBy(item => item?.Length ?? 0).OrderByDescending(item => item.Key).First().Count()
+                : 0;
         }
 
 
@@ -281,8 +287,9 @@ namespace EnumerableTask {
         ///    null => exception
         /// </example>
         public int GetDigitCharsCount(string data) {
-            // TODO : Implement GetDigitCharsCount
-            throw new NotImplementedException();
+            if (data is null) throw new ArgumentNullException();
+
+            return data.Where(char.IsDigit).Count(); ;
         }
 
 
@@ -292,10 +299,11 @@ namespace EnumerableTask {
         /// <returns>
         ///   Returns the number of System log entries of specified type
         /// </returns>
-        public int GetSpecificEventEntriesCount(EventLogEntryType value) {
-            // TODO : Implement GetSpecificEventEntriesCount
+        public int GetSpecificEventEntriesCount(EventLogEntryType value)
+        {
             EventLogEntryCollection systemEvents = (new EventLog("System", ".")).Entries;
-            throw new NotImplementedException();
+
+            return systemEvents.Cast<EventLogEntry>().Count(item => item.EntryType.Equals(value));
         }
 
 
@@ -311,7 +319,9 @@ namespace EnumerableTask {
         ///    
         /// </example>
         public IEnumerable<string> GetIEnumerableTypesNames(Assembly assembly) {
-            // TODO : Implement GetIEnumerableTypesNames
+//            if (assembly is null) throw new ArgumentNullException();
+
+//            return assembly.ExportedTypes.Where(item => typeof(IEnumerable).IsAssignableFrom(item)).Select(item => item.Name).ToArray();
             throw new NotImplementedException();
         }
 
