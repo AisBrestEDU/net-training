@@ -154,7 +154,9 @@ namespace EnumerableTask {
         /// </example>
         public IEnumerable<char> GetUsedChars(IEnumerable<string> data) {
             // TODO : Implement GetUsedChars
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+
+            return data.SelectMany(x => x?.ToCharArray() ?? new char[] { }).Distinct();
         }
 
 
