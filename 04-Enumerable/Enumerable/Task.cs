@@ -39,7 +39,9 @@ namespace EnumerableTask {
         /// </example>
         public IEnumerable<int> GetStringsLength(IEnumerable<string> data) {
             // TODO : Implement GetStringsLength
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+
+            return data.Select(x => x?.Length ?? 0);
 
         }
 
