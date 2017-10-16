@@ -79,7 +79,7 @@ namespace Collections.Tasks {
                     fromReader += reader.ReadLine();
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw;
             }
@@ -217,7 +217,7 @@ namespace Collections.Tasks {
                 combIndexes[i] = i;
             }
 
-            List<T[]> result = new List<T[]>();
+            var result = new List<T[]>();
 
             result.Add(AddComb(combIndexes, source, count));
 
@@ -272,22 +272,7 @@ namespace Collections.Tasks {
             return true;
 
         }
-        static IEnumerable<T[]> PrintFirstCombo<T>(int[] comb, T[] source, int k)
-        {
-            List<T[]> result = new List<T[]>();
-            T[] firstCombo = new T[k];
-
-            for (int i = 0; i < k; i++)
-            {
-                firstCombo[i] = source[comb[i]];
-            }
-            result.Add(firstCombo);
-
-            return result ;
-        }
-
-        
-
+     
     }
 
     public static class DictionaryExtentions {
