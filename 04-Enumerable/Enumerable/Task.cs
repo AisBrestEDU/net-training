@@ -265,7 +265,9 @@ namespace EnumerableTask {
         /// </example>
         public IEnumerable<Tuple<string,int>> GetCountOfStrings(IEnumerable<string> data) {
             // TODO : Implement GetCountOfStrings
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+
+            return data.GroupBy(x => x, (key, value) => new Tuple<string, int>(key, key.Count()));
         }
 
         /// <summary> Counts the number of strings with max length in sequence </summary>
