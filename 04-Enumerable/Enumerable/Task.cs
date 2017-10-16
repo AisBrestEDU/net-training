@@ -446,7 +446,9 @@ namespace EnumerableTask {
         /// </example>
         public int GetSumOfAllInts(object[] data) {
             // TODO : Implement GetSumOfAllInts
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+
+            return data.OfType<int>().Sum();
         }
 
 
