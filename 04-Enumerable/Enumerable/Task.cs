@@ -1,9 +1,8 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Reflection;
-using System.IO;
 using System.Diagnostics;
 
 namespace EnumerableTask {
@@ -23,7 +22,7 @@ namespace EnumerableTask {
         public IEnumerable<string> GetUppercaseStrings(IEnumerable<string> data) {
             // TODO : Implement GetUppercaseStrings
 
-	        return data.Select(n =>n?.ToUpper());
+	        return data.Select(n => n?.ToUpper());
         }
 
         /// <summary> Transforms an each string from sequence to its length</summary>
@@ -55,7 +54,7 @@ namespace EnumerableTask {
         public IEnumerable<long> GetSquareSequence(IEnumerable<int> data) {
             // TODO : Implement GetSquareSequence
 
-	        return data.Select(n => (long)n * n);
+			return data.Select(n => (long)n * n);
         }
 
         /// <summary>Transforms int sequence to its moving sum sequence, 
@@ -73,30 +72,31 @@ namespace EnumerableTask {
         ///   { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 } => { 1, 3, 6, 10, 15, 21, 28, 36, 45, 55 }
         ///   { 1, -1, 1, -1, -1 } => { 1, 0, 1, 0, 1 }
         /// </example>
-        public IEnumerable<long> GetMovingSumSequence(IEnumerable<int> data) {
-            // TODO : Implement GetMovingSumSequence
+        public IEnumerable<long> GetMovingSumSequence(IEnumerable<int> data)
+        {
+			// TODO : Implement GetMovingSumSequence
 
-	        long sum = 0;
-	        return data.Select(n => sum += n).ToList();
-        }
+			long sum = 0;
+			return data.Select(n => sum += n).ToList();
+		}
 
 
-        /// <summary> Filters a string sequence by a prefix value (case insensitive)</summary>
-        /// <param name="data">source string sequence</param>
-        /// <param name="prefix">prefix value to filter</param>
-        /// <returns>
-        ///  Returns items from data that started with required prefix (case insensitive)
-        /// </returns>
-        /// <exception cref="System.ArgumentNullException">prefix is null</exception>
-        /// <example>
-        ///  { "aaa", "bbbb", "ccc", null }, prefix="b"  =>  { "bbbb" }
-        ///  { "aaa", "bbbb", "ccc", null }, prefix="B"  =>  { "bbbb" }
-        ///  { "a","b","c" }, prefix="D"  => { }
-        ///  { "a","b","c" }, prefix=""   => { "a","b","c" }
-        ///  { "a","b","c", null }, prefix=""   => { "a","b","c" }
-        ///  { "a","b","c" }, prefix=null => exception
-        /// </example>
-        public IEnumerable<string> GetPrefixItems(IEnumerable<string> data, string prefix) {
+		/// <summary> Filters a string sequence by a prefix value (case insensitive)</summary>
+		/// <param name="data">source string sequence</param>
+		/// <param name="prefix">prefix value to filter</param>
+		/// <returns>
+		///  Returns items from data that started with required prefix (case insensitive)
+		/// </returns>
+		/// <exception cref="System.ArgumentNullException">prefix is null</exception>
+		/// <example>
+		///  { "aaa", "bbbb", "ccc", null }, prefix="b"  =>  { "bbbb" }
+		///  { "aaa", "bbbb", "ccc", null }, prefix="B"  =>  { "bbbb" }
+		///  { "a","b","c" }, prefix="D"  => { }
+		///  { "a","b","c" }, prefix=""   => { "a","b","c" }
+		///  { "a","b","c", null }, prefix=""   => { "a","b","c" }
+		///  { "a","b","c" }, prefix=null => exception
+		/// </example>
+		public IEnumerable<string> GetPrefixItems(IEnumerable<string> data, string prefix) {
 			// TODO : Implement GetPrefixItems
 
 			if (prefix == null)
@@ -337,7 +337,12 @@ namespace EnumerableTask {
 		        throw new ArgumentNullException();
 	        }
 
-			return new List<string>();
+	        var t = typeof(IEnumerable);
+
+	        var query = assembly.ExportedTypes.Where(n => t.IsAssignableFrom(n) && n != t).Select(x => x.Name)
+		        .Distinct();
+
+	        return query;
         }
 
         /// <summary>Calculates sales sum by quarter</summary>
@@ -352,12 +357,10 @@ namespace EnumerableTask {
         ///    {(1/1/2010, 10)  , (4/4/2010, 10), (10/10/2010, 10) } => { 10, 10, 0, 10 }
         /// </example>
         public int[] GetQuarterSales(IEnumerable<Tuple<DateTime, int>> sales) {
-            // TODO : Implement GetQuarterSales
-            //throw new NotImplementedException();
+	        // TODO : Implement GetQuarterSales
 
-	        var gr = sales.GroupBy(n => n).Select(k=>k, new Tuple<>)
-
-			return new int[]{1};
+	        return (new int[] {0, 1, 2, 3}).Select(quarter => sales.Where(time => ((time.Item1.Month - 1) / 3) == quarter).Sum(summary => summary.Item2))
+		        .ToArray();
         }
 
 
@@ -685,6 +688,6 @@ namespace EnumerableTask {
 			// TODO : Implement GetAverageOfDoubleValues
 
 	        return data.OfType<double>().DefaultIfEmpty().Average();
-        }
+        } 
     }
 }
