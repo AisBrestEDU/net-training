@@ -6,6 +6,7 @@ using System.Reflection;
 using System.IO;
 using System.Diagnostics;
 using System.Collections;
+using System.Security.Principal;
 
 namespace EnumerableTask {
 
@@ -319,10 +320,11 @@ namespace EnumerableTask {
         ///    
         /// </example>
         public IEnumerable<string> GetIEnumerableTypesNames(Assembly assembly) {
-//            if (assembly is null) throw new ArgumentNullException();
-
-//            return assembly.ExportedTypes.Where(item => typeof(IEnumerable).IsAssignableFrom(item)).Select(item => item.Name).ToArray();
-            throw new NotImplementedException();
+            if (assembly is null) throw new ArgumentNullException();
+            //too complicated way
+//            return assembly.ExportedTypes.Where(item => typeof(System.Collections.IEnumerable).IsAssignableFrom(item)).Select(item => item.Name).Where(item=> item!="IEnumerable").Distinct();
+            //and one more that easier
+            return assembly.ExportedTypes.Where(item => item.GetInterfaces().Contains(typeof(System.Collections.IEnumerable))).Select(item => item.Name).Distinct();
         }
 
         /// <summary>Calculates sales sum by quarter</summary>
@@ -336,9 +338,32 @@ namespace EnumerableTask {
         ///    {(1/1/2010, 10)  , (2/2/2010, 10), (3/3/2010, 10) } => { 30, 0, 0, 0 }
         ///    {(1/1/2010, 10)  , (4/4/2010, 10), (10/10/2010, 10) } => { 10, 10, 0, 10 }
         /// </example>
-        public int[] GetQuarterSales(IEnumerable<Tuple<DateTime, int>> sales) {
-            // TODO : Implement GetQuarterSales
-            throw new NotImplementedException();
+        public int[] GetQuarterSales(IEnumerable<Tuple<DateTime, int>> sales)
+        {
+            var grouped = sales.GroupBy(item => (item.Item1.Month - 1)/3, (key, list) => new Tuple<int, double>(list.Sum(item => item.Item2), list.Average(item => item.Item1.Month))).ToArray();
+
+            var result = new int[4];
+
+            foreach (var item in grouped)
+            {
+                if (item.Item2 <= 3)
+                {
+                    result[0] = item.Item1;
+                }
+                else if (item.Item2 <= 6)
+                {
+                    result[1] = item.Item1;
+                }
+                else if (item.Item2 <= 9)
+                {
+                    result[2] = item.Item1;
+                }
+
+                else result[3] = item.Item1;
+            }
+
+
+            return result;
         }
 
 
@@ -352,10 +377,10 @@ namespace EnumerableTask {
         ///  {"c","b","a"} => {"a","b","c"}
         ///  {"c","cc","b","bb","a,"aa"} => {"a","b","c","aa","bb","cc"}
         /// </example>
-        public IEnumerable<string> SortStringsByLengthAndAlphabet(IEnumerable<string> data) {
-            // TODO : Implement SortStringsByLengthAndAlphabet
-            throw new NotImplementedException();
-        }
+        public IEnumerable<string> SortStringsByLengthAndAlphabet(IEnumerable<string> data)
+         {
+             return data.OrderBy(item => item.Length).ThenBy(item => item);
+         }
 
         /// <summary> Finds all missing digits </summary>
         /// <param name="data">the source data</param>
@@ -367,9 +392,10 @@ namespace EnumerableTask {
         ///   {"aaa","a1","b","c2","d","e3","f01234"} => {'5','6','7','8','9'}
         ///   {"a","b","c","9876543210"} => {}
         /// </example>
-        public IEnumerable<char> GetMissingDigits(IEnumerable<string> data) {
-            // TODO : Implement GetMissingDigits
-            throw new NotImplementedException();
+        public IEnumerable<char> GetMissingDigits(IEnumerable<string> data)
+        {
+            const string digits = "0123456789";
+            return digits.Except(data.SelectMany(item => item.Where(char.IsDigit)));
         }
 
 
@@ -385,9 +411,11 @@ namespace EnumerableTask {
         ///   {"nine","eight","nine","eight"} => {"eight","eight","nine","nine"}
         ///   {"one","one","one","zero"} => {"zero","one","one","one"}
         /// </example>
-        public IEnumerable<string> SortDigitNamesByNumericOrder(IEnumerable<string> data) {
-            // TODO : Implement SortDigitNamesByNumericOrder
-            throw new NotImplementedException();
+        public IEnumerable<string> SortDigitNamesByNumericOrder(IEnumerable<string> data)
+        {
+            string[] digits = { "zero","one","two", "three", "four", "five","six", "seven", "eight", "nine" };
+
+            return data.OrderBy(item => Array.IndexOf(digits, item));
         }
 
         /// <summary> Combines numbers and fruits </summary>
@@ -403,9 +431,9 @@ namespace EnumerableTask {
         ///  {"one","two","three"}, { } => { }
         ///  { }, {"apple", "bananas" } => { }
         /// </example>
-        public IEnumerable<string> CombineNumbersAndFruits(IEnumerable<string> numbers, IEnumerable<string> fruits) {
-            // TODO : Implement CombinesNumbersAndFruits
-            throw new NotImplementedException();
+        public IEnumerable<string> CombineNumbersAndFruits(IEnumerable<string> numbers, IEnumerable<string> fruits)
+        {
+            return numbers.Zip(fruits, (first, second) => $"{first} {second}");
         }
 
 
@@ -420,9 +448,10 @@ namespace EnumerableTask {
         ///   {"a","aa","aaa"} => {"a"}
         ///   {"ab","ba","aabb","baba"} => {"a","b"}
         /// </example>
-        public IEnumerable<char> GetCommonChars(IEnumerable<string> data) {
-            // TODO : Implement GetCommonChars
-            throw new NotImplementedException();
+        public IEnumerable<char> GetCommonChars(IEnumerable<string> data)
+        {
+            if(!data.Any()) return new char[]{};
+            return data.Aggregate(data.ElementAt(0), (total, next) => new String(total.Intersect(next).ToArray())).ToCharArray();
         }
 
         /// <summary> Calculates sum of all integers from object array </summary>
@@ -436,9 +465,9 @@ namespace EnumerableTask {
         ///    { 10, "ten", 10 } => 20 
         ///    { } => 0
         /// </example>
-        public int GetSumOfAllInts(object[] data) {
-            // TODO : Implement GetSumOfAllInts
-            throw new NotImplementedException();
+        public int GetSumOfAllInts(object[] data)
+        {
+            return data.OfType<int>().Sum();
         }
 
 
