@@ -231,7 +231,9 @@ namespace EnumerableTask {
         /// </example>
         public string GetFirstContainsFirst(IEnumerable<string> data) {
             // TODO : Implement GetFirstContainsFirst
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+
+            return data.FirstOrDefault(x => x != null && x.IndexOf("first", StringComparison.OrdinalIgnoreCase) != -1);
         }
 
         /// <summary> Counts the number of unique strings with length=3 </summary>
@@ -285,6 +287,7 @@ namespace EnumerableTask {
         public int GetCountOfStringsWithMaxLength(IEnumerable<string> data) {
             // TODO : Implement GetCountOfStringsWithMaxLength
             throw new NotImplementedException();
+
         }
 
 
