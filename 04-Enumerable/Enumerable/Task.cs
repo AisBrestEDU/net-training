@@ -77,7 +77,7 @@ namespace EnumerableTask {
             // TODO : Implement GetMovingSumSequence
 
 	        long sum = 0;
-	        return data.Select(n => sum += n);
+	        return data.Select(n => sum += n).ToList();
         }
 
 
@@ -104,7 +104,7 @@ namespace EnumerableTask {
 				throw new ArgumentNullException();
 			}
 
-	        return data.Where(n => n!=null && n.Contains(prefix.ToLower()));
+	        return data.Where(n => n != null && n.Contains(prefix.ToLower()));
         }
 
 		/// <summary> Returns every second item from source sequence</summary>
@@ -261,7 +261,7 @@ namespace EnumerableTask {
         public IEnumerable<Tuple<string,int>> GetCountOfStrings(IEnumerable<string> data) {
 			// TODO : Implement GetCountOfStrings
 
-	        return data.GroupBy(n => n).Select(x => new Tuple<string, int>(x.Key, x.Count()));
+	        return data.GroupBy(n => n, (key, value) => new Tuple<string, int> (key, value.Count()));
         }
 
         /// <summary> Counts the number of strings with max length in sequence </summary>
@@ -277,15 +277,9 @@ namespace EnumerableTask {
         ///   { } => { }
         /// </example>
         public int GetCountOfStringsWithMaxLength(IEnumerable<string> data) {
-            // TODO : Implement GetCountOfStringsWithMaxLength
-            //throw new NotImplementedException();
+			// TODO : Implement GetCountOfStringsWithMaxLength
 
-	        if (data.Count() == 0)
-	        {
-		        return 0;
-	        }
-
-			return data.Count(n => n?.Length == data.Max(x => x?.Length));
+			return data.Count(n => (n?.Length ?? 0) == data.Max(k => k?.Length ?? 0));
 		}
 
 
@@ -319,7 +313,7 @@ namespace EnumerableTask {
             // TODO : Implement GetSpecificEventEntriesCount
             EventLogEntryCollection systemEvents = (new EventLog("System", ".")).Entries;
 
-            throw new NotImplementedException();
+	        return systemEvents.OfType<EventLogEntry>().Count(n => n.EntryType == value);
         }
 
 
@@ -336,7 +330,14 @@ namespace EnumerableTask {
         /// </example>
         public IEnumerable<string> GetIEnumerableTypesNames(Assembly assembly) {
             // TODO : Implement GetIEnumerableTypesNames
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+
+	        if (assembly == null)
+	        {
+		        throw new ArgumentNullException();
+	        }
+
+			return new List<string>();
         }
 
         /// <summary>Calculates sales sum by quarter</summary>
@@ -352,7 +353,11 @@ namespace EnumerableTask {
         /// </example>
         public int[] GetQuarterSales(IEnumerable<Tuple<DateTime, int>> sales) {
             // TODO : Implement GetQuarterSales
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+
+	        var gr = sales.GroupBy(n => n).Select(k=>k, new Tuple<>)
+
+			return new int[]{1};
         }
 
 
@@ -384,7 +389,10 @@ namespace EnumerableTask {
         /// </example>
         public IEnumerable<char> GetMissingDigits(IEnumerable<string> data) {
             // TODO : Implement GetMissingDigits
-            throw new NotImplementedException();
+
+	        var numbers = new char[] {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
+
+	        return numbers.Except(data.SelectMany(n => n.Where(char.IsDigit)));
         }
 
 
@@ -442,7 +450,7 @@ namespace EnumerableTask {
         public IEnumerable<char> GetCommonChars(IEnumerable<string> data) {
 			// TODO : Implement GetCommonChars
 
-			throw new NotImplementedException();
+	        return data.DefaultIfEmpty(Enumerable.Empty<char>()).Aggregate((n, k) => n.Intersect(k));
         }
 
         /// <summary> Calculates sum of all integers from object array </summary>
@@ -678,8 +686,5 @@ namespace EnumerableTask {
 
 	        return data.OfType<double>().DefaultIfEmpty().Average();
         }
-
     }
-
-    
 }
