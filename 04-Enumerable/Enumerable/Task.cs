@@ -342,7 +342,9 @@ namespace EnumerableTask {
         /// </example>
         public IEnumerable<string> GetIEnumerableTypesNames(Assembly assembly) {
             // TODO : Implement GetIEnumerableTypesNames
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+
+            return assembly?.ExportedTypes.Where(x=>x.GetInterfaces().Contains(typeof(System.Collections.IEnumerable))).Select(x=>x.Name).Distinct() ?? throw new ArgumentNullException();
         }
 
         /// <summary>Calculates sales sum by quarter</summary>
@@ -597,7 +599,9 @@ namespace EnumerableTask {
         /// </example>
         public bool AreNumericListsEqual(IEnumerable<int> integers, IEnumerable<double> doubles) {
             // TODO : Implement AreNumericListsEqual
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+
+            return doubles.SequenceEqual(integers.Select(x => (double)x));
         }
 
         /// <summary>
