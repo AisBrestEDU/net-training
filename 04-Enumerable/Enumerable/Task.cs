@@ -323,7 +323,9 @@ namespace EnumerableTask {
         public int GetSpecificEventEntriesCount(EventLogEntryType value) {
             // TODO : Implement GetSpecificEventEntriesCount
             EventLogEntryCollection systemEvents = (new EventLog("System", ".")).Entries;
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+
+            return systemEvents.Cast<EventLogEntry>().Count(x=> x.EntryType == value);
         }
 
 
