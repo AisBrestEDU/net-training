@@ -286,8 +286,9 @@ namespace EnumerableTask {
         /// </example>
         public int GetCountOfStringsWithMaxLength(IEnumerable<string> data) {
             // TODO : Implement GetCountOfStringsWithMaxLength
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
 
+            return data.Count(x=>(x?.Length ?? 0)==data.Max(p=>p?.Length ?? 0));
         }
 
 
