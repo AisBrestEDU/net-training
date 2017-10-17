@@ -483,8 +483,7 @@ namespace EnumerableTask {
         ///   { } => { }
         /// </example>
         public IEnumerable<string> GetStringsOnly(object[] data) {
-            // TODO : Implement GetStringsOnly
-            throw new NotImplementedException();
+            return data.OfType<string>();
         }
 
         /// <summary> Calculates the total length of strings</summary>
