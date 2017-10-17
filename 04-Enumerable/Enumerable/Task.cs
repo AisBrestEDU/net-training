@@ -391,7 +391,9 @@ namespace EnumerableTask {
         /// </example>
         public IEnumerable<char> GetMissingDigits(IEnumerable<string> data) {
             // TODO : Implement GetMissingDigits
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+            var chars = new[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
+            return chars.Except(data.SelectMany(x => x.ToCharArray()).Where(x => Char.IsDigit(x)).Distinct());
         }
 
 
