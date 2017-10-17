@@ -76,9 +76,12 @@ namespace EnumerableTask {
         {
 			// TODO : Implement GetMovingSumSequence
 
-			long sum = 0;
-			return data.Select(n => sum += n).ToList();
-		}
+	        long sum = 0;
+	        foreach (var item in data)
+	        {
+		        yield return sum += item;
+	        }
+        }
 
 
 		/// <summary> Filters a string sequence by a prefix value (case insensitive)</summary>
@@ -156,7 +159,7 @@ namespace EnumerableTask {
         public IEnumerable<char> GetUsedChars(IEnumerable<string> data) {
 			// TODO : Implement GetUsedChars
 
-			return data.Where(n => !string.IsNullOrEmpty(n)).SelectMany(n => n.ToCharArray()).Distinct();
+			return data.SelectMany(n => !string.IsNullOrEmpty(n) ? n : string.Empty).Distinct();
 		}
 
 
@@ -227,8 +230,8 @@ namespace EnumerableTask {
         public string GetFirstContainsFirst(IEnumerable<string> data) {
             // TODO : Implement GetFirstContainsFirst
 
-	        return data.FirstOrDefault(n => n != null && n.ToUpperInvariant().Contains("FIRST"));
-        }
+	        return data.FirstOrDefault(x => x != null && x.IndexOf("first", StringComparison.OrdinalIgnoreCase) >= 0);
+		}
 
         /// <summary> Counts the number of unique strings with length=3 </summary>
         /// <param name="data">source sequence</param>
