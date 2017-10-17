@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
@@ -347,7 +349,7 @@ namespace EnumerableTask
         public int GetSpecificEventEntriesCount(EventLogEntryType value)
         {
             EventLogEntryCollection systemEvents = (new EventLog("System", ".")).Entries;
-
+            
             return systemEvents.Cast<EventLogEntry>().Count(item => item.EntryType.Equals(value));
         }
 
@@ -366,7 +368,10 @@ namespace EnumerableTask
         public IEnumerable<string> GetIEnumerableTypesNames(Assembly assembly)
         {
             // TODO : Implement GetIEnumerableTypesNames
-            throw new NotImplementedException();
+            if (assembly == null)
+                throw new ArgumentNullException();
+            return assembly.ExportedTypes.Where(x => x.GetInterfaces().Contains(typeof(IEnumerable))).Select(x => x.Name).Distinct();
+
         }
 
         /// <summary>Calculates sales sum by quarter</summary>
@@ -381,9 +386,16 @@ namespace EnumerableTask
         ///    {(1/1/2010, 10)  , (4/4/2010, 10), (10/10/2010, 10) } => { 10, 10, 0, 10 }
         /// </example>
         public int[] GetQuarterSales(IEnumerable<Tuple<DateTime, int>> sales)
+        
         {
             // TODO : Implement GetQuarterSales
-            throw new NotImplementedException();
+            int[] result = new int[4];
+           result[0] = sales.Where(x => x.Item1.Month <= 3).Select(x => x.Item2).Sum();
+           result[1] = sales.Where(x => x.Item1.Month > 3&&x.Item1.Month <= 6).Select(x => x.Item2).Sum();
+           result[2] = sales.Where(x => x.Item1.Month > 6 && x.Item1.Month <= 9).Select(x => x.Item2).Sum();
+           result[3] = sales.Where(x => x.Item1.Month > 9).Select(x => x.Item2).Sum();
+
+           return result;
         }
 
 
