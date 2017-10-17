@@ -554,7 +554,9 @@ namespace EnumerableTask {
         /// </example>
         public bool IsAllStringsAreUppercase(IEnumerable<string> data) {
             // TODO : Implement IsAllStringsAreUppercase
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+
+            return data.Any() && data.All(x =>  x.Any() && x.All(p => Char.IsUpper(p)));
 
         }
 
