@@ -312,7 +312,7 @@ namespace EnumerableTask {
         public int GetDigitCharsCount(string data) {
             // TODO : Implement GetDigitCharsCount
             //throw new NotImplementedException();
-            return data?.Aggregate(0,(acc,x)=>(Char.IsDigit(x)? ++acc: acc)) ?? throw new ArgumentException();
+            return data?.Aggregate(0,(acc,x)=>(Char.IsDigit(x)? ++acc: acc)) ?? throw new ArgumentNullException();
 
         }
 
