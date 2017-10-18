@@ -5,6 +5,7 @@ using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Remoting.Messaging;
 
 namespace EnumerableTask
 {
@@ -411,8 +412,7 @@ namespace EnumerableTask
         /// </example>
         public IEnumerable<string> SortStringsByLengthAndAlphabet(IEnumerable<string> data)
         {
-            // TODO : Implement SortStringsByLengthAndAlphabet
-            throw new NotImplementedException();
+            return data.OrderBy(str => str.Length).ThenBy(str => str);
         }
 
         /// <summary> Finds all missing digits </summary>
@@ -428,7 +428,10 @@ namespace EnumerableTask
         public IEnumerable<char> GetMissingDigits(IEnumerable<string> data)
         {
             // TODO : Implement GetMissingDigits
-            throw new NotImplementedException();
+            
+            char[] allChars = new char[] {'0','1','2', '3', '4', '5', '6', '7', '8', '9'};
+          var result = allChars.Except( data.SelectMany(it => it.Where(x=> char.IsDigit(x))).Distinct() );
+           return result;
         }
 
 
@@ -447,7 +450,20 @@ namespace EnumerableTask
         public IEnumerable<string> SortDigitNamesByNumericOrder(IEnumerable<string> data)
         {
             // TODO : Implement SortDigitNamesByNumericOrder
-            throw new NotImplementedException();
+            var numbers = new Dictionary<string, int>
+            {
+                {"zero", 0},
+                {"one", 1},
+                {"two", 2},
+                {"three", 3},
+                {"four", 4},
+                {"five", 5},
+                {"six", 6},
+                {"seven", 7},
+                {"eight", 8},
+                {"nine", 9}
+            };
+            return data.OrderBy(x => numbers[x]);
         }
 
         /// <summary> Combines numbers and fruits </summary>
@@ -466,7 +482,7 @@ namespace EnumerableTask
         public IEnumerable<string> CombineNumbersAndFruits(IEnumerable<string> numbers, IEnumerable<string> fruits)
         {
             // TODO : Implement CombinesNumbersAndFruits
-            throw new NotImplementedException();
+            return numbers.Zip(fruits, (first, second) => $"{first} {second}");
         }
 
 
@@ -484,7 +500,8 @@ namespace EnumerableTask
         public IEnumerable<char> GetCommonChars(IEnumerable<string> data)
         {
             // TODO : Implement GetCommonChars
-            throw new NotImplementedException();
+            if (!data.Any()) return new char[] { };
+            return data.Aggregate(data.ElementAt(0).AsEnumerable(), (total, next) => total.Intersect(next));
         }
 
         /// <summary> Calculates sum of all integers from object array </summary>
@@ -501,7 +518,7 @@ namespace EnumerableTask
         public int GetSumOfAllInts(object[] data)
         {
             // TODO : Implement GetSumOfAllInts
-            throw new NotImplementedException();
+            return data.OfType<int>().Sum();
         }
 
 
@@ -519,7 +536,7 @@ namespace EnumerableTask
         public IEnumerable<string> GetStringsOnly(object[] data)
         {
             // TODO : Implement GetStringsOnly
-            throw new NotImplementedException();
+            return data.OfType<string>();
         }
 
         /// <summary> Calculates the total length of strings</summary>
@@ -538,7 +555,7 @@ namespace EnumerableTask
         public int GetTotalStringsLength(IEnumerable<string> data)
         {
             // TODO : Implement GetTotalStringsLength
-            throw new NotImplementedException();
+            return data.Sum(it => it != null ? it.Length : 0);
         }
 
         /// <summary> Determines whether sequence has null elements</summary>
@@ -556,7 +573,7 @@ namespace EnumerableTask
         public bool IsSequenceHasNulls(IEnumerable<string> data)
         {
             // TODO : Implement IsSequenceHasNulls
-            throw new NotImplementedException();
+            return data.Any(it => it == null);
         }
 
         /// <summary> Determines whether all strings in sequence are uppercase</summary>
@@ -573,7 +590,7 @@ namespace EnumerableTask
         public bool IsAllStringsAreUppercase(IEnumerable<string> data)
         {
             // TODO : Implement IsAllStringsAreUppercase
-            throw new NotImplementedException();
+            return data.Any() && data.All(x => !String.IsNullOrEmpty(x) && x.All(char.IsUpper));
         }
 
         /// <summary> Finds first subsequence of negative integers </summary>
@@ -592,7 +609,7 @@ namespace EnumerableTask
         public IEnumerable<int> GetFirstNegativeSubsequence(IEnumerable<int> data)
         {
             // TODO : Implement GetFirstNegativeSubsequence
-            throw new NotImplementedException();
+            return data.SkipWhile(it => it >= 0).TakeWhile(it => it < 0);
         }
 
 
@@ -613,7 +630,7 @@ namespace EnumerableTask
         public bool AreNumericListsEqual(IEnumerable<int> integers, IEnumerable<double> doubles)
         {
             // TODO : Implement AreNumericListsEqual
-            throw new NotImplementedException();
+            return integers.SequenceEqual(doubles.Select(item => Convert.ToInt32(item)));
         }
 
         /// <summary>
@@ -633,7 +650,7 @@ namespace EnumerableTask
         public string GetNextVersionFromList(IEnumerable<string> versions, string currentVersion)
         {
             // TODO : Implement GetNextVersionFromList
-            throw new NotImplementedException();
+            return versions.SkipWhile(item => item != currentVersion).Skip(1).FirstOrDefault();
         }
 
         /// <summary>
@@ -652,7 +669,7 @@ namespace EnumerableTask
         public IEnumerable<int> GetSumOfVectors(IEnumerable<int> vector1, IEnumerable<int> vector2)
         {
             // TODO : Implement GetSumOfVectors
-            throw new NotImplementedException();
+            return  vector1.Zip(vector2, (firstArr, secondArr) => firstArr + secondArr);
         }
 
         /// <summary>
@@ -672,7 +689,7 @@ namespace EnumerableTask
         public int GetProductOfVectors(IEnumerable<int> vector1, IEnumerable<int> vector2)
         {
             // TODO : Implement GetProductOfVectors
-            throw new NotImplementedException();
+            return vector1.Zip(vector2, (f, s) => f * s).Sum();
         }
 
 
@@ -693,7 +710,7 @@ namespace EnumerableTask
         public IEnumerable<string> GetAllPairs(IEnumerable<string> boys, IEnumerable<string> girls)
         {
             // TODO : Implement GetAllPairs
-            throw new NotImplementedException();
+            return boys.SelectMany(item1 => girls.Select(item2 => $"{item1}+{item2}"));
         }
 
 
@@ -713,7 +730,7 @@ namespace EnumerableTask
         public double GetAverageOfDoubleValues(IEnumerable<object> data)
         {
             // TODO : Implement GetAverageOfDoubleValues
-            throw new NotImplementedException();
+            return data.OfType<double>().DefaultIfEmpty().Average();
         }
 
     }
