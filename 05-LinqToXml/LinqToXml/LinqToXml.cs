@@ -79,7 +79,28 @@ namespace LinqToXml
         /// <returns>Xml customers representation (refer to XmlFromCsvResultFile.xml in Resources)</returns>
         public static string ReadCustomersFromCsv(string customers)
         {
-            throw new NotImplementedException();
+            // throw new NotImplementedException();
+
+            var str = new XDocument(new XElement("Root",
+
+                from s in customers.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
+                    let c=s.Split(',')
+                select
+                    new XElement("Customer",
+                        new XAttribute("CustomerID",c[0]),
+                        new XElement("CompanyName",c[1]),
+                        new XElement("ContactName",c[2]),
+                        new XElement("ContactTitle",c[3]),
+                        new XElement("Phone",c[4]),
+                        new XElement("FullAddress",
+                            new XElement("Address",c[5]),
+                            new XElement("City",c[6]),
+                            new XElement("Region",c[7]),
+                            new XElement("PostalCode",c[8]),
+                            new XElement("Country",c[9])))
+                ));
+
+            return str.ToString();
         }
 
         /// <summary>
@@ -89,7 +110,9 @@ namespace LinqToXml
         /// <returns>Concatenation of all this element values.</returns>
         public static string GetConcatenationString(string xmlRepresentation)
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+
+            return XDocument.Parse(xmlRepresentation).Root.Value;
         }
 
         /// <summary>
