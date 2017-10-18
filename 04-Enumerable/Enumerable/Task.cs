@@ -363,11 +363,30 @@ namespace EnumerableTask {
         /// </example>
         public int[] GetQuarterSales(IEnumerable<Tuple<DateTime, int>> sales) {
             // TODO : Implement GetQuarterSales
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+
+            //return data.GroupBy(x => x, (key, value) => new Tuple<string, int>(key, value.Count()));
+
+            var DV = new Tuple<DateTime, int>[] 
+            {
+                new Tuple<DateTime, int>(new DateTime(2010,1,1),0),
+                new Tuple<DateTime, int>(new DateTime(2010,4,1),0),
+                new Tuple<DateTime, int>(new DateTime(2010,7,1),0),
+                new Tuple<DateTime, int>(new DateTime(2010,10,1),0)
+            };
+
+
+            return sales
+                .Union(DV)
+                .GroupBy(x=> (int) ((x.Item1.Month+2.5)/3), (key,value)=>new Tuple<int,int>(key,value.Select(p=>p.Item2).Sum()))
+                .OrderBy(x=>x.Item1)
+                .Select(x=>x.Item2)
+                .ToArray();
+
         }
 
 
-         /// <summary> Sorts string by length and alphabet </summary>
+        /// <summary> Sorts string by length and alphabet </summary>
         /// <param name="data">the source data</param>
         /// <returns>
         /// Returns sequence of strings sorted by length and alphabet
