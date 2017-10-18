@@ -30,18 +30,6 @@ namespace LinqToXml
                  )))
                  ));
 
-
-
-
-
-
-
-
-
-
-
-
-
             //var doc = XDocument.Parse(xmlRepresentation);
             //var newData =
             //    new XElement("Root",
@@ -57,8 +45,6 @@ namespace LinqToXml
             //        )
             //    );
 
-
-
             return newData.ToString();
         }
 
@@ -72,7 +58,18 @@ namespace LinqToXml
         /// </example>
         public static string GetPurchaseOrders(string xmlRepresentation)
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+
+            var inptXml = XDocument.Parse(xmlRepresentation);
+
+            return String.Join(",",
+                
+                inptXml.Root.Descendants()
+                .Where(x => x.Name.LocalName=="State" && x.Parent.LastAttribute.Value== "Shipping" && x.Value == "NY")
+                .SelectMany(x => x.Parent.Parent.Attributes()
+                    .Where(a=>a.Name.LocalName=="PurchaseOrderNumber")
+                    .Select(p => p.Value).ToArray())
+                .Distinct().ToArray());
         }
 
         /// <summary>
