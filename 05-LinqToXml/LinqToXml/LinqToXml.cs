@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Xml.Linq;
-using System.IO;
-using System.Runtime.CompilerServices;
-using System.Xml;
 
 namespace LinqToXml
 {
@@ -70,19 +66,6 @@ namespace LinqToXml
         public static string ReadCustomersFromCsv(string customers)
         {
 	        var lines = customers.Split(new char[]{'\r', '\n'}, StringSplitOptions.RemoveEmptyEntries);
-
-
-			//var xml = new XElement("Root",
-			// lines.Select(line => new XElement("Customer", line.Split(',')
-			//  .Select((column, index) => new XElement("CustomerID", line[0]),
-			//   new XElement("CompanyName", line[1]),
-			//   new XElement("ContactName", line[2]),
-			//   new XElement("ContactTitle", line[3]),
-			//   new XElement("Phone", line[4]),
-			//   new XElement("FullAddress", new XElement("Address", line[5]), new XElement("City", line[6]),
-			//    new XElement("Region", line[7]),
-			//    new XElement("PostalCode", line[8]), new XElement("Country", line[9])
-			//   )))));
 
 			var xml = new XElement("Root",
 			 from str in lines
