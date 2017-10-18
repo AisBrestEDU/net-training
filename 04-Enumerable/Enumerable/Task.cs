@@ -103,7 +103,10 @@ namespace EnumerableTask {
             // TODO : Implement GetPrefixItems
             //throw new NotImplementedException();
 
-            return data.Where(x => x.StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
+            if (prefix == null) throw new ArgumentNullException();
+            if ((data?.Count() ?? throw new ArgumentNullException()) == 0) return data;
+
+            return data?.Where(x => x?.StartsWith(prefix, StringComparison.OrdinalIgnoreCase) ?? false) ?? throw new ArgumentNullException();
         }
 
         /// <summary> Returns every second item from source sequence</summary>
@@ -269,7 +272,7 @@ namespace EnumerableTask {
             // TODO : Implement GetCountOfStrings
             //throw new NotImplementedException();
 
-            return data.GroupBy(x => x, (key, value) => new Tuple<string, int>(key, key.Count()));
+            return data.GroupBy(x => x, (key, value) => new Tuple<string, int>(key, value.Count()));
         }
 
         /// <summary> Counts the number of strings with max length in sequence </summary>
