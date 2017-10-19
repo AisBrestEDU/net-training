@@ -102,16 +102,16 @@ namespace LinqToXml
         public static string ReplaceAllCustomersWithContacts(string xmlRepresentation)
         {
 	        var doc = XElement.Parse(xmlRepresentation);
+	        //doc.Descendants("customer").ToList().ForEach(n => n.Name = "contact");
 
-	        var output = new XElement("Document",
-		        doc.Elements().Select(n =>
-			        new XElement("contact", n.Element("name"), n.Element("lastname")
-				        )
-			        )
-		        );
-	        
-	        return output.ToString();
-        }
+	        foreach (var item in doc.Descendants("customer"))
+	        {
+		        item.Name = "contact";
+
+	        }
+
+	        return doc.ToString();
+		}
 
 		/// <summary>
 		/// Finds all ids for channels with 2 or more subscribers and mark the "DELETE" comment
