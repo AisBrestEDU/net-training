@@ -161,7 +161,7 @@ namespace EnumerableTask {
             // TODO : Implement GetUsedChars
             //throw new NotImplementedException();
 
-            return data.SelectMany(x => x?.ToCharArray() ?? new char[] { }).Distinct();
+            return data.SelectMany(x => x.AsEnumerable() ?? new char[] { }).Distinct();
         }
 
 
