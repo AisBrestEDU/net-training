@@ -26,20 +26,7 @@ namespace EnumerableTask
         public IEnumerable<string> GetUppercaseStrings(IEnumerable<string> data)
         {
             // TODO : Implement GetUppercaseStrings
-            List<string> result = new List<string>();
-            try
-            {
-                foreach (var iteam in data)
-                {
-                    result.Add(iteam.ToUpper());
-                }
-                result.ToArray();
-                return result;
-            }
-            catch (NullReferenceException)
-            {
-                return data;
-            }
+            return data.Select(it => it!=null? it.ToUpper():null);
 
         }
 
@@ -55,15 +42,7 @@ namespace EnumerableTask
         /// </example>
         public IEnumerable<int> GetStringsLength(IEnumerable<string> data)
         {
-            // TODO : Implement GetStringsLength
-            List<int> result = new List<int>();
-
-
-            foreach (var iteam in data)
-            {
-                result.Add(iteam != null ? iteam.Length : 0);
-            }
-            return result;
+            return data.Select(it=>it !=null ?it.Length : 0);
         }
 
         /// <summary>Transforms int sequence to its square sequence, f(x) = x * x </summary>
@@ -78,14 +57,7 @@ namespace EnumerableTask
         /// </example>
         public IEnumerable<long> GetSquareSequence(IEnumerable<int> data)
         {
-            // TODO : Implement GetSquareSequence
-            List<long> result = new List<long>();
-            foreach (long iteam in data)
-
-            {
-                result.Add(iteam * iteam);
-            }
-            return result;
+            return data.Select(it => (long)it * it);
         }
 
         /// <summary>Transforms int sequence to its moving sum sequence, 
@@ -106,8 +78,7 @@ namespace EnumerableTask
         public IEnumerable<long> GetMovingSumSequence(IEnumerable<int> data)
         {
             // TODO : Implement GetMovingSumSequence
-            long sum = 0;
-            return data.Select(item => sum = item + sum);
+            return data.Select((x, n) => (long)x + data.Take(n).Sum());
         }
 
 
@@ -134,7 +105,7 @@ namespace EnumerableTask
             }
             if (prefix == "")
             {
-                return data.Where(item => item != null).Select(item => item);
+                return data.Where(item => item != null);
             }
 
             return data.Where(item => item != null).Where(item => item.StartsWith(prefix, true, null)).Select(item => item);
@@ -191,7 +162,7 @@ namespace EnumerableTask
         {
             // TODO : Implement GetUsedChars
 
-            return data.Where(item => item != null).SelectMany(item => item.ToCharArray()).Distinct();
+            return data.SelectMany(x => x?.ToCharArray() ?? new char[] { }).Distinct();
         }
 
         /// <summary> Converts a source sequence to a string</summary>
