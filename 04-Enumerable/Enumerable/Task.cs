@@ -24,7 +24,7 @@ namespace EnumerableTask {
             // TODO : Implement GetUppercaseStrings
             //throw new NotImplementedException();
 
-            return data.Select(x => (x != null)? x.ToUpper() : x);
+            return data.Select(x => x?.ToUpper() ?? x);
         }
 
         /// <summary> Transforms an each string from sequence to its length</summary>
