@@ -38,13 +38,15 @@ namespace IQueryableTask
         public IEnumerator<Person> GetEnumerator()
         {
             // TODO: Implement GetEnumerator
-            throw new NotImplementedException();
+            return (Provider.Execute<IEnumerable<Person>>(Expression)).GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
             // TODO: Implement GetEnumerator
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+
+            return this.GetEnumerator();
         }
 
         public Expression Expression { get; private set; }
