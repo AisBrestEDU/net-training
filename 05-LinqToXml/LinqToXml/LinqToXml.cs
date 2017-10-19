@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Xml.Linq;
-using System.IO;
 
 namespace LinqToXml
 {
@@ -16,7 +14,21 @@ namespace LinqToXml
         /// <returns>Xml representation (refer to CreateHierarchyResultFile.xml in Resources)</returns>
         public static string CreateHierarchy(string xmlRepresentation)
         {
-            throw new NotImplementedException();
+	        var doc = XElement.Parse(xmlRepresentation);
+
+	        var output =
+		        new XElement("Root",
+			        from data in doc.Elements("Data")
+			        group data by data.Element("Category").Value
+			        into grData
+			        select new XElement("Group",
+				        new XAttribute("ID", grData.Key),
+				        from n in grData
+				        select new XElement("Data", n.Element("Quantity"), n.Element("Price"))
+			        )
+		        );
+
+	        return output.ToString();
         }
 
         /// <summary>
@@ -29,7 +41,16 @@ namespace LinqToXml
         /// </example>
         public static string GetPurchaseOrders(string xmlRepresentation)
         {
-            throw new NotImplementedException();
+	        var doc = XElement.Parse(xmlRepresentation);
+			XNamespace ns = "http://www.adventure-works.com";
+
+			var leList = from data in doc.Elements(ns + "PurchaseOrder")
+						 where data.Elements().Any(c => c.Attribute(ns + "Type").Value == "Shipping")
+						 where data.Elements(ns + "Address").All(n =>
+				n.Element(ns + "State").Value.Equals("NY", StringComparison.OrdinalIgnoreCase))
+						 select data.Attribute(ns + "PurchaseOrderNumber").Value;
+
+			return string.Join(",", leList);
         }
 
         /// <summary>
@@ -39,7 +60,28 @@ namespace LinqToXml
         /// <returns>Xml customers representation (refer to XmlFromCsvResultFile.xml in Resources)</returns>
         public static string ReadCustomersFromCsv(string customers)
         {
-            throw new NotImplementedException();
+	        var lines = customers.Split(new char[]{'\r', '\n'}, StringSplitOptions.RemoveEmptyEntries);
+
+			var xml = new XElement("Root",
+			 from str in lines
+			 let line = str.Split(',')
+			 select new XElement("Customer",
+			  new XAttribute("CustomerID", line[0]),
+			  new XElement("CompanyName", line[1]),
+			  new XElement("ContactName", line[2]),
+			  new XElement("ContactTitle", line[3]),
+			  new XElement("Phone", line[4]),
+			  new XElement("FullAddress",
+			   new XElement("Address", line[5]),
+			   new XElement("City", line[6]),
+			   new XElement("Region", line[7]),
+			   new XElement("PostalCode", line[8]),
+			   new XElement("Country", line[9])
+			  )
+			 )
+			);
+
+			return xml.ToString();
         }
 
         /// <summary>
@@ -49,7 +91,7 @@ namespace LinqToXml
         /// <returns>Concatenation of all this element values.</returns>
         public static string GetConcatenationString(string xmlRepresentation)
         {
-            throw new NotImplementedException();
+			return XElement.Parse(xmlRepresentation).Value;
         }
 
         /// <summary>
@@ -59,18 +101,33 @@ namespace LinqToXml
         /// <returns>Xml representation with contacts (refer to ReplaceCustomersWithContactsResult.xml in Resources)</returns>
         public static string ReplaceAllCustomersWithContacts(string xmlRepresentation)
         {
-            throw new NotImplementedException();
-        }
+	        var doc = XElement.Parse(xmlRepresentation);
+	        //doc.Descendants("customer").ToList().ForEach(n => n.Name = "contact");
 
-        /// <summary>
-        /// Finds all ids for channels with 2 or more subscribers and mark the "DELETE" comment
-        /// </summary>
-        /// <param name="xmlRepresentation">Xml representation with channels (refer to FindAllChannelsIdsSource.xml in Resources)</param>
-        /// <returns>Sequence of channels ids</returns>
-        public static IEnumerable<int> FindChannelsIds(string xmlRepresentation)
-        {
-            throw new NotImplementedException();
-        }
+	        foreach (var item in doc.Descendants("customer"))
+	        {
+		        item.Name = "contact";
+
+	        }
+
+	        return doc.ToString();
+		}
+
+		/// <summary>
+		/// Finds all ids for channels with 2 or more subscribers and mark the "DELETE" comment
+		/// </summary>
+		/// <param name="xmlRepresentation">Xml representation with channels (refer to FindAllChannelsIdsSource.xml in Resources)</param>
+		/// <returns>Sequence of channels ids</returns>
+		public static IEnumerable<int> FindChannelsIds(string xmlRepresentation)
+		{
+			var doc = XDocument.Parse(xmlRepresentation);
+
+			var output = doc.DescendantNodes().OfType<XComment>()
+				.Where(n => n.Parent.Elements("subscriber").Count() > 1 && n.Value.Equals("DELETE"))
+				.Select(n => int.Parse(n.Parent.Attribute("id").Value));
+
+			return output;
+		}
 
         /// <summary>
         /// Sort customers in docement by Country and City
@@ -79,7 +136,15 @@ namespace LinqToXml
         /// <returns>Sorted customers representation (refer to GeneralCustomersResultFile.xml in Resources)</returns>
         public static string SortCustomers(string xmlRepresentation)
         {
-            throw new NotImplementedException();
+	        var doc = XDocument.Parse(xmlRepresentation);
+
+	        var output = new XElement("Root",
+		        doc.Root.Descendants("Customers")
+			        .OrderBy(n => n.Element("FullAddress").Element("Country").Value)
+			        .ThenBy(n => n.Element("FullAddress").Element("City").Value)
+	        ).ToString();
+
+	        return output;
         }
 
         /// <summary>
@@ -92,7 +157,7 @@ namespace LinqToXml
         /// </example>
         public static string GetFlattenString(XElement xmlRepresentation)
         {
-            throw new NotImplementedException();
+	        return xmlRepresentation.ToString(SaveOptions.DisableFormatting);
         }
 
         /// <summary>
@@ -102,7 +167,15 @@ namespace LinqToXml
         /// <returns>Total purchase value</returns>
         public static int GetOrdersValue(string xmlRepresentation)
         {
-            throw new NotImplementedException();
+			var doc = XElement.Parse(xmlRepresentation);
+
+	        var output = doc.Element("Orders").Elements("Order")
+		        .Join(doc.Element("products").Elements(),
+			        order => order.Element("product").Value,
+			        prod => prod.Attribute("Id").Value,
+			        (order, prod) => int.Parse(prod.Attribute("Value").Value)).Sum();
+
+	        return output;
         }
-    }
+	}
 }
