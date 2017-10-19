@@ -121,7 +121,13 @@ namespace LinqToXml
         /// <returns>Sequence of channels ids</returns>
         public static IEnumerable<int> FindChannelsIds(string xmlRepresentation)
         {
-            throw new NotImplementedException();
+            var root = XElement.Parse(xmlRepresentation);
+
+            var channelsIdList = from item in root.Elements("channel")
+                where item.Nodes().Any(x => x.GetType() == typeof(XComment)) && item.Elements("subscriber").Count() >= 2
+                select int.Parse(item.Attribute("id")?.Value ?? throw new InvalidOperationException());
+
+            return channelsIdList;
         }
 
         /// <summary>
@@ -131,7 +137,16 @@ namespace LinqToXml
         /// <returns>Sorted customers representation (refer to GeneralCustomersResultFile.xml in Resources)</returns>
         public static string SortCustomers(string xmlRepresentation)
         {
-            throw new NotImplementedException();
+            var root = XElement.Parse(xmlRepresentation);
+
+            var sortedCustomers = from item in root.Elements()
+                orderby item.Element("FullAddress")?.Element("Country")?.Value, item.Element("FullAddress")
+                    ?.Element("City")
+                    ?.Value
+                select item;
+
+            return new XElement("Root", sortedCustomers).ToString();
+
         }
 
         /// <summary>
@@ -144,7 +159,7 @@ namespace LinqToXml
         /// </example>
         public static string GetFlattenString(XElement xmlRepresentation)
         {
-            throw new NotImplementedException();
+            return xmlRepresentation.ToString(SaveOptions.DisableFormatting);
         }
 
         /// <summary>
@@ -154,7 +169,14 @@ namespace LinqToXml
         /// <returns>Total purchase value</returns>
         public static int GetOrdersValue(string xmlRepresentation)
         {
-            throw new NotImplementedException();
+            var root = XElement.Parse(xmlRepresentation);
+
+            var totalValueOfOrders = from order in root.Element("Orders")?.Elements()
+                join product in root.Element("products")?.Elements()
+                    on order.Element("product")?.Value equals product.Attribute("Id")?.Value
+                select int.Parse(product.Attribute("Value")?.Value ?? throw new InvalidOperationException());
+
+            return totalValueOfOrders.Sum();
         }
     }
 }
