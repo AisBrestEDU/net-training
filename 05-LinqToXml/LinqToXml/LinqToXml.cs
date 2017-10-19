@@ -97,11 +97,8 @@ namespace LinqToXml
         public static string ReplaceAllCustomersWithContacts(string xmlRepresentation)
         {
 			var input = XDocument.Parse(xmlRepresentation);
-			var output = new XElement( input.Root.Name,
-										from customer in input.Root.Elements("customer")
-										select new XElement("contact", customer.Elements()));
-
-			return output.ToString();
+			input.Root.Elements("customer").ToList().ForEach(item => item.Name = "contact");
+			return input.ToString();
 		}
 
         /// <summary>
