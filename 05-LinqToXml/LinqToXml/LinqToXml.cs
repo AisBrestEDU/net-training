@@ -180,7 +180,11 @@ namespace LinqToXml
         /// </example>
         public static string GetFlattenString(XElement xmlRepresentation)
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+
+            return xmlRepresentation.ToString(SaveOptions.DisableFormatting);
+            //String.Join("",xmlRepresentation.ToString().Split(new char[] { '\r', '\n' }));
+
         }
 
         /// <summary>
