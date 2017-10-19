@@ -44,16 +44,11 @@ namespace LinqToXml
 	        var doc = XElement.Parse(xmlRepresentation);
 			XNamespace ns = "http://www.adventure-works.com";
 
-			var leList = from data in doc.Descendants(ns + "PurchaseOrder")
-						 where data.Descendants(ns + "Address").All(n =>
-						  n.Element(ns + "State").Value.Equals("NY", StringComparison.OrdinalIgnoreCase))
+			var leList = from data in doc.Elements(ns + "PurchaseOrder")
+						 where data.Elements().Any(c => c.Attribute(ns + "Type").Value == "Shipping")
+						 where data.Elements(ns + "Address").All(n =>
+				n.Element(ns + "State").Value.Equals("NY", StringComparison.OrdinalIgnoreCase))
 						 select data.Attribute(ns + "PurchaseOrderNumber").Value;
-
-			//var leList = from data in doc.Elements(ns + "PurchaseOrder")
-			//			 where data.Elements().Any(c => c.Attribute(ns + "Type").Value == "Shipping")
-			//			 where data.Elements(ns + "Address").All(n =>
-			//	n.Element(ns + "State").Value.Equals("NY", StringComparison.OrdinalIgnoreCase))
-			//			 select data.Attribute(ns + "PurchaseOrderNumber").Value;
 
 			return string.Join(",", leList);
         }
@@ -141,7 +136,15 @@ namespace LinqToXml
         /// <returns>Sorted customers representation (refer to GeneralCustomersResultFile.xml in Resources)</returns>
         public static string SortCustomers(string xmlRepresentation)
         {
-            throw new NotImplementedException();
+	        var doc = XDocument.Parse(xmlRepresentation);
+
+	        var output = new XElement("Root",
+		        doc.Root.Descendants("Customers")
+			        .OrderBy(n => n.Element("FullAddress").Element("Country").Value)
+			        .ThenBy(n => n.Element("FullAddress").Element("City").Value)
+	        ).ToString();
+
+	        return output;
         }
 
         /// <summary>
@@ -154,7 +157,7 @@ namespace LinqToXml
         /// </example>
         public static string GetFlattenString(XElement xmlRepresentation)
         {
-            throw new NotImplementedException();
+	        return xmlRepresentation.ToString(SaveOptions.DisableFormatting);
         }
 
         /// <summary>
@@ -164,7 +167,15 @@ namespace LinqToXml
         /// <returns>Total purchase value</returns>
         public static int GetOrdersValue(string xmlRepresentation)
         {
-			throw new NotImplementedException();
+			var doc = XElement.Parse(xmlRepresentation);
+
+	        var output = doc.Element("Orders").Elements("Order")
+		        .Join(doc.Element("products").Elements(),
+			        order => order.Element("product").Value,
+			        prod => prod.Attribute("Id").Value,
+			        (order, prod) => int.Parse(prod.Attribute("Value").Value)).Sum();
+
+	        return output;
         }
-    }
+	}
 }
