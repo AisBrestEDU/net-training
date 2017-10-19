@@ -138,7 +138,14 @@ namespace LinqToXml
         /// <returns>Sequence of channels ids</returns>
         public static IEnumerable<int> FindChannelsIds(string xmlRepresentation)
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+
+            var doc = XDocument.Parse(xmlRepresentation);
+
+            return doc.Root.Elements()
+                .Where(x => x.Elements()
+                    .Count(s => s.Name.LocalName == "subscriber") >= 2 && x.Nodes().Any(s => s.NodeType == System.Xml.XmlNodeType.Comment))
+                .Select(x => int.Parse( x.FirstAttribute.Value));
         }
 
         /// <summary>
