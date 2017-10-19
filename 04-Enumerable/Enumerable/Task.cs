@@ -486,7 +486,7 @@ namespace EnumerableTask {
 
             if(data.Count()==0) return new char[] { };
             var ss=data?.ElementAt(0) ?? throw new ArgumentNullException();
-            return data.Aggregate(ss,(acc, item) => new String(acc.Intersect(item).ToArray<char>())).ToCharArray();
+            return data.Aggregate(ss.AsEnumerable(),(acc, item) => acc.Intersect(item));
         }
 
         /// <summary> Calculates sum of all integers from object array </summary>
