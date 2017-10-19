@@ -11,12 +11,12 @@ namespace IQueryable.Tests
     {
         #region Test Helpers
 
-        private static void QueryTest(IQueryable<Question> query, string expected, string assertMessage)
+        private static void QueryTest(IQueryable<Person> query, string expected, string assertMessage)
         {
             QueryTest(query, new[] {expected}, assertMessage);
         }
 
-        private static void QueryTest(IQueryable<Question> query, IEnumerable<string> expected, string assertMessage)
+        private static void QueryTest(IQueryable<Person> query, IEnumerable<string> expected, string assertMessage)
         {
             var actual = query.ToString();
             Assert.IsTrue(expected.Contains(actual, StringComparer.InvariantCultureIgnoreCase), assertMessage);
@@ -27,84 +27,73 @@ namespace IQueryable.Tests
         [TestMethod]
         public void Where_Should_Filter_Results()
         {
-			var answers = from a in new YqlAnswerSearch()
-						  where a.Subject.Contains("Belarus")
-						  select a;
+            var people = from p in new People()
+            			 where p.FirstName.Contains("Alex")
+            			 select p;
 
-			var answered = from a in new YqlAnswerSearch()
-						   where a.Subject.Contains("Belarus") && a.Type == QuestionType.Resolved
-						   select a;
+            var males = from p in new People()
+            			   where p.FirstName.Contains("Alex") && p.Sex == Sex.Male
+            			   select p;
 
-			var answersInEurope = from a in new YqlAnswerSearch()
-								  where a.Subject.Contains("Belarus") && a.Category == "Other - Europe"
-								  select a;
+            var peopleOldenThan24 = from a in new People()
+            					  where a.FirstName.Contains("Alex") && a.Age > 24
+            					  select a;
 
-			QueryTest(answers, "select * from answers.search where query=\"Belarus\"", "Where should query by Belarus");
+            QueryTest(people, "select * from person where firstname like \'%Alex%\'", "Where should filter by FirstName");
 
-			QueryTest(answered, new[] { "select * from answers.search where query=\"Belarus\" and type=\"resolved\"",
-			                            "select * from answers.search where type=\"resolved\" and query=\"Belarus\"" },
-					  "Where should query by Belarus and by type = resolved");
+            QueryTest(males, new[] { "select * from person where firstname like \'%Alex%\' and sex = 0",
+                                     "select * from person where sex = 0 and firstname like \'%Alex%\'" },
+            		  "Where should filter by firstname and sex");
 
-			
-			QueryTest(answersInEurope, new[] { "select * from answers.search where query=\"Belarus\" and category_name=\"Other - Europe\"",
-			                                   "select * from answers.search where category_name=\"Other - Europe\" and query=\"Belarus\"" },
-					  "Where should query by Belarus and by category = Other - Europe");
+            QueryTest(peopleOldenThan24, new[] { "select * from person where firstname like \'%Alex%\' and age > 24",
+                                                 "select * from person where age > 24 and firstname like \'%Alex%\'" },
+                      "Where should filter by firstname and age");
         }
 
         [TestMethod]
         [ExpectedException(typeof(InvalidOperationException))]
-        public void Simple_Select_Should_Raise_Exception_As_SubjectContains_Not_Specified()
+        public void Simple_Select_Should_Raise_Exception_When_Filters_Not_Specified()
         {
-            var answers = from a in new YqlAnswerSearch()
-                          select a;
+            var people = from p in new People()
+                         select p;
 
-            answers.ToString();
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(InvalidOperationException))]
-        public void Where_Should_Raise_Exception_If_Category_Specified_But_SubjectContains_Not_Specified()
-        {
-            var answers = from a in new YqlAnswerSearch()
-                          where a.Category == "Other - Europe"
-                          select a;
-
-            answers.ToString();
+            people.GetEnumerator();
         }
 
         [TestMethod]
         [ExpectedException(typeof(NotSupportedException))]
-        public void Where_Should_Raise_Exception_If_Querying_By_ChosenAnswer()
+        public void Where_Should_Raise_Exception_If_Querying_By_FullName()
         {
-            var answers = from a in new YqlAnswerSearch()
-                          where a.ChosenAnswer == "42"
-                          select a;
+            var people = from p in new People()
+                          where p.FullName == "Poopy Butthole"
+                          select p;
 
-            answers.ToString();
+            people.GetEnumerator();
         }
 
         [TestMethod]
         [ExpectedException(typeof(NotSupportedException))]
-        public void Where_Should_Raise_Exception_If_Querying_By_Content()
+        public void Where_Should_Raise_Exception_If_Querying_By_LastName()
         {
-            var answers = from a in new YqlAnswerSearch()
-                          where a.Content == "something"
-                          select a;
+            var people = from p in new People()
+                where p.LastName == "Sanchez"
+                select p;
 
-            answers.ToString();
+            people.GetEnumerator();
         }
 
         [TestMethod]
-        public void Where_Should_Fetch_Proper_Data_From_Yql_Service()
+        public void Where_Should_Fetch_Proper_Data_From_Database()
         {
-            var answers = from a in new YqlAnswerSearch()
-                          where a.Subject.Contains("Belarus")
-                          select a;
+            var people = new People().Where(a => a.FirstName.Contains("Alex") && a.Age > 24).ToList();
 
-            foreach (var answer in answers)
+            foreach (var person in people)
             {
-                Assert.IsTrue(answer.Subject.IndexOf("Belarus", StringComparison.InvariantCultureIgnoreCase) >= 0, 
-                            "Where should fetch proper data from Yql service");
+                Assert.IsTrue(person.FirstName.IndexOf("Alex", StringComparison.InvariantCultureIgnoreCase) >= 0, 
+                            "Where should fetch proper data from database");
+
+                Assert.IsTrue(person.Age > 24,
+                    "Where should fetch proper data from database");
             }
         }
     }
