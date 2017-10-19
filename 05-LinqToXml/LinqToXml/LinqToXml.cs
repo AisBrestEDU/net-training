@@ -155,7 +155,19 @@ namespace LinqToXml
         /// <returns>Sorted customers representation (refer to GeneralCustomersResultFile.xml in Resources)</returns>
         public static string SortCustomers(string xmlRepresentation)
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+
+            var doc = XDocument.Parse(xmlRepresentation);
+
+            var str = new XDocument(new XElement("Root",
+                doc.Root.Elements()
+                .OrderBy(c => c.Element("FullAddress").Element("Country").Value)
+                .ThenBy(c => c.Element("FullAddress").Element("City").Value)
+                .Select(c => c)
+                ));
+
+            return str.ToString();
+
         }
 
         /// <summary>
