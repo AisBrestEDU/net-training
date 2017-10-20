@@ -378,7 +378,9 @@ namespace EnumerableTask {
 
             return sales
                 .Union(DV)
-                .GroupBy(x=> (int) ((x.Item1.Month+2.5)/3), (key,value)=>new Tuple<int,int>(key,value.Select(p=>p.Item2).Sum()))
+                .GroupBy(x=> (int) ((x.Item1.Month+2.5)/3), 
+                        (key,value)=>new Tuple<int,int>(key,value.Select(p=>p.Item2).Sum())
+                        )
                 .OrderBy(x=>x.Item1)
                 .Select(x=>x.Item2)
                 .ToArray();
