@@ -13,7 +13,7 @@ namespace IQueryableTask
 			return (IQueryable)Activator.CreateInstance(typeof(People).MakeGenericType(elementType), new object[] { this, expression });
         }
 
-        public IQueryable<Question> CreateQuery<Question>(Expression expression)
+        public IQueryable<TResult> CreateQuery<TResult>(Expression expression)
         {
 			return new People(expression);
         }
