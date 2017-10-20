@@ -24,8 +24,8 @@ namespace IQueryableTask
         public object Execute(Expression expression)
         {
             // TODO: Implement Execute
-           // var queryString = 
-            return GetSqlQuery(expression);
+            // var queryString = 
+            return new PersonService().Search(GetSqlQuery(expression));
         }
 
         public TResult Execute<TResult>(Expression expression)
@@ -33,7 +33,7 @@ namespace IQueryableTask
             // TODO: Implement Execute
           //  var queryString = GetSqlQuery(expression);
            
-            return (TResult) GetSqlQuery(expression).Cast<TResult>();
+            return (TResult) Execute(expression);
         }
 
         /// <summary>
@@ -46,6 +46,8 @@ namespace IQueryableTask
             
             var queryBuilder = new QueryBilder();
 
+            if ((expression as MethodCallExpression).Arguments[1].ToString().Contains("LastName"))
+                throw new NotSupportedException();
             var queryString = queryBuilder.GetQueryString((expression as MethodCallExpression).Arguments[1]).ToLower();
 
             
@@ -54,7 +56,9 @@ namespace IQueryableTask
             string str2;
             if (str1256 == "")
                 throw new InvalidOperationException();
-                str2 = regexp.Replace(queryString, $@"'%{str1256.Substring(1, str1256.Length - 2)}%'", 1);
+            if(str1256.Contains(" "))
+                throw new NotSupportedException();
+            str2 = regexp.Replace(queryString, $@"'%{str1256.Substring(1, str1256.Length - 2)}%'", 1);
             
              
 
