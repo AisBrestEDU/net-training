@@ -27,24 +27,32 @@ namespace IQueryableTask
     {
         public People()
         {
-            Expression = Expression.Constant(this);
+			//Конструктор вызывается из клиентского приложения для создания объекта для написания запроса LINQ. 
+			Expression = Expression.Constant(this);
         }
         
         public People(Expression expression)
         {
-            Expression = expression;
+			//Kонструктор вызывается для библиотеки поставщика в коде реализации IQueryProvider.
+			Expression = expression;
         }
 
         public IEnumerator<Person> GetEnumerator()
         {
-            // TODO: Implement GetEnumerator
-            throw new NotImplementedException();
+			// TODO: Implement GetEnumerator
+			//throw new NotImplementedException();
+
+			//Перечисляются результаты запроса
+			return Provider.Execute<IEnumerable<Person>>(Expression).GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            // TODO: Implement GetEnumerator
-            throw new NotImplementedException();
+			// TODO: Implement GetEnumerator
+			//throw new NotImplementedException();
+
+			//Перечисляются результаты запроса
+			return Provider.Execute<IEnumerable>(Expression).GetEnumerator();
         }
 
         public Expression Expression { get; private set; }
@@ -54,7 +62,9 @@ namespace IQueryableTask
             get
             {
                 // TODO: Implement GetEnumerator
-                throw new NotImplementedException();
+                //throw new NotImplementedException();
+
+	            return typeof(People);
             }
         }
 
