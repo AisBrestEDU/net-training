@@ -13,7 +13,7 @@ namespace IQueryableTask
             throw new NotImplementedException();
         }
 
-        public IQueryable<Question> CreateQuery<Question>(Expression expression)
+        public IQueryable<TResult> CreateQuery<TResult>(Expression expression)
         {
             // TODO: Implement CreateQuery
             throw new NotImplementedException();
