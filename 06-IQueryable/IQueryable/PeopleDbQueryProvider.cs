@@ -9,14 +9,13 @@ namespace IQueryableTask
     {
         public IQueryable CreateQuery(Expression expression)
         {
-            // TODO: Implement CreateQuery
-            throw new NotImplementedException();
+			Type elementType = expression.Type;
+			return (IQueryable)Activator.CreateInstance(typeof(People).MakeGenericType(elementType), new object[] { this, expression });
         }
 
         public IQueryable<Question> CreateQuery<Question>(Expression expression)
         {
-            // TODO: Implement CreateQuery
-            throw new NotImplementedException();
+			return new People(expression);
         }
 
         public object Execute(Expression expression)
