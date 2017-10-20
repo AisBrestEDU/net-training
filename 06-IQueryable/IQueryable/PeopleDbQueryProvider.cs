@@ -15,7 +15,7 @@ namespace IQueryableTask
 
         public IQueryable<TResult> CreateQuery<TResult>(Expression expression)
         {
-			return new People(expression);
+			return (IQueryable<TResult>)new People(expression);
         }
 
         public object Execute(Expression expression)
@@ -26,8 +26,9 @@ namespace IQueryableTask
 
         public TResult Execute<TResult>(Expression expression)
         {
-            // TODO: Implement Execute
-            throw new NotImplementedException();
+			var sqlQuery =  GetSqlQuery(expression);
+			var dbService = new PersonService();
+			return (TResult)dbService.Search(sqlQuery);
 
             // HINT: Use GetSqlQuery to build query and pass the query to PersonService
         }
