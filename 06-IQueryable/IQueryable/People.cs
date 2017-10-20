@@ -38,13 +38,13 @@ namespace IQueryableTask
         public IEnumerator<Person> GetEnumerator()
         {
             // TODO: Implement GetEnumerator
-            throw new NotImplementedException();
+            return Provider.Execute<IEnumerable<Person>>(Expression).GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
             // TODO: Implement GetEnumerator
-            throw new NotImplementedException();
+            return Provider.Execute<IEnumerable>(Expression).GetEnumerator();
         }
 
         public Expression Expression { get; private set; }
@@ -54,7 +54,9 @@ namespace IQueryableTask
             get
             {
                 // TODO: Implement GetEnumerator
-                throw new NotImplementedException();
+                
+
+                return typeof(Person);
             }
         }
 
@@ -68,5 +70,7 @@ namespace IQueryableTask
         {
             return ((PeopleDbQueryProvider) Provider).GetSqlQuery(Expression);
         }
+
+        }
     }
-}
+
