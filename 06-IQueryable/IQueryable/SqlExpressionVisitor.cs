@@ -13,68 +13,46 @@ namespace IQueryableTask
 		{
 			_sb = new StringBuilder();
 			Visit(expression);
-			return _sb.ToString();
-		}
+			var output = _sb.ToString();
 
-		private static Expression StripQuotes(Expression expression)
-		{
-
-			while (expression.NodeType == ExpressionType.Quote)
+			if (output.Contains("LastName") || output.Contains("FullName"))
 			{
-
-				expression = ((UnaryExpression)expression).Operand;
-
+				throw new NotSupportedException();
 			}
 
-			return expression;
-
+			return output;
 		}
 
 		protected override Expression VisitMethodCall(MethodCallExpression node)
 		{
-			switch (node.Method.Name)
+			if (node.Method.DeclaringType == typeof(Queryable) && node.Method.Name == "Where")
 			{
-				case "Where":
-					Visit(node.Arguments[0]);
-					_sb.Append(" where ");
-					Visit(node.Arguments[1]);
-					break;
-				case "Contains":
-					Visit(node.Object);
-					_sb.Append("=");
-					Visit(node.Arguments[0]);
-					break;
-				default:
-					throw new InvalidOperationException();
+				Visit(node.Arguments[0]);
+				_sb.Append(" WHERE ");
+				Visit(node.Arguments[1]);
+				return node;
 			}
 
-			return node;
+			else if (node.Method.Name == "Contains")
+			{
+				Visit(node.Object);
+				_sb.Append(" like ");
+				Visit(node.Arguments[0]);
+				return node;
+			}
 
-
-			//if (node.Method.DeclaringType == typeof(Queryable) && node.Method.Name == "Where")
-			//{
-			//	_sb.Append("SELECT * FROM ");
-			//	Visit(node.Arguments[0]);
-			//	_sb.Append(" WHERE ");
-			//	LambdaExpression lambda = (LambdaExpression)StripQuotes(node.Arguments[1]);
-			//	Visit(lambda.Body);
-			//	return node;
-			//}
-
-			//else if (node.Method.DeclaringType == typeof(Queryable) && node.Method.Name == "Contains")
-			//{
-			//	Visit(node.Object);
-			//	_sb.Append("=");
-			//	Visit(node.Arguments[0]);
-			//	return node;
-			//}
-
-			//throw new NotSupportedException($"The method '{node.Method.Name}' is not supported");
+			throw new InvalidOperationException();
 		}
 
 		protected override Expression VisitMember(MemberExpression node)
 		{
-			return base.VisitMember(node);
+			if (node.Expression != null && node.Expression.NodeType == ExpressionType.Parameter)
+			{
+				_sb.Append(node.Member.Name);
+				return node;
+			}
+
+			throw new NotSupportedException($"The member '{node.Member.Name}' is not supported");
 		}
 
 		protected override Expression VisitConstant(ConstantExpression node)
@@ -82,7 +60,7 @@ namespace IQueryableTask
 			var q = node.Value as IQueryable;
 			if (q != null)
 			{
-				_sb.Append("select * from person ");
+				_sb.Append("select * from person");
 			}
 			else
 			{
@@ -90,14 +68,12 @@ namespace IQueryableTask
 				switch (t)
 				{
 					case TypeCode.String:
-						_sb.Append("\"");
+						_sb.Append("'%");
 						_sb.Append(node.Value);
-						_sb.Append("\"");
+						_sb.Append("%'");
 						break;
 					case TypeCode.Int32:
-						_sb.Append("\"");
 						_sb.Append(node.Value);
-						_sb.Append("\"");
 						break;
 					default:
 						_sb.Append(node.Value);
@@ -109,22 +85,35 @@ namespace IQueryableTask
 
 		protected override Expression VisitBinary(BinaryExpression node)
 		{
-			return base.VisitBinary(node);
+			Visit(node.Left);
+			switch (node.NodeType)
+			{
+				case ExpressionType.GreaterThan:
+					_sb.Append(" > ");
+					break;
+				case ExpressionType.AndAlso:
+					_sb.Append(" AND ");
+					break;
+				case ExpressionType.Equal:
+					_sb.Append(" = ");
+					break;
+				default:
+					throw new NotSupportedException($"The binary operator '{node.NodeType}' is not supported");
+			}
+
+			Visit(node.Right);
+			return node;
 		}
 
 		protected override Expression VisitUnary(UnaryExpression node)
 		{
-			switch (node.NodeType)
-			{
-				case ExpressionType.Not:
-					_sb.Append(" NOT ");
-					this.Visit(node.Operand);
-					break;
-				default:
-					throw new NotSupportedException($"The unary operator '{node.NodeType}' is not supported");
-			}
-
-			return node;
+			//Expression operand = this.Visit(u.Operand);
+			//if (operand != u.Operand)
+			//{
+			//	return Expression.MakeUnary(u.NodeType, operand, u.Type, u.Method);
+			//}
+			//return u;
+			return Visit(node.Operand);
 		}
 	}
 }
