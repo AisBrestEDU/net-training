@@ -26,15 +26,30 @@ namespace IOStreams
 		/// <returns>sequence of PlanetInfo</returns>
 		public static IEnumerable<PlanetInfo> ReadPlanetInfoFromXlsx(string xlsxFileName)
 		{
-			// TODO : Implement ReadPlanetInfoFromXlsx method using System.IO.Packaging + Linq-2-Xml
+		    // TODO : Implement ReadPlanetInfoFromXlsx method using System.IO.Packaging + Linq-2-Xml
 
-			// HINT : Please be as simple & clear as possible.
-			//        No complex and common use cases, just this specified file.
-			//        Required data are stored in Planets.xlsx archive in 2 files:
-			//         /xl/sharedStrings.xml      - dictionary of all string values
-			//         /xl/worksheets/sheet1.xml  - main worksheet
+		    // HINT : Please be as simple & clear as possible.
+		    //        No complex and common use cases, just this specified file.
+		    //        Required data are stored in Planets.xlsx archive in 2 files:
+		    //         /xl/sharedStrings.xml      - dictionary of all string values
+		    //         /xl/worksheets/sheet1.xml  - main worksheet
 
-			throw new NotImplementedException();
+		    using (FileStream fs = new FileStream(xlsxFileName, FileMode.Open, FileAccess.Read))
+		    {
+		        var archive = ZipPackage.Open(fs);
+		        var sharedStrings = archive.GetPart(new Uri(@"/xl/sharedStrings.xml", UriKind.Relative)).GetStream();
+		        var sheet1 = archive.GetPart(new Uri(@"/xl/worksheets/sheet1.xml", UriKind.Relative)).GetStream();
+
+		        var sharedStringsRoot = XDocument.Load(sharedStrings);
+		        var sheetRoot = XDocument.Load(sheet1);
+
+		        var planetNames = from item in sharedStringsRoot.Root.Descendants()
+                                  where item.Name.LocalName == "t"
+                                  select item; //.Element("t").Value.Take(8);
+
+		    }
+
+		    return null;
 		}
 
 
