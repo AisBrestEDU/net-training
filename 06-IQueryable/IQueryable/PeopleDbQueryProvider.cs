@@ -12,8 +12,6 @@ namespace IQueryableTask
             // TODO: Implement CreateQuery
             //throw new NotImplementedException();
 
-            Type elementType = expression.Type;
-
             return new People(expression);
         }
 
