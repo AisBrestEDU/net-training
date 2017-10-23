@@ -26,6 +26,31 @@ namespace IOStreams
 		/// <returns>sequence of PlanetInfo</returns>
 		public static IEnumerable<PlanetInfo> ReadPlanetInfoFromXlsx(string xlsxFileName)
 		{
+
+			using (System.IO.Packaging.Package pac = Package.Open(xlsxFileName))
+			{
+				Dictionary<int, string> strings = new Dictionary<int, string>();
+				XDocument sheetXDoc;
+
+				var sharedStringsUri = new Uri("/xl/sharedStrings.xml", UriKind.Relative);
+				var sheetUri = new Uri("/xl/worksheets/sheet1.xml", UriKind.Relative);
+
+				using (var stream = pac.GetPart(sharedStringsUri).GetStream() )
+				{
+					var root = XDocument.Load(stream).Root;
+					XNamespace ns = root.Name.Namespace;
+
+					strings = root.Elements(ns + "si")
+						.Select((item, index) => new { item.Element(ns + "t").Value, index })
+						.ToDictionary(pair => pair.index, pair => pair.Value);
+				}
+				var sheet = pac.GetPart(sheetUri);
+				var streamSheet = sheet.GetStream(FileMode.Open, FileAccess.Read);
+				sheetXDoc = XDocument.Load(streamSheet);
+			}
+
+
+
 			// TODO : Implement ReadPlanetInfoFromXlsx method using System.IO.Packaging + Linq-2-Xml
 
 			// HINT : Please be as simple & clear as possible.
