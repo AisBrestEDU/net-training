@@ -10,7 +10,7 @@ namespace IQueryableTask
     {
         public IQueryable CreateQuery(Expression expression)
         {
-            throw new NotImplementedException();
+            return new People(expression);
         }
 
         public IQueryable<TResult> CreateQuery<TResult>(Expression expression)
