@@ -6,10 +6,18 @@ using IQueryableTask;
 public class QueryBilder : ExpressionVisitor
 {
     private StringBuilder queryString = new StringBuilder("select * from person where ");
-
+    
     protected override Expression VisitBinary(BinaryExpression binaryExpression)
     {
-        
+        if (binaryExpression.Left.ToString().Contains("LastName")
+            || binaryExpression.Left.ToString().Contains("FullName"))
+        {
+            throw new NotSupportedException(); 
+        }
+           
+
+      
+
         if ((binaryExpression.Left).NodeType == ExpressionType.Convert && ((binaryExpression.Left as UnaryExpression).Operand as MemberExpression).Member.Name.Equals("Type"))
         {
             VisitQuestionTypeBinaryExpression(binaryExpression);
@@ -20,10 +28,10 @@ public class QueryBilder : ExpressionVisitor
 
             switch (binaryExpression.NodeType)
             {
-                case ExpressionType.AndAlso: queryString.Append(" " + "and" + " "); break;
-                case ExpressionType.Equal: queryString.Append("="); break;
-                case ExpressionType.NotEqual: queryString.Append("!="); break;
-
+                case ExpressionType.AndAlso: queryString.Append(" and " ); break;
+                case ExpressionType.Equal: queryString.Append(" = "); break;
+                case ExpressionType.NotEqual: queryString.Append(" != "); break;
+                case ExpressionType.GreaterThan: queryString.Append(" > "); break;
                 default: queryString.Append(binaryExpression.NodeType); break;
             }
 
@@ -42,7 +50,8 @@ public class QueryBilder : ExpressionVisitor
     {
         switch (m.Method.ToString())
         {
-            case "Boolean Contains(System.String)": queryString.Append((m.Object as MemberExpression).Member.Name + "=" + m.Arguments[0].ToString()); break;
+            case "Boolean Contains(System.String)": queryString.Append((m.Object as MemberExpression)
+                .Member.Name + " like " + $@"'%{ m.Arguments[0].ToString().Replace("\"","")}%'"); break;
 
             default: return base.VisitMethodCall(m);
         }
@@ -66,9 +75,15 @@ public class QueryBilder : ExpressionVisitor
 
     public string GetQueryString(Expression expression)
     {
+        if(!expression.ToString().Contains("\""))
+        {
+            throw new InvalidOperationException();
+        }
         Visit(expression);
 
-        return queryString.ToString();
+        var result = queryString.ToString();
+
+        return result;
     }
 
 }
