@@ -13,11 +13,10 @@ namespace IQueryableTask
 
         protected  override Expression VisitMethodCall(MethodCallExpression node)
         {
-            //if (node.Method.Name != "Where") throw new InvalidOperationException();
 
-            switch (node.Method.ToString())
+            switch (node.Method.Name)
             {
-                case "Boolean Contains(System.String)":
+                case "Contains":
                     sb.Append($" where ");
                     sb.Append((node.Object as MemberExpression).Member.Name.ToLower() + " like " + EscapeName(node.Arguments[0].ToString(),1,1));
                     break;
@@ -81,7 +80,6 @@ namespace IQueryableTask
             switch (name)
             {
                 case "FirstName":
-                //case "LastName":
                 case "Sex":
                 case "Age":
                     return true;
@@ -90,10 +88,5 @@ namespace IQueryableTask
             }
         }
 
-
-        //protected internal override virtual Expression VisitUnary(UnaryExpression node)
-        //{
-
-        //}
     }
 }

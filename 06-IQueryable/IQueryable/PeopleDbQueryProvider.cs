@@ -15,7 +15,7 @@ namespace IQueryableTask
             Type elementType = expression.Type;
             try
             {
-                return (IQueryable)Activator.CreateInstance(typeof(People).MakeGenericType(elementType), new object[] {expression });
+                return (IQueryable)Activator.CreateInstance(typeof(People).MakeGenericType(elementType), new object[] { expression });
             }
             catch (System.Reflection.TargetInvocationException tie)
             {
