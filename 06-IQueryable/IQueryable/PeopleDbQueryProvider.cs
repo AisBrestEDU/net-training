@@ -10,26 +10,40 @@ namespace IQueryableTask
         public IQueryable CreateQuery(Expression expression)
         {
             // TODO: Implement CreateQuery
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+
+            Type elementType = expression.Type;
+            try
+            {
+                return (IQueryable)Activator.CreateInstance(typeof(People).MakeGenericType(elementType), new object[] {expression });
+            }
+            catch (System.Reflection.TargetInvocationException tie)
+            {
+                throw tie.InnerException;
+            }
         }
 
         public IQueryable<TResult> CreateQuery<TResult>(Expression expression)
         {
             // TODO: Implement CreateQuery
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+
+            return (IQueryable<TResult>) new People(expression);
         }
 
         public object Execute(Expression expression)
         {
             // TODO: Implement Execute
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+            return new PersonService().Search(GetSqlQuery(expression));
         }
 
         public TResult Execute<TResult>(Expression expression)
         {
             // TODO: Implement Execute
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
 
+            return (TResult) Execute(expression);
             // HINT: Use GetSqlQuery to build query and pass the query to PersonService
         }
 
@@ -40,12 +54,14 @@ namespace IQueryableTask
         /// <returns></returns>
         public string GetSqlQuery(Expression expression)
         {
-            // TODO: Implement GetYqlQuery
-            throw new NotImplementedException();
+            var queryBuilder = new VstrPeople();
 
-            // HINT: This method is not part of IQueryProvider interface and is used here only for tests.
-            // HINT: To transform expression to sql query create a class derived from ExpressionVisitor
-            // HINT: Read the tutorial https://msdn.microsoft.com/en-us/library/bb546158.aspx for more info
+            var queryString = queryBuilder.GetQueryString((expression as MethodCallExpression).Arguments[1]); ;
+
+            if ("select * from person" == queryString) throw new InvalidOperationException();
+
+            return queryString;
+
         }
     }
 }

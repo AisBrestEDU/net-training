@@ -56,7 +56,9 @@ namespace IQueryableTask
             get
             {
                 // TODO: Implement GetEnumerator
-                throw new NotImplementedException();
+                //throw new NotImplementedException();
+
+                return typeof(People);
             }
         }
 
