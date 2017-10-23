@@ -34,6 +34,29 @@ namespace IOStreams
 			//         /xl/sharedStrings.xml      - dictionary of all string values
 			//         /xl/worksheets/sheet1.xml  - main worksheet
 
+
+			//using (Package pac = Package.Open(xlsxFileName))
+			//{
+			//	var uri1 = new Uri("/xl/worksheets/sheet1.xml", UriKind.Relative);
+			//	var uri2 = new Uri("/xl/sharedStrings.xml", UriKind.Relative);
+
+			//	var part = pac.GetPart(uri1);
+			//	var part2 = pac.GetPart(uri2);
+
+
+			//	using (var stream = part.GetStream())
+			//	{
+			//		var root = XDocument.Load(stream);
+
+			//		using (var stream1 = part2.GetStream())
+			//		{
+			//			var root1 = XDocument.Load(stream1);
+
+
+			//		}
+			//	}
+			//}
+
 			throw new NotImplementedException();
 		}
 
@@ -47,7 +70,18 @@ namespace IOStreams
 		public static string CalculateHash(this Stream stream, string hashAlgorithmName)
 		{
 			// TODO : Implement CalculateHash method
-			throw new NotImplementedException();
+			//throw new NotImplementedException();
+
+			var algorithm = HashAlgorithm.Create(hashAlgorithmName);
+
+			if (algorithm == null)
+			{
+				throw new ArgumentException();
+			}
+
+			var hash = algorithm.ComputeHash(stream);
+
+			return BitConverter.ToString(hash).Replace("-", String.Empty);
 		}
 
 
@@ -60,7 +94,25 @@ namespace IOStreams
 		public static Stream DecompressStream(string fileName, DecompressionMethods method)
 		{
 			// TODO : Implement DecompressStream method
-			throw new NotImplementedException();
+
+			if (method == DecompressionMethods.GZip)
+			{
+				var fs = new FileStream(fileName, FileMode.Open);
+				return new GZipStream(fs,CompressionMode.Decompress);
+			}
+
+			else if(method == DecompressionMethods.Deflate)
+			{
+				var fs = new FileStream(fileName, FileMode.Open);
+				return new DeflateStream(fs, CompressionMode.Decompress);
+			}
+
+			else
+			{
+				return new FileStream(fileName, FileMode.Open);
+			}
+
+			//throw new NotImplementedException();
 		}
 
 
@@ -73,7 +125,9 @@ namespace IOStreams
 		public static string ReadEncodedText(string fileName, string encoding)
 		{
 			// TODO : Implement ReadEncodedText method
-			throw new NotImplementedException();
+			//throw new NotImplementedException();
+
+			return File.ReadAllText(fileName, Encoding.GetEncoding(encoding));
 		}
 	}
 
