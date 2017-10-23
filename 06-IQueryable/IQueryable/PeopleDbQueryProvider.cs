@@ -13,14 +13,8 @@ namespace IQueryableTask
             //throw new NotImplementedException();
 
             Type elementType = expression.Type;
-            try
-            {
-                return (IQueryable)Activator.CreateInstance(typeof(People).MakeGenericType(elementType), new object[] { expression });
-            }
-            catch (System.Reflection.TargetInvocationException tie)
-            {
-                throw tie.InnerException;
-            }
+
+            return new People(expression);
         }
 
         public IQueryable<TResult> CreateQuery<TResult>(Expression expression)
