@@ -10,16 +10,9 @@ namespace IQueryableTask
 		public IQueryable CreateQuery(Expression expression)
         {
 			// TODO: Implement CreateQuery
-			//throw new NotImplementedException();
+	        //throw new NotImplementedException();
 
-			try
-			{
-				return (IQueryable)Activator.CreateInstance(typeof(People), new object[] { expression });
-			}
-			catch (System.Reflection.TargetInvocationException tie)
-			{
-				throw tie.InnerException;
-			}
+			return new People(expression);
 		}
 
 		//Создает объект IQueryable<T>, который позволяет вычислить запрос, представленный заданным деревом выражения.
