@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using System.Xml.Linq;
 
 namespace IOStreams
@@ -14,27 +15,50 @@ namespace IOStreams
 
 	public static class TestTasks
 	{
-		/// <summary>
-		/// Parses Resourses\Planets.xlsx file and returns the planet data: 
-		///   Jupiter     69911.00
-		///   Saturn      58232.00
-		///   Uranus      25362.00
-		///    ...
-		/// See Resourses\Planets.xlsx for details
-		/// </summary>
-		/// <param name="xlsxFileName">source file name</param>
-		/// <returns>sequence of PlanetInfo</returns>
-		public static IEnumerable<PlanetInfo> ReadPlanetInfoFromXlsx(string xlsxFileName)
-		{
-			// TODO : Implement ReadPlanetInfoFromXlsx method using System.IO.Packaging + Linq-2-Xml
+        /// <summary>
+        /// Parses Resourses\Planets.xlsx file and returns the planet data: 
+        ///   Jupiter     69911.00
+        ///   Saturn      58232.00
+        ///   Uranus      25362.00
+        ///    ...
+        /// See Resourses\Planets.xlsx for details
+        /// </summary>
+        /// <param name="xlsxFileName">source file name</param>
+        /// <returns>sequence of PlanetInfo</returns>
+        public static IEnumerable<PlanetInfo> ReadPlanetInfoFromXlsx(string xlsxFileName)
+        {
+            // TODO : Implement ReadPlanetInfoFromXlsx method using System.IO.Packaging + Linq-2-Xml
 
-			// HINT : Please be as simple & clear as possible.
-			//        No complex and common use cases, just this specified file.
-			//        Required data are stored in Planets.xlsx archive in 2 files:
-			//         /xl/sharedStrings.xml      - dictionary of all string values
-			//         /xl/worksheets/sheet1.xml  - main worksheet
+            // HINT : Please be as simple & clear as possible.
+            //        No complex and common use cases, just this specified file.
+            //        Required data are stored in Planets.xlsx archive in 2 files:
+            //         /xl/sharedStrings.xml      - dictionary of all string values
+            //         /xl/worksheets/sheet1.xml  - main worksheet
 
-			throw new NotImplementedException();
+            //throw new NotImplementedException();
+
+            using (var planetsFile = new FileStream(xlsxFileName,FileMode.Open,FileAccess.Read))
+            {
+                Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("en-US");
+                var zp = ZipPackage.Open(planetsFile);
+                var sh = zp.GetPart(new Uri(@"/xl/sharedStrings.xml", UriKind.Relative)).GetStream();
+                var wk = zp.GetPart(new Uri(@"/xl/worksheets/sheet1.xml", UriKind.Relative)).GetStream();
+
+                var sS_xml = XDocument.Load(sh);
+                var wss1_xml = XDocument.Load(wk);
+
+                var plnt=sS_xml.Root.Descendants().Where(p=>p.Name.LocalName=="t").Select(p => p.Value).Take(8).ToArray();
+                var rds = wss1_xml.Root.Descendants()
+                    .Where(r => r.Name.LocalName == "v")
+                    .Select(r =>{
+                            double buff;
+                            return double.TryParse(r.Value, out buff) ? buff : 0;})
+                    .Where(r =>  r> 100).ToArray();
+
+                //return from p in plnt from r in rds select new PlanetInfo() { MeanRadius = r, Name = p };
+                return plnt.Zip(rds, (p, r) => new PlanetInfo() { MeanRadius = r, Name = p });
+            }
+
 		}
 
 
