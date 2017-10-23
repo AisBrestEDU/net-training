@@ -2,6 +2,7 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace IQueryableTask
 {
@@ -9,14 +10,12 @@ namespace IQueryableTask
     {
         public IQueryable CreateQuery(Expression expression)
         {
-            // TODO: Implement CreateQuery
-            throw new NotImplementedException();
+            return new People(expression);
         }
 
         public IQueryable<TResult> CreateQuery<TResult>(Expression expression)
         {
-            // TODO: Implement CreateQuery
-            throw new NotImplementedException();
+            return (IQueryable<TResult>) new People(expression);
         }
 
         public object Execute(Expression expression)
@@ -27,8 +26,11 @@ namespace IQueryableTask
 
         public TResult Execute<TResult>(Expression expression)
         {
-            // TODO: Implement Execute
-            throw new NotImplementedException();
+            PersonService service = new PersonService();
+
+            String query = this.GetSqlQuery(expression);
+
+            return (TResult) service.Search(query);
 
             // HINT: Use GetSqlQuery to build query and pass the query to PersonService
         }
@@ -40,8 +42,7 @@ namespace IQueryableTask
         /// <returns></returns>
         public string GetSqlQuery(Expression expression)
         {
-            // TODO: Implement GetYqlQuery
-            throw new NotImplementedException();
+            return new SqlExpressionVisitor().Translate(expression);
 
             // HINT: This method is not part of IQueryProvider interface and is used here only for tests.
             // HINT: To transform expression to sql query create a class derived from ExpressionVisitor
