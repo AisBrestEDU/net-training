@@ -107,12 +107,6 @@ namespace IQueryableTask
 
 		protected override Expression VisitUnary(UnaryExpression node)
 		{
-			//Expression operand = this.Visit(u.Operand);
-			//if (operand != u.Operand)
-			//{
-			//	return Expression.MakeUnary(u.NodeType, operand, u.Type, u.Method);
-			//}
-			//return u;
 			return Visit(node.Operand);
 		}
 	}
