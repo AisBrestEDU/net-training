@@ -38,20 +38,22 @@ namespace IOStreams
 		    IEnumerable<double> meanRadius;
 		    using (FileStream fs = new FileStream(xlsxFileName, FileMode.Open, FileAccess.Read))
 		    {
-		        var archive = ZipPackage.Open(fs);
-		        var sharedStrings = archive.GetPart(new Uri(@"/xl/sharedStrings.xml", UriKind.Relative)).GetStream();
-		        var sheet1 = archive.GetPart(new Uri(@"/xl/worksheets/sheet1.xml", UriKind.Relative)).GetStream();
+		        using (var archive = ZipPackage.Open(fs))
+		        {
+		            var sharedStrings = archive.GetPart(new Uri(@"/xl/sharedStrings.xml", UriKind.Relative)).GetStream();
+		            var sheet1 = archive.GetPart(new Uri(@"/xl/worksheets/sheet1.xml", UriKind.Relative)).GetStream();
 
-		        var sharedStringsRoot = XDocument.Load(sharedStrings);
-		        var sheetRoot = XDocument.Load(sheet1);
+		            var sharedStringsRoot = XDocument.Load(sharedStrings);
+		            var sheetRoot = XDocument.Load(sheet1);
 
-		        planetNames = (from item in sharedStringsRoot.Root.Descendants()
-		            where item.Name.LocalName == "t"
-		            select item.Value).Take(8).ToList();
+		            planetNames = (from item in sharedStringsRoot.Root.Descendants()
+		                where item.Name.LocalName == "t"
+		                select item.Value).Take(8).ToList();
 
-		        meanRadius = (from item in sheetRoot.Root.Descendants()
-		            where item.Name.LocalName == "v" && item.Parent.Attribute("t") == null
-		            select Convert.ToDouble(item.Value)).ToList();
+		            meanRadius = (from item in sheetRoot.Root.Descendants()
+		                where item.Name.LocalName == "v" && item.Parent.Attribute("t") == null
+		                select Convert.ToDouble(item.Value)).ToList();
+		        }
 		    }
 
 		    return planetNames.Zip(meanRadius, (p, r) => new PlanetInfo{Name = p, MeanRadius = r});
