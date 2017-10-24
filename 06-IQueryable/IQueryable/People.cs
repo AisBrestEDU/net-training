@@ -7,21 +7,19 @@ using System.Linq.Expressions;
 namespace IQueryableTask
 {
     /// <summary>
-    /// Implements Linq to Sql for the people database. 
-    /// Database is represented by sqllite (https://www.sqlite.org/) database and you can find it in the file people.db in the IQueryableTests.Test project.
-    /// 
-    /// To check the database structure you can use http://sqlitebrowser.org/ utility.
-    /// To see the examples of queries see the project with tests
-    /// 
-    /// The database contains only one table Person with following structure
-    /// 
-    /// CREATE TABLE "person" (
-    ///  `Id` INTEGER PRIMARY KEY AUTOINCREMENT,
-    ///  `FirstName` TEXT, 
-    ///  `LastName` TEXT,
-    ///  `Sex` INTEGER,
-    ///  `Age` INTEGER 
-    /// ) 
+    ///     Implements Linq to Sql for the people database.
+    ///     Database is represented by sqllite (https://www.sqlite.org/) database and you can find it in the file people.db in
+    ///     the IQueryableTests.Test project.
+    ///     To check the database structure you can use http://sqlitebrowser.org/ utility.
+    ///     To see the examples of queries see the project with tests
+    ///     The database contains only one table Person with following structure
+    ///     CREATE TABLE "person" (
+    ///     `Id` INTEGER PRIMARY KEY AUTOINCREMENT,
+    ///     `FirstName` TEXT,
+    ///     `LastName` TEXT,
+    ///     `Sex` INTEGER,
+    ///     `Age` INTEGER
+    ///     )
     /// </summary>
     public class People : IQueryable<Person>
     {
@@ -29,7 +27,7 @@ namespace IQueryableTask
         {
             Expression = Expression.Constant(this);
         }
-        
+
         public People(Expression expression)
         {
             Expression = expression;
@@ -47,30 +45,19 @@ namespace IQueryableTask
             return Provider.Execute<IEnumerable>(Expression).GetEnumerator();
         }
 
-        public Expression Expression { get; private set; }
+        public Expression Expression { get; }
 
-        public Type ElementType
-        {
-            get
-            {
-                // TODO: Implement GetEnumerator
-                
-
-                return typeof(Person);
-            }
-        }
+        public Type ElementType => typeof(Person);
 
         public IQueryProvider Provider => new PeopleDbQueryProvider();
 
         /// <summary>
-		/// Builds SQL query by an expression. Needed for tests
-		/// </summary>
-		/// <returns>SQL query</returns>
+        ///     Builds SQL query by an expression. Needed for tests
+        /// </summary>
+        /// <returns>SQL query</returns>
         public override string ToString()
         {
             return ((PeopleDbQueryProvider) Provider).GetSqlQuery(Expression);
         }
-
-        }
     }
-
+}

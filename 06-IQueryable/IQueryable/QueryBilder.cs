@@ -1,89 +1,111 @@
 ﻿using System;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
-using IQueryableTask;
 
-public class QueryBilder : ExpressionVisitor
+namespace IQueryableTask
 {
-    private StringBuilder queryString = new StringBuilder("select * from person where ");
-    
-    protected override Expression VisitBinary(BinaryExpression binaryExpression)
+    public class SqlExpressionVisitor : ExpressionVisitor
     {
-        if (binaryExpression.Left.ToString().Contains("LastName")
-            || binaryExpression.Left.ToString().Contains("FullName"))
+        private StringBuilder _sb;
+
+        public string Translate(Expression expression)
         {
-            throw new NotSupportedException(); 
+            _sb = new StringBuilder();
+            Visit(expression);
+            var output = _sb.ToString();
+
+            if (output.Contains("LastName") || output.Contains("FullName"))
+                throw new NotSupportedException();
+
+            return output;
         }
-           
 
-      
-
-        if ((binaryExpression.Left).NodeType == ExpressionType.Convert && ((binaryExpression.Left as UnaryExpression).Operand as MemberExpression).Member.Name.Equals("Type"))
+        protected override Expression VisitMethodCall(MethodCallExpression node)
         {
-            VisitQuestionTypeBinaryExpression(binaryExpression);
-        }
-        else
-        {
-            Expression left = this.Visit(binaryExpression.Left);
-
-            switch (binaryExpression.NodeType)
+            if (node.Method.DeclaringType == typeof(Queryable) && node.Method.Name == "Where")
             {
-                case ExpressionType.AndAlso: queryString.Append(" and " ); break;
-                case ExpressionType.Equal: queryString.Append(" = "); break;
-                case ExpressionType.NotEqual: queryString.Append(" != "); break;
-                case ExpressionType.GreaterThan: queryString.Append(" > "); break;
-                default: queryString.Append(binaryExpression.NodeType); break;
+                Visit(node.Arguments[0]);
+                _sb.Append(" WHERE ");
+                Visit(node.Arguments[1]);
+                return node;
             }
 
-            Expression right = this.Visit(binaryExpression.Right);
-        }
-        return binaryExpression;
-    }
+            if (node.Method.Name == "Contains")
+            {
+                Visit(node.Object);
+                _sb.Append(" like ");
+                Visit(node.Arguments[0]);
+                return node;
+            }
 
-    protected override Expression VisitConstant(ConstantExpression node)
-    {
-        queryString.Append(node.ToString());
-        return node;
-    }
-
-    protected override Expression VisitMethodCall(MethodCallExpression m)
-    {
-        switch (m.Method.ToString())
-        {
-            case "Boolean Contains(System.String)": queryString.Append((m.Object as MemberExpression)
-                .Member.Name + " like " + $@"'%{ m.Arguments[0].ToString().Replace("\"","")}%'"); break;
-
-            default: return base.VisitMethodCall(m);
-        }
-
-        return m;
-    }
-
-    protected override Expression VisitMember(MemberExpression node)
-    {
-        queryString.Append(node.Member.Name);
-
-        return node;
-    }
-
-    protected Expression VisitQuestionTypeBinaryExpression(BinaryExpression binaryExpression)
-    {
-        queryString.Append("Type="  + Enum.GetName(typeof(Person), (binaryExpression.Right as ConstantExpression).Value).ToLower());
-
-        return binaryExpression;
-    }
-
-    public string GetQueryString(Expression expression)
-    {
-        if(!expression.ToString().Contains("\""))
-        {
             throw new InvalidOperationException();
         }
-        Visit(expression);
 
-        var result = queryString.ToString();
+        protected override Expression VisitMember(MemberExpression node)
+        {
+            if (node.Expression != null && node.Expression.NodeType == ExpressionType.Parameter)
+            {
+                _sb.Append(node.Member.Name);
+                return node;
+            }
 
-        return result;
+            throw new NotSupportedException($"The member '{node.Member.Name}' is not supported");
+        }
+
+        protected override Expression VisitConstant(ConstantExpression node)
+        {
+            var q = node.Value as IQueryable;
+            if (q != null)
+            {
+                _sb.Append("select * from person");
+            }
+            else
+            {
+                var t = Type.GetTypeCode(node.Value.GetType());
+                switch (t)
+                {
+                    case TypeCode.String:
+                        _sb.Append("'%");
+                        _sb.Append(node.Value);
+                        _sb.Append("%'");
+                        break;
+                    case TypeCode.Int32:
+                        _sb.Append(node.Value);
+                        break;
+                    default:
+                        _sb.Append(node.Value);
+                        break;
+                }
+            }
+            return node;
+        }
+
+        protected override Expression VisitBinary(BinaryExpression node)
+        {
+            Visit(node.Left);
+            switch (node.NodeType)
+            {
+                case ExpressionType.GreaterThan:
+                    _sb.Append(" > ");
+                    break;
+                case ExpressionType.AndAlso:
+                    _sb.Append(" AND ");
+                    break;
+                case ExpressionType.Equal:
+                    _sb.Append(" = ");
+                    break;
+                default:
+                    throw new NotSupportedException($"The binary operator '{node.NodeType}' is not supported");
+            }
+
+            Visit(node.Right);
+            return node;
+        }
+
+        protected override Expression VisitUnary(UnaryExpression node)
+        {
+            return Visit(node.Operand);
+        }
     }
-
 }
