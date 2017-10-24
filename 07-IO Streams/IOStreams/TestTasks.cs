@@ -37,25 +37,25 @@ namespace IOStreams
 
             //throw new NotImplementedException();
 
-            using (var planetsFile = new FileStream(xlsxFileName,FileMode.Open,FileAccess.Read))
+            using (var file = new FileStream(xlsxFileName,FileMode.Open,FileAccess.Read))
             {
                 Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("en-US");
-                var zp = ZipPackage.Open(planetsFile);
-                var sh = zp.GetPart(new Uri(@"/xl/sharedStrings.xml", UriKind.Relative)).GetStream();
-                var wk = zp.GetPart(new Uri(@"/xl/worksheets/sheet1.xml", UriKind.Relative)).GetStream();
+                var planetsFile = ZipPackage.Open(file);
+                var nameStream = planetsFile.GetPart(new Uri(@"/xl/sharedStrings.xml", UriKind.Relative)).GetStream();
+                var radiusStream = planetsFile.GetPart(new Uri(@"/xl/worksheets/sheet1.xml", UriKind.Relative)).GetStream();
 
-                var sS_xml = XDocument.Load(sh);
-                var wss1_xml = XDocument.Load(wk);
+                var nameXml = XDocument.Load(nameStream);
+                var radiusXml = XDocument.Load(radiusStream);
 
-                var plnt=sS_xml.Root.Descendants().Where(p=>p.Name.LocalName=="t").Select(p => p.Value).Take(8).ToArray();
-                var rds = wss1_xml.Root.Descendants()
+                var planets= nameXml.Root.Descendants().Where(p=>p.Name.LocalName=="t").Select(p => p.Value).Take(8).ToArray();
+                var radius = radiusXml.Root.Descendants()
                     .Where(r => r.Name.LocalName == "v")
                     .Select(r =>{
                             double buff;
                             return double.TryParse(r.Value, out buff) ? buff : 0;})
                     .Where(r =>  r> 100).ToArray();
 
-                return plnt.Zip(rds, (p, r) => new PlanetInfo() { MeanRadius = r, Name = p });
+                return planets.Zip(radius, (p, r) => new PlanetInfo() { MeanRadius = r, Name = p });
             }
 
 		}
