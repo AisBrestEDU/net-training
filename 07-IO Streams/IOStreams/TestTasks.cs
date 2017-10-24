@@ -46,9 +46,16 @@ namespace IOStreams
 		/// <returns></returns>
 		public static string CalculateHash(this Stream stream, string hashAlgorithmName)
 		{
-			// TODO : Implement CalculateHash method
-			throw new NotImplementedException();
-		}
+		   
+
+		    var hasher = HashAlgorithm.Create(hashAlgorithmName);
+		    if (hasher == null)
+		        throw new ArgumentException();
+            return BitConverter.ToString(hasher.ComputeHash(stream)).Replace("-","");
+            
+
+
+        }
 
 
 		/// <summary>
