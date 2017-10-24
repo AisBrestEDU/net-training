@@ -35,29 +35,29 @@ namespace IOStreams
 			//         /xl/worksheets/sheet1.xml  - main worksheet
 
 
-			//using (Package pac = Package.Open(xlsxFileName))
-			//{
-			//	var uri1 = new Uri("/xl/worksheets/sheet1.xml", UriKind.Relative);
-			//	var uri2 = new Uri("/xl/sharedStrings.xml", UriKind.Relative);
+			using (var pac = Package.Open(xlsxFileName))
+			{
+				var uri1 = new Uri("/xl/worksheets/sheet1.xml", UriKind.Relative);
+				var uri2 = new Uri("/xl/sharedStrings.xml", UriKind.Relative);
 
-			//	var part = pac.GetPart(uri1);
-			//	var part2 = pac.GetPart(uri2);
+				var part = pac.GetPart(uri1);
+				var part2 = pac.GetPart(uri2);
 
+				var docNamesPlanet = XDocument.Load(part2.GetStream());
+				var ns = docNamesPlanet.Root.GetDefaultNamespace();
 
-			//	using (var stream = part.GetStream())
-			//	{
-			//		var root = XDocument.Load(stream);
-
-			//		using (var stream1 = part2.GetStream())
-			//		{
-			//			var root1 = XDocument.Load(stream1);
+				var namesPalnet = docNamesPlanet.Root.Descendants(ns + "t").Select(n => n.Value);
 
 
-			//		}
-			//	}
-			//}
+				var docDistanse = XDocument.Load(part.GetStream());
+				ns = docDistanse.Root.GetDefaultNamespace();
 
-			throw new NotImplementedException();
+				return docDistanse.Root.Descendants(ns + "v")
+					.Select(n => n.Value)
+					.Skip(3)
+					.Where((n, index) => index % 2 == 0)
+					.Zip(namesPalnet, (distance, name) => new PlanetInfo {Name = name, MeanRadius = double.Parse(distance)});
+			}
 		}
 
 
@@ -95,24 +95,22 @@ namespace IOStreams
 		{
 			// TODO : Implement DecompressStream method
 
+			var fs = new FileStream(fileName, FileMode.Open);
+
 			if (method == DecompressionMethods.GZip)
 			{
-				var fs = new FileStream(fileName, FileMode.Open);
 				return new GZipStream(fs,CompressionMode.Decompress);
 			}
 
 			else if(method == DecompressionMethods.Deflate)
 			{
-				var fs = new FileStream(fileName, FileMode.Open);
 				return new DeflateStream(fs, CompressionMode.Decompress);
 			}
 
 			else
 			{
-				return new FileStream(fileName, FileMode.Open);
+				return fs;
 			}
-
-			//throw new NotImplementedException();
 		}
 
 
