@@ -34,6 +34,8 @@ namespace IOStreams
 		    //         /xl/sharedStrings.xml      - dictionary of all string values
 		    //         /xl/worksheets/sheet1.xml  - main worksheet
 
+		    IEnumerable<string> planetNames;
+		    IEnumerable<double> meanRadius;
 		    using (FileStream fs = new FileStream(xlsxFileName, FileMode.Open, FileAccess.Read))
 		    {
 		        var archive = ZipPackage.Open(fs);
@@ -43,13 +45,16 @@ namespace IOStreams
 		        var sharedStringsRoot = XDocument.Load(sharedStrings);
 		        var sheetRoot = XDocument.Load(sheet1);
 
-		        var planetNames = from item in sharedStringsRoot.Root.Descendants()
-                                  where item.Name.LocalName == "t"
-                                  select item; //.Element("t").Value.Take(8);
+		        planetNames = (from item in sharedStringsRoot.Root.Descendants()
+		            where item.Name.LocalName == "t"
+		            select item.Value).Take(8).ToList();
 
+		        meanRadius = (from item in sheetRoot.Root.Descendants()
+		            where item.Name.LocalName == "v" && item.Parent.Attribute("t") == null
+		            select Convert.ToDouble(item.Value)).ToList();
 		    }
 
-		    return null;
+		    return planetNames.Zip(meanRadius, (p, r) => new PlanetInfo{Name = p, MeanRadius = r});
 		}
 
 
@@ -61,8 +66,10 @@ namespace IOStreams
 		/// <returns></returns>
 		public static string CalculateHash(this Stream stream, string hashAlgorithmName)
 		{
-			// TODO : Implement CalculateHash method
-			throw new NotImplementedException();
+		    HashAlgorithm hash = HashAlgorithm.Create(hashAlgorithmName)??throw new ArgumentException();
+
+		    byte[] computedHash = hash.ComputeHash(stream);
+		    return BitConverter.ToString(computedHash).Replace("-", String.Empty);
 		}
 
 
@@ -74,8 +81,18 @@ namespace IOStreams
 		/// <returns>output stream</returns>
 		public static Stream DecompressStream(string fileName, DecompressionMethods method)
 		{
-			// TODO : Implement DecompressStream method
-			throw new NotImplementedException();
+		    FileStream stream = new FileStream(fileName, FileMode.Open);
+
+		    if (method == DecompressionMethods.Deflate)
+		    {
+		        return new DeflateStream(stream, CompressionMode.Decompress);
+		    }
+		    if (method == DecompressionMethods.GZip)
+		    {
+		        return new GZipStream(stream, CompressionMode.Decompress);
+		    }
+
+		    return stream;
 		}
 
 
@@ -87,8 +104,7 @@ namespace IOStreams
 		/// <returns>Unicoded file content</returns>
 		public static string ReadEncodedText(string fileName, string encoding)
 		{
-			// TODO : Implement ReadEncodedText method
-			throw new NotImplementedException();
+		    return File.ReadAllText(fileName, Encoding.GetEncoding(encoding));
 		}
 	}
 
