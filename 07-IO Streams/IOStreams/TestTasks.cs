@@ -34,29 +34,36 @@ namespace IOStreams
 			//         /xl/sharedStrings.xml      - dictionary of all string values
 			//         /xl/worksheets/sheet1.xml  - main worksheet
 
+			var uri1 = new Uri("/xl/worksheets/sheet1.xml", UriKind.Relative);
+			var uri2 = new Uri("/xl/sharedStrings.xml", UriKind.Relative);
 
 			using (var pac = Package.Open(xlsxFileName))
 			{
-				var uri1 = new Uri("/xl/worksheets/sheet1.xml", UriKind.Relative);
-				var uri2 = new Uri("/xl/sharedStrings.xml", UriKind.Relative);
-
-				var part = pac.GetPart(uri1);
+				var part1 = pac.GetPart(uri1);
 				var part2 = pac.GetPart(uri2);
+				var planetNamesDoc = new XDocument();
+				var distansionsDoc = new XDocument();
+				
+				using (var stream = part2.GetStream())
+				{
+					planetNamesDoc = XDocument.Load(stream);
+				}
 
-				var docNamesPlanet = XDocument.Load(part2.GetStream());
-				var ns = docNamesPlanet.Root.GetDefaultNamespace();
+				var ns = planetNamesDoc.Root.GetDefaultNamespace();
+				var planetsName = planetNamesDoc.Root.Descendants(ns + "t").Select(n => n.Value);
 
-				var namesPalnet = docNamesPlanet.Root.Descendants(ns + "t").Select(n => n.Value);
+				using (var stream = part1.GetStream())
+				{
+					distansionsDoc = XDocument.Load(stream);
+				}
 
+				ns = distansionsDoc.Root.GetDefaultNamespace();
 
-				var docDistanse = XDocument.Load(part.GetStream());
-				ns = docDistanse.Root.GetDefaultNamespace();
-
-				return docDistanse.Root.Descendants(ns + "v")
+				return distansionsDoc.Root.Descendants(ns + "v")
 					.Select(n => n.Value)
 					.Skip(3)
 					.Where((n, index) => index % 2 == 0)
-					.Zip(namesPalnet, (distance, name) => new PlanetInfo {Name = name, MeanRadius = double.Parse(distance)});
+					.Zip(planetsName, (distance, name) => new PlanetInfo {Name = name, MeanRadius = double.Parse(distance)});
 			}
 		}
 
