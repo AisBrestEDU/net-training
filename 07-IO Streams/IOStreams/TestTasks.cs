@@ -55,7 +55,6 @@ namespace IOStreams
                             return double.TryParse(r.Value, out buff) ? buff : 0;})
                     .Where(r =>  r> 100).ToArray();
 
-                //return from p in plnt from r in rds select new PlanetInfo() { MeanRadius = r, Name = p };
                 return plnt.Zip(rds, (p, r) => new PlanetInfo() { MeanRadius = r, Name = p });
             }
 
@@ -70,9 +69,13 @@ namespace IOStreams
 		/// <returns></returns>
 		public static string CalculateHash(this Stream stream, string hashAlgorithmName)
 		{
-			// TODO : Implement CalculateHash method
-			throw new NotImplementedException();
-		}
+            // TODO : Implement CalculateHash method
+            //throw new NotImplementedException();
+
+            var hasher = HashAlgorithm.Create(hashAlgorithmName) ?? throw new ArgumentException();
+
+            return BitConverter.ToString(hasher.ComputeHash(stream)).Replace("-","");
+        }
 
 
 		/// <summary>
@@ -83,9 +86,20 @@ namespace IOStreams
 		/// <returns>output stream</returns>
 		public static Stream DecompressStream(string fileName, DecompressionMethods method)
 		{
-			// TODO : Implement DecompressStream method
-			throw new NotImplementedException();
-		}
+            // TODO : Implement DecompressStream method
+            //throw new NotImplementedException();
+
+            var p = new FileStream(fileName, FileMode.Open);
+
+            if (DecompressionMethods.Deflate == method)
+                return new System.IO.Compression.DeflateStream(p, CompressionMode.Decompress);
+            if (DecompressionMethods.GZip == method)
+                return new System.IO.Compression.GZipStream(p, CompressionMode.Decompress);
+            if (DecompressionMethods.None == method)
+                return p;
+
+            throw new Exception();
+        }
 
 
 		/// <summary>
@@ -97,7 +111,9 @@ namespace IOStreams
 		public static string ReadEncodedText(string fileName, string encoding)
 		{
 			// TODO : Implement ReadEncodedText method
-			throw new NotImplementedException();
+		    throw new NotImplementedException();
+
+
 		}
 	}
 
