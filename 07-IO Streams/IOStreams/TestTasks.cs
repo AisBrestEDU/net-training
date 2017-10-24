@@ -37,10 +37,10 @@ namespace IOStreams
 
             //throw new NotImplementedException();
 
-            using (var file = new FileStream(xlsxFileName,FileMode.Open,FileAccess.Read))
+            using (var planetsFile = ZipPackage.Open(xlsxFileName,FileMode.Open,FileAccess.Read))
             {
                 Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("en-US");
-                var planetsFile = ZipPackage.Open(file);
+                
                 var nameStream = planetsFile.GetPart(new Uri(@"/xl/sharedStrings.xml", UriKind.Relative)).GetStream();
                 var radiusStream = planetsFile.GetPart(new Uri(@"/xl/worksheets/sheet1.xml", UriKind.Relative)).GetStream();
 
@@ -55,7 +55,6 @@ namespace IOStreams
                             return double.TryParse(r.Value, out buff) ? buff : 0;})
                     .Where(r =>  r> 100).ToArray();
 
-                planetsFile.Close();
                 return planets.Zip(radius, (p, r) => new PlanetInfo() { MeanRadius = r, Name = p });
             }
 
