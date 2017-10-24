@@ -110,10 +110,15 @@ namespace IOStreams
 		/// <returns>Unicoded file content</returns>
 		public static string ReadEncodedText(string fileName, string encoding)
 		{
-			// TODO : Implement ReadEncodedText method
-		    throw new NotImplementedException();
+            // TODO : Implement ReadEncodedText method
+            // throw new NotImplementedException();
 
+            //return new StreamReader(fileName, Encoding.GetEncoding(encoding)).ReadToEnd();
 
+            using(var f= new StreamReader(fileName, Encoding.GetEncoding(encoding)))
+            {
+                return f.ReadToEnd();
+            }
 		}
 	}
 
