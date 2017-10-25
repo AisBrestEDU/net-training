@@ -55,6 +55,8 @@ namespace IOStreams
                             return double.TryParse(r.Value, out buff) ? buff : 0;})
                     .Where(r =>  r> 100).ToArray();
 
+                nameStream.Dispose();
+                radiusStream.Dispose();
                 return planets.Zip(radius, (p, r) => new PlanetInfo() { MeanRadius = r, Name = p });
             }
 
