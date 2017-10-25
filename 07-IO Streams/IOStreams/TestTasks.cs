@@ -26,40 +26,41 @@ namespace IOStreams
 		/// <returns>sequence of PlanetInfo</returns>
 		public static IEnumerable<PlanetInfo> ReadPlanetInfoFromXlsx(string xlsxFileName)
 		{
-
-			using (System.IO.Packaging.Package pac = Package.Open(xlsxFileName))
-			{
-				Dictionary<int, string> strings = new Dictionary<int, string>();
-				XDocument sheetXDoc;
-
-				var sharedStringsUri = new Uri("/xl/sharedStrings.xml", UriKind.Relative);
-				var sheetUri = new Uri("/xl/worksheets/sheet1.xml", UriKind.Relative);
-
-				using (var stream = pac.GetPart(sharedStringsUri).GetStream() )
-				{
-					var root = XDocument.Load(stream).Root;
-					XNamespace ns = root.Name.Namespace;
-
-					strings = root.Elements(ns + "si")
-						.Select((item, index) => new { item.Element(ns + "t").Value, index })
-						.ToDictionary(pair => pair.index, pair => pair.Value);
-				}
-				var sheet = pac.GetPart(sheetUri);
-				var streamSheet = sheet.GetStream(FileMode.Open, FileAccess.Read);
-				sheetXDoc = XDocument.Load(streamSheet);
-			}
-
-
-
-			// TODO : Implement ReadPlanetInfoFromXlsx method using System.IO.Packaging + Linq-2-Xml
-
 			// HINT : Please be as simple & clear as possible.
 			//        No complex and common use cases, just this specified file.
 			//        Required data are stored in Planets.xlsx archive in 2 files:
 			//         /xl/sharedStrings.xml      - dictionary of all string values
 			//         /xl/worksheets/sheet1.xml  - main worksheet
 
-			throw new NotImplementedException();
+			IEnumerable<string> planetNames;
+			IEnumerable<double> radiuses;
+
+			using (System.IO.Packaging.Package pac = Package.Open(xlsxFileName))
+			{
+				var sharedStringsUri = new Uri("/xl/sharedStrings.xml", UriKind.Relative);
+				var sheetUri = new Uri("/xl/worksheets/sheet1.xml", UriKind.Relative);
+				
+				using (var stringStream = pac.GetPart(sharedStringsUri).GetStream() )
+				{
+					var root = XDocument.Load(stringStream).Root;
+					var ns = root.Name.Namespace;
+
+					planetNames = root.Elements(ns + "si").Select(item => item.Element(ns + "t").Value).Take(8);
+						
+				}
+				using (var sheetStream = pac.GetPart(sheetUri).GetStream())
+				{
+					var root = XDocument.Load(sheetStream).Root;
+					var ns = root.Name.Namespace;
+
+					radiuses = (from cell in root.Element(ns + "sheetData").Descendants(ns + "c")
+								where cell.Attribute("r").Value.Contains("B")
+								select cell.Element(ns + "v").Value)
+							   .Skip(1).Select(item => double.Parse(item, System.Globalization.NumberStyles.AllowDecimalPoint));
+				}
+			}
+
+			return Enumerable.Zip(planetNames, radiuses, (name, radius) => new PlanetInfo { Name = name, MeanRadius = radius });
 		}
 
 
@@ -71,8 +72,8 @@ namespace IOStreams
 		/// <returns></returns>
 		public static string CalculateHash(this Stream stream, string hashAlgorithmName)
 		{
-			// TODO : Implement CalculateHash method
-			throw new NotImplementedException();
+			var hash = HashAlgorithm.Create(hashAlgorithmName) ?? throw new ArgumentException();
+			return hash.ComputeHash(stream).Aggregate(string.Empty, (seed, item) => seed + item.ToString("X2"));
 		}
 
 
@@ -84,8 +85,16 @@ namespace IOStreams
 		/// <returns>output stream</returns>
 		public static Stream DecompressStream(string fileName, DecompressionMethods method)
 		{
-			// TODO : Implement DecompressStream method
-			throw new NotImplementedException();
+			FileStream file = new FileStream(fileName, FileMode.Open);
+			switch(method)
+			{
+				case DecompressionMethods.Deflate:
+					return new DeflateStream(file, CompressionMode.Decompress);
+				case DecompressionMethods.GZip:
+					return new GZipStream(file, CompressionMode.Decompress);
+				default:
+					return file;
+			}
 		}
 
 
@@ -97,8 +106,7 @@ namespace IOStreams
 		/// <returns>Unicoded file content</returns>
 		public static string ReadEncodedText(string fileName, string encoding)
 		{
-			// TODO : Implement ReadEncodedText method
-			throw new NotImplementedException();
+			return File.ReadAllText(fileName,Encoding.GetEncoding(encoding));
 		}
 	}
 
