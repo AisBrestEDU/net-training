@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using System.Xml.Linq;
 
 namespace IOStreams
@@ -14,27 +15,51 @@ namespace IOStreams
 
 	public static class TestTasks
 	{
-		/// <summary>
-		/// Parses Resourses\Planets.xlsx file and returns the planet data: 
-		///   Jupiter     69911.00
-		///   Saturn      58232.00
-		///   Uranus      25362.00
-		///    ...
-		/// See Resourses\Planets.xlsx for details
-		/// </summary>
-		/// <param name="xlsxFileName">source file name</param>
-		/// <returns>sequence of PlanetInfo</returns>
-		public static IEnumerable<PlanetInfo> ReadPlanetInfoFromXlsx(string xlsxFileName)
-		{
-			// TODO : Implement ReadPlanetInfoFromXlsx method using System.IO.Packaging + Linq-2-Xml
+        /// <summary>
+        /// Parses Resourses\Planets.xlsx file and returns the planet data: 
+        ///   Jupiter     69911.00
+        ///   Saturn      58232.00
+        ///   Uranus      25362.00
+        ///    ...
+        /// See Resourses\Planets.xlsx for details
+        /// </summary>
+        /// <param name="xlsxFileName">source file name</param>
+        /// <returns>sequence of PlanetInfo</returns>
+        public static IEnumerable<PlanetInfo> ReadPlanetInfoFromXlsx(string xlsxFileName)
+        {
+            // TODO : Implement ReadPlanetInfoFromXlsx method using System.IO.Packaging + Linq-2-Xml
 
-			// HINT : Please be as simple & clear as possible.
-			//        No complex and common use cases, just this specified file.
-			//        Required data are stored in Planets.xlsx archive in 2 files:
-			//         /xl/sharedStrings.xml      - dictionary of all string values
-			//         /xl/worksheets/sheet1.xml  - main worksheet
+            // HINT : Please be as simple & clear as possible.
+            //        No complex and common use cases, just this specified file.
+            //        Required data are stored in Planets.xlsx archive in 2 files:
+            //         /xl/sharedStrings.xml      - dictionary of all string values
+            //         /xl/worksheets/sheet1.xml  - main worksheet
 
-			throw new NotImplementedException();
+            //throw new NotImplementedException();
+
+            using (var planetsFile = ZipPackage.Open(xlsxFileName,FileMode.Open,FileAccess.Read))
+            {
+                Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("en-US");
+                
+                var nameStream = planetsFile.GetPart(new Uri(@"/xl/sharedStrings.xml", UriKind.Relative)).GetStream();
+                var radiusStream = planetsFile.GetPart(new Uri(@"/xl/worksheets/sheet1.xml", UriKind.Relative)).GetStream();
+
+                var nameXml = XDocument.Load(nameStream);
+                var radiusXml = XDocument.Load(radiusStream);
+
+                var planets= nameXml.Root.Descendants().Where(p=>p.Name.LocalName=="t").Select(p => p.Value).Take(8).ToArray();
+                var radius = radiusXml.Root.Descendants()
+                    .Where(r => r.Name.LocalName == "v")
+                    .Select(r =>{
+                            double buff;
+                            return double.TryParse(r.Value, out buff) ? buff : 0;})
+                    .Where(r =>  r> 100).ToArray();
+
+                nameStream.Dispose();
+                radiusStream.Dispose();
+                return planets.Zip(radius, (p, r) => new PlanetInfo() { MeanRadius = r, Name = p });
+            }
+
 		}
 
 
@@ -46,9 +71,13 @@ namespace IOStreams
 		/// <returns></returns>
 		public static string CalculateHash(this Stream stream, string hashAlgorithmName)
 		{
-			// TODO : Implement CalculateHash method
-			throw new NotImplementedException();
-		}
+            // TODO : Implement CalculateHash method
+            //throw new NotImplementedException();
+
+            var hasher = HashAlgorithm.Create(hashAlgorithmName) ?? throw new ArgumentException();
+
+            return BitConverter.ToString(hasher.ComputeHash(stream)).Replace("-","");
+        }
 
 
 		/// <summary>
@@ -59,9 +88,20 @@ namespace IOStreams
 		/// <returns>output stream</returns>
 		public static Stream DecompressStream(string fileName, DecompressionMethods method)
 		{
-			// TODO : Implement DecompressStream method
-			throw new NotImplementedException();
-		}
+            // TODO : Implement DecompressStream method
+            //throw new NotImplementedException();
+
+            var p = new FileStream(fileName, FileMode.Open);
+
+            if (DecompressionMethods.Deflate == method)
+                return new System.IO.Compression.DeflateStream(p, CompressionMode.Decompress);
+            if (DecompressionMethods.GZip == method)
+                return new System.IO.Compression.GZipStream(p, CompressionMode.Decompress);
+            if (DecompressionMethods.None == method)
+                return p;
+
+            throw new Exception();
+        }
 
 
 		/// <summary>
@@ -72,8 +112,15 @@ namespace IOStreams
 		/// <returns>Unicoded file content</returns>
 		public static string ReadEncodedText(string fileName, string encoding)
 		{
-			// TODO : Implement ReadEncodedText method
-			throw new NotImplementedException();
+            // TODO : Implement ReadEncodedText method
+            // throw new NotImplementedException();
+
+            //return new StreamReader(fileName, Encoding.GetEncoding(encoding)).ReadToEnd();
+
+            using(var f= new StreamReader(fileName, Encoding.GetEncoding(encoding)))
+            {
+                return f.ReadToEnd();
+            }
 		}
 	}
 
