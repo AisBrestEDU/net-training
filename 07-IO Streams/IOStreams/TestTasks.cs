@@ -36,27 +36,27 @@ namespace IOStreams
 
 		    IEnumerable<string> planetNames;
 		    IEnumerable<double> meanRadius;
-		    using (FileStream fs = new FileStream(xlsxFileName, FileMode.Open, FileAccess.Read))
+		    using (var archive = ZipPackage.Open(xlsxFileName))
 		    {
-		        using (var archive = ZipPackage.Open(fs))
+		        using (var sharedStrings =
+		            archive.GetPart(new Uri(@"/xl/sharedStrings.xml", UriKind.Relative)).GetStream())
 		        {
-		            var sharedStrings = archive.GetPart(new Uri(@"/xl/sharedStrings.xml", UriKind.Relative)).GetStream();
-		            var sheet1 = archive.GetPart(new Uri(@"/xl/worksheets/sheet1.xml", UriKind.Relative)).GetStream();
-
 		            var sharedStringsRoot = XDocument.Load(sharedStrings);
-		            var sheetRoot = XDocument.Load(sheet1);
-
 		            planetNames = (from item in sharedStringsRoot.Root.Descendants()
 		                where item.Name.LocalName == "t"
 		                select item.Value).Take(8).ToList();
-
+		        }
+		        using (var sheet1 = 
+                    archive.GetPart(new Uri(@"/xl/worksheets/sheet1.xml", UriKind.Relative)).GetStream())
+		        {
+		            var sheetRoot = XDocument.Load(sheet1);
 		            meanRadius = (from item in sheetRoot.Root.Descendants()
 		                where item.Name.LocalName == "v" && item.Parent.Attribute("t") == null
 		                select Convert.ToDouble(item.Value)).ToList();
 		        }
 		    }
 
-		    return planetNames.Zip(meanRadius, (p, r) => new PlanetInfo{Name = p, MeanRadius = r});
+		    return planetNames.Zip(meanRadius, (p, r) => new PlanetInfo {Name = p, MeanRadius = r});
 		}
 
 
