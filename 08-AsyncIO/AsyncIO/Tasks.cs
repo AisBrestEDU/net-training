@@ -18,12 +18,19 @@ namespace AsyncIO
         /// </summary>
         /// <param name="uris">Sequence of required uri</param>
         /// <returns>The sequence of downloaded url content</returns>
-        public static IEnumerable<string> GetUrlContent(this IEnumerable<Uri> uris) 
+        public static IEnumerable<string> GetUrlContent(this IEnumerable<Uri> uris)
         {
-            // TODO : Implement GetUrlContent
-            throw new NotImplementedException();
-        }
 
+            using (var webClient = new MyWebClient())
+            {
+                foreach (var link in uris)
+                {
+                    yield return webClient.DownloadString(link);
+                }
+                
+            }  
+
+        }
 
 
         /// <summary>
@@ -37,10 +44,33 @@ namespace AsyncIO
         /// <returns>The sequence of downloaded url content</returns>
         public static IEnumerable<string> GetUrlContentAsync(this IEnumerable<Uri> uris, int maxConcurrentStreams)
         {
-            // TODO : Implement GetUrlContentAsync
-            throw new NotImplementedException();
-        }
+            async Task<string> ProcessUrlAsync(string url)
+            {
+                using (var webClient = new MyWebClient())
+                {
+                    string data = await webClient.DownloadStringTaskAsync(new Uri(url));
+                    
+                    return data;
+                }
+            }
 
+            var enumerable = uris as IList<Uri> ?? uris.ToList();
+            if (enumerable.Count > 0)
+            {
+                var tasks = new List<Task<string>>();
+                foreach (var url in enumerable)
+                {
+                    tasks.Add(ProcessUrlAsync(url.ToString()));
+                }
+
+                 Task.WaitAll(tasks.ToArray()); // blocking wait
+
+               yield return  tasks;
+                // could use await here and make this method async:
+                // await Task.WhenAll(tasks.ToArray());
+            }
+
+        }
 
         /// <summary>
         /// Calculates MD5 hash of required resource.
@@ -58,6 +88,14 @@ namespace AsyncIO
 
     }
 
-
+    class MyWebClient : WebClient
+    {
+        protected override WebRequest GetWebRequest(Uri address)
+        {
+            HttpWebRequest request = base.GetWebRequest(address) as HttpWebRequest;
+            request.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
+            return request;
+        }
+    }
 
 }
