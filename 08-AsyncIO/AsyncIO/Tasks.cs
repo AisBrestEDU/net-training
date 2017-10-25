@@ -44,32 +44,27 @@ namespace AsyncIO
         /// <returns>The sequence of downloaded url content</returns>
         public static IEnumerable<string> GetUrlContentAsync(this IEnumerable<Uri> uris, int maxConcurrentStreams)
         {
+            var tasks = new List<Task<string>>();
+
+            foreach (var url in uris)
+            {
+                tasks.Add(ProcessUrlAsync(url.ToString()));
+                if (tasks.Count - tasks.Count(x => x.IsCompleted) >= maxConcurrentStreams)
+                    Task.WaitAny(tasks.Where(x => !x.IsCompleted).ToArray());
+            }
+
+
+            Task.WaitAll(tasks.ToArray());
+            foreach (var page in tasks)
+                yield return page.Result;
+
             async Task<string> ProcessUrlAsync(string url)
             {
                 using (var webClient = new MyWebClient())
                 {
-                    string data = await webClient.DownloadStringTaskAsync(new Uri(url));
-                    
-                    return data;
+                    return await webClient.DownloadStringTaskAsync(new Uri(url));
                 }
             }
-
-            var enumerable = uris as IList<Uri> ?? uris.ToList();
-            if (enumerable.Count > 0)
-            {
-                var tasks = new List<Task<string>>();
-                foreach (var url in enumerable)
-                {
-                    tasks.Add(ProcessUrlAsync(url.ToString()));
-                }
-
-                 Task.WaitAll(tasks.ToArray()); // blocking wait
-
-               yield return  tasks;
-                // could use await here and make this method async:
-                // await Task.WhenAll(tasks.ToArray());
-            }
-
         }
 
         /// <summary>
