@@ -1,13 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Security.Cryptography;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace AsyncIO
 {
+    class MyWebClient : WebClient
+    {
+        protected override WebRequest GetWebRequest(Uri address)
+        {
+            HttpWebRequest request = base.GetWebRequest(address) as HttpWebRequest;
+            request.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
+            return request;
+        }
+    }
+
     public static class Tasks
     {
 
@@ -21,7 +34,15 @@ namespace AsyncIO
         public static IEnumerable<string> GetUrlContent(this IEnumerable<Uri> uris) 
         {
             // TODO : Implement GetUrlContent
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+
+            using (var web = new MyWebClient())
+            {
+                foreach (var url in uris)
+                {
+                    yield return web.DownloadString(url);
+                }
+            }         
         }
 
 
