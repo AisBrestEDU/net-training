@@ -26,15 +26,37 @@ namespace IOStreams
 		/// <returns>sequence of PlanetInfo</returns>
 		public static IEnumerable<PlanetInfo> ReadPlanetInfoFromXlsx(string xlsxFileName)
 		{
-			// TODO : Implement ReadPlanetInfoFromXlsx method using System.IO.Packaging + Linq-2-Xml
+		    // TODO : Implement ReadPlanetInfoFromXlsx method using System.IO.Packaging + Linq-2-Xml
 
-			// HINT : Please be as simple & clear as possible.
-			//        No complex and common use cases, just this specified file.
-			//        Required data are stored in Planets.xlsx archive in 2 files:
-			//         /xl/sharedStrings.xml      - dictionary of all string values
-			//         /xl/worksheets/sheet1.xml  - main worksheet
+		    // HINT : Please be as simple & clear as possible.
+		    //        No complex and common use cases, just this specified file.
+		    //        Required data are stored in Planets.xlsx archive in 2 files:
+		    //         /xl/sharedStrings.xml      - dictionary of all string values
+		    //         /xl/worksheets/sheet1.xml  - main worksheet
 
-			throw new NotImplementedException();
+		    IEnumerable<string> planetNames;
+		    IEnumerable<double> meanRadius;
+		    using (var archive = ZipPackage.Open(xlsxFileName))
+		    {
+		        using (var sharedStrings =
+		            archive.GetPart(new Uri(@"/xl/sharedStrings.xml", UriKind.Relative)).GetStream())
+		        {
+		            var sharedStringsRoot = XDocument.Load(sharedStrings);
+		            planetNames = (from item in sharedStringsRoot.Root.Descendants()
+		                where item.Name.LocalName == "t"
+		                select item.Value).Take(8).ToList();
+		        }
+		        using (var sheet1 = 
+                    archive.GetPart(new Uri(@"/xl/worksheets/sheet1.xml", UriKind.Relative)).GetStream())
+		        {
+		            var sheetRoot = XDocument.Load(sheet1);
+		            meanRadius = (from item in sheetRoot.Root.Descendants()
+		                where item.Name.LocalName == "v" && item.Parent.Attribute("t") == null
+		                select Convert.ToDouble(item.Value)).ToList();
+		        }
+		    }
+
+		    return planetNames.Zip(meanRadius, (p, r) => new PlanetInfo {Name = p, MeanRadius = r});
 		}
 
 
@@ -46,8 +68,10 @@ namespace IOStreams
 		/// <returns></returns>
 		public static string CalculateHash(this Stream stream, string hashAlgorithmName)
 		{
-			// TODO : Implement CalculateHash method
-			throw new NotImplementedException();
+		    HashAlgorithm hash = HashAlgorithm.Create(hashAlgorithmName)??throw new ArgumentException();
+
+		    byte[] computedHash = hash.ComputeHash(stream);
+		    return BitConverter.ToString(computedHash).Replace("-", String.Empty);
 		}
 
 
@@ -59,8 +83,18 @@ namespace IOStreams
 		/// <returns>output stream</returns>
 		public static Stream DecompressStream(string fileName, DecompressionMethods method)
 		{
-			// TODO : Implement DecompressStream method
-			throw new NotImplementedException();
+		    FileStream stream = new FileStream(fileName, FileMode.Open);
+
+		    if (method == DecompressionMethods.Deflate)
+		    {
+		        return new DeflateStream(stream, CompressionMode.Decompress);
+		    }
+		    if (method == DecompressionMethods.GZip)
+		    {
+		        return new GZipStream(stream, CompressionMode.Decompress);
+		    }
+
+		    return stream;
 		}
 
 
@@ -72,8 +106,7 @@ namespace IOStreams
 		/// <returns>Unicoded file content</returns>
 		public static string ReadEncodedText(string fileName, string encoding)
 		{
-			// TODO : Implement ReadEncodedText method
-			throw new NotImplementedException();
+		    return File.ReadAllText(fileName, Encoding.GetEncoding(encoding));
 		}
 	}
 
