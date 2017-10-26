@@ -14,7 +14,7 @@ namespace AsyncIO
     public static class Tasks
     {
 
-		class ExWebClient1 : WebClient
+		class GZipWebClient : WebClient
 		{
 
 			protected override WebRequest GetWebRequest(Uri address)
@@ -33,7 +33,7 @@ namespace AsyncIO
 		/// <returns>The sequence of downloaded url content</returns>
 		public static IEnumerable<string> GetUrlContent(this IEnumerable<Uri> uris)
 		{
-			using (var client = new ExWebClient1())
+			using (var client = new GZipWebClient())
 			{
 				foreach (var item in uris)
 				{
@@ -60,7 +60,7 @@ namespace AsyncIO
 					Task.WaitAny(list.Where(t => !t.IsCompleted).ToArray());
 				}
 
-				var client = new ExWebClient1();
+				var client = new GZipWebClient();
 				var task = client.DownloadStringTaskAsync(item);
 				list.Add(task);
 
@@ -81,11 +81,14 @@ namespace AsyncIO
 		/// <returns>MD5 hash</returns>
 		public static Task<string> GetMD5Async(this Uri resource)
         {
-			throw new NotImplementedException();
-        }
+			return Task.Run<string>( async () =>
+			{
+				var md5 = MD5.Create();
+				var client = new WebClient();
+				var data = await client.DownloadDataTaskAsync(resource);
+				return string.Join("", md5.ComputeHash(data).Select(item => item.ToString("X2")));
 
-    }
-
-
-
+			});
+		}
+	}
 }
