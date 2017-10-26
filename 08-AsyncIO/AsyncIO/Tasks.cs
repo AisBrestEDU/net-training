@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Security.Cryptography;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace AsyncIO
@@ -42,32 +39,30 @@ namespace AsyncIO
 		/// <param name="uris">Sequence of required uri</param>
 		/// <param name="maxConcurrentStreams">Max count of concurrent request streams</param>
 		/// <returns>The sequence of downloaded url content</returns>
-		public static IEnumerable<string> GetUrlContentAsync(this IEnumerable<Uri> uris, int maxConcurrentStreams)
+		public static  IEnumerable<string> GetUrlContentAsync(this IEnumerable<Uri> uris, int maxConcurrentStreams)
 		{
 			// TODO : Implement GetUrlContentAsync
-			throw new NotImplementedException();
+			//throw new NotImplementedException();
 
-			//List<Task> list = new List<Task>(maxConcurrentStreams);
 
-			//foreach (var uri in uris)
-			//{
-			//	list.Add(new DecompressionWebClient().DownloadStringTaskAsync(uri));
-			//}
+			var list = new List<Task<string>>();
 
-			//int count = maxConcurrentStreams;
-			//List<Task<string>> list = new List<Task<string>>();
-			//var list1 = new List<Task>();
+			foreach (var uri in uris)
+			{
+				if (list.Count(n => !n.IsCompleted) >= maxConcurrentStreams)
+				{
+					Task.WaitAny(list.Where(n => !n.IsCompleted).ToArray());
+				}
 
-			//foreach (var uri in uris)
-			//{
-			//	list.Add(new DecompressionWebClient().DownloadStringTaskAsync(uri));
-			//}
+				list.Add(new DecompressionWebClient().DownloadStringTaskAsync(uri));
+			}
 
-			//while (list.Count > 0)
-			//{
-			//	yield return list[0].Result;
-			//	list.RemoveAt(0);
-			//}
+			Task.WaitAll(list.ToArray());
+
+			foreach (var task in list)
+			{
+				yield return task.Result;
+			}
 		}
 
 
@@ -84,11 +79,11 @@ namespace AsyncIO
 			// TODO : Implement GetMD5Async
 			//throw new NotImplementedException();
 
-	        using (var client = new WebClient())
+	        using (var alhoritm = MD5.Create())
 	        {
-				var result = await client.DownloadDataTaskAsync(resource);
-				return BitConverter.ToString(MD5.Create().ComputeHash(result)).Replace("-", String.Empty);
-			}
+		        return BitConverter.ToString(alhoritm.ComputeHash(await new WebClient()
+			        .DownloadDataTaskAsync(resource))).Replace("-", string.Empty);
+	        }
 		}
 	}
 
