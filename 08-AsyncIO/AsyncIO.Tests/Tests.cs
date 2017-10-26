@@ -11,8 +11,8 @@ namespace AsyncIO.Tests
     public class Tests
     {
         private string[] sites = { 
-           "google", "msdn",  "facebook", "linkedin", "twitter",
-           "bing",   "yahoo", "youtube",  "baidu",    "amazon"
+           "google", "msdn",  "cnn", "linkedin", "twitter",
+           "bing",   "yahoo", "youtube",  "dictionary",    "amazon"
         };
 
 

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
@@ -18,12 +20,19 @@ namespace AsyncIO
         /// </summary>
         /// <param name="uris">Sequence of required uri</param>
         /// <returns>The sequence of downloaded url content</returns>
-        public static IEnumerable<string> GetUrlContent(this IEnumerable<Uri> uris) 
+        public static IEnumerable<string> GetUrlContent(this IEnumerable<Uri> uris)
         {
-            // TODO : Implement GetUrlContent
-            throw new NotImplementedException();
-        }
 
+            using (var webClient = new MyWebClient())
+            {
+                foreach (var link in uris)
+                {
+                    yield return webClient.DownloadString(link);
+                }
+                
+            }  
+
+        }
 
 
         /// <summary>
@@ -37,10 +46,28 @@ namespace AsyncIO
         /// <returns>The sequence of downloaded url content</returns>
         public static IEnumerable<string> GetUrlContentAsync(this IEnumerable<Uri> uris, int maxConcurrentStreams)
         {
-            // TODO : Implement GetUrlContentAsync
-            throw new NotImplementedException();
-        }
+            var tasks = new List<Task<string>>();
 
+            foreach (var url in uris)
+            {
+                tasks.Add(ProcessUrlAsync(url.ToString()));
+                if (tasks.Count - tasks.Count(x => x.IsCompleted) >= maxConcurrentStreams)
+                    Task.WaitAny(tasks.Where(x => !x.IsCompleted).ToArray());
+            }
+
+
+            Task.WaitAll(tasks.ToArray());
+            foreach (var page in tasks)
+                yield return page.Result;
+
+            async Task<string> ProcessUrlAsync(string url)
+            {
+                using (var webClient = new MyWebClient())
+                {
+                    return await webClient.DownloadStringTaskAsync(new Uri(url));
+                }
+            }
+        }
 
         /// <summary>
         /// Calculates MD5 hash of required resource.
@@ -50,14 +77,29 @@ namespace AsyncIO
         /// </summary>
         /// <param name="resource">Uri of resource</param>
         /// <returns>MD5 hash</returns>
-        public static Task<string> GetMD5Async(this Uri resource)
+        public static async Task<string> GetMD5Async(this Uri resource)
         {
-            // TODO : Implement GetMD5Async
-            throw new NotImplementedException();
-        }
 
+            var webClient = new WebClient();
+
+
+            using (MD5 md5 = MD5.Create())
+            {
+                byte[] hash = await webClient.DownloadDataTaskAsync(resource);
+                return BitConverter.ToString(md5.ComputeHash(hash)).Replace("-",string.Empty);
+            }
+            
+        }
     }
 
-
+    class MyWebClient : WebClient
+    {
+        protected override WebRequest GetWebRequest(Uri address)
+        {
+            HttpWebRequest request = base.GetWebRequest(address) as HttpWebRequest;
+            request.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
+            return request;
+        }
+    }
 
 }
