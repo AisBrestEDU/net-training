@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
@@ -77,8 +79,14 @@ namespace AsyncIO
         /// <returns>MD5 hash</returns>
         public static Task<string> GetMD5Async(this Uri resource)
         {
-            // TODO : Implement GetMD5Async
-            throw new NotImplementedException();
+            var webClient = new MyWebClient();
+            Task<string>[] tasks;
+
+            using (MD5 md5 = MD5.Create())
+                {
+                    tasks = new Task<string>[Convert.ToInt32(md5.ComputeHash(webClient.DownloadData(resource.OriginalString)).ToString())];
+            }
+           return tasks[0];
         }
 
     }
