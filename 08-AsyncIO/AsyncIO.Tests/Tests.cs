@@ -11,13 +11,13 @@ namespace AsyncIO.Tests
     public class Tests
     {
         private string[] sites = { 
-           "google", "msdn",  "facebook", "linkedin", "twitter",
-           "bing",   "yahoo", "youtube",  "baidu",    "amazon"
+           "google", "msdn", "linkedin","facebook", "twitter",
+           "bing",   "yahoo", "youtube","baidu",  "amazon"
         };
 
 
         private IEnumerable<Uri> GetTestUris() {
-            return sites.Select(x => new Uri(string.Format(@"http://{0}.com", x)));
+            return sites.Select(x => new Uri(string.Format(@"http://www.{0}.com", x)));
         }
 
         [TestMethod]
