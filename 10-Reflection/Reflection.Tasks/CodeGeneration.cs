@@ -24,7 +24,53 @@ namespace Reflection.Tasks
         /// </returns>
         public static Func<T[], T[], T> GetVectorMultiplyFunction<T>() where T : struct {
             // TODO : Implement GetVectorMultiplyFunction<T>.
-            throw new NotImplementedException();
+            {
+
+                // Creating a parameter expression.
+                var vectorOne = Expression.Parameter(typeof(T[]), "vectorOne");
+                var vectorTwo = Expression.Parameter(typeof(T[]), "vectorTwo");
+                var counter = Expression.Variable(typeof(int), "counter" ); //Expression.Parameter(typeof(int), "counter");
+                // Creating an expression to hold a local variable.
+                var result = Expression.Variable(typeof(T),  "result");
+              
+                // Creating a label to jump to from a loop.
+                var label = Expression.Label(typeof(T));
+
+
+                // Creating a method body.
+                var block = Expression.Block(
+                    // Adding a local variable.
+                    new[] {result},
+
+                    // Assigning a constant to a local variable: result = 1
+                    // Expression.Assign(counter, Expression.Constant(1)), // to bracke summing circule
+
+                    // Adding a loop.
+                    Expression.Loop(
+                        // Adding a conditional block into the loop.
+                        Expression.IfThenElse(
+                            // Condition: value < 1
+                            Expression.LessThan(counter, Expression.ArrayLength(vectorOne)),
+
+                            // If true: result *= value —
+                            Expression.AddAssign(result, Expression.Multiply(Expression.ArrayIndex(vectorOne,Expression.Call(counter)), vectorTwo)
+                            );
+
+                            // If false, exit from loop and go to a label.
+                            Expression.Break(label, result)
+                        ),
+
+                        // Label to jump to.
+                        label
+                    )
+                );
+
+
+
+                // Compile an expression tree and return a delegate.
+                return Expression.Lambda<Func<T[], T[], T>>(block, result).Compile();
+
+            }
         } 
 
 
