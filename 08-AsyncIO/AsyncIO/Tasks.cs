@@ -1,13 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Security.Cryptography;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace AsyncIO
 {
+    class MyWebClient : WebClient
+    {
+        protected override WebRequest GetWebRequest(Uri address)
+        {
+            HttpWebRequest request = base.GetWebRequest(address) as HttpWebRequest;
+            request.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
+            return request;
+        }
+    }
+
     public static class Tasks
     {
 
@@ -21,7 +34,15 @@ namespace AsyncIO
         public static IEnumerable<string> GetUrlContent(this IEnumerable<Uri> uris) 
         {
             // TODO : Implement GetUrlContent
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+
+            using (var web = new MyWebClient())
+            {
+                foreach (var url in uris)
+                {
+                    yield return web.DownloadString(url);
+                }
+            }         
         }
 
 
@@ -38,7 +59,27 @@ namespace AsyncIO
         public static IEnumerable<string> GetUrlContentAsync(this IEnumerable<Uri> uris, int maxConcurrentStreams)
         {
             // TODO : Implement GetUrlContentAsync
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+
+
+            var lstWeb = new List<Task<string>>();
+            {
+                foreach (var url in uris)
+                {
+                    if (lstWeb.Count(x => !x.IsCompleted) >= maxConcurrentStreams)
+                    {
+                        Task.WaitAny(lstWeb.Where(x => !x.IsCompleted).ToArray());
+                    }
+
+                    using(var web=new MyWebClient())
+                    {
+                        lstWeb.Add(web.DownloadStringTaskAsync(url));
+                    }                   
+                }
+
+                Task.WaitAll(lstWeb.ToArray());
+                return lstWeb.Select(x => x.Result);
+            }
         }
 
 
@@ -50,10 +91,20 @@ namespace AsyncIO
         /// </summary>
         /// <param name="resource">Uri of resource</param>
         /// <returns>MD5 hash</returns>
-        public static Task<string> GetMD5Async(this Uri resource)
+        public static async Task<string> GetMD5Async(this Uri resource)
         {
             // TODO : Implement GetMD5Async
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+
+
+            var webClient = new WebClient();
+            using (MD5 md5 = MD5.Create())
+            {
+                var hash = await webClient.DownloadDataTaskAsync(resource);
+                return BitConverter.ToString(md5.ComputeHash(hash)).Replace("-", string.Empty);
+            }
+
+
         }
 
     }
