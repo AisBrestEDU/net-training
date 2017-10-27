@@ -33,32 +33,13 @@ namespace Serialization.Tasks
 	[System.Xml.Serialization.XmlRootAttribute(Namespace = "http://schemas.microsoft.com/win/2004/08/events", IsNullable = false, ElementName = "instrumentationManifest")]
 	public partial class InstrumentationManifest : InstrumentationManifestType
 	{
-
-		private object[] itemsField;
-
-		
-		
-		public object Instrumentation { get { return itemsField[0]; } }
-		public object Localization { get { return itemsField[1]; } }
-		public object Metadata { get { return itemsField[2]; } }
-
-
 		/// <remarks/>
-		[System.Xml.Serialization.XmlAnyElementAttribute()]
 		[System.Xml.Serialization.XmlElementAttribute("instrumentation", typeof(InstrumentationType))]
+		public object Instrumentation { get; set; }
 		[System.Xml.Serialization.XmlElementAttribute("localization", typeof(LocalizationType))]
+		public object Localization { get;  set; } 
 		[System.Xml.Serialization.XmlElementAttribute("metadata", typeof(MetadataType))]
-		public object[] Items
-		{
-			get
-			{
-				return this.itemsField;
-			}
-			set
-			{
-				this.itemsField = value;
-			}
-		}
+		public object Metadata { get; set; }
 	}
 
 	/// <remarks/>
