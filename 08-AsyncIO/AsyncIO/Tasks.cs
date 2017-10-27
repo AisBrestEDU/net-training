@@ -91,21 +91,19 @@ namespace AsyncIO
         /// </summary>
         /// <param name="resource">Uri of resource</param>
         /// <returns>MD5 hash</returns>
-        public static Task<string> GetMD5Async(this Uri resource)
+        public static async Task<string> GetMD5Async(this Uri resource)
         {
             // TODO : Implement GetMD5Async
             //throw new NotImplementedException();
 
-            return  Task.Run<string>(() =>
+
+            var webClient = new WebClient();
+            using (MD5 md5 = MD5.Create())
             {
-                var webClient = new WebClient();
-                using (MD5 md5 = MD5.Create())
-                {
-                    var hash = webClient.DownloadDataTaskAsync(resource);
-                    hash.Wait();
-                    return BitConverter.ToString(md5.ComputeHash(hash.Result)).Replace("-", string.Empty);
-                }
-            });
+                var hash = await webClient.DownloadDataTaskAsync(resource);
+                return BitConverter.ToString(md5.ComputeHash(hash)).Replace("-", string.Empty);
+            }
+
 
         }
 
