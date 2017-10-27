@@ -9,115 +9,226 @@ namespace Serialization.Tasks
     // Specification is available at: https://developers.google.com/custom-search/v1/using_rest#WorkingResults
     // The test json file is at Serialization.Tests\Resources\GoogleSearchJson.txt
 
+    //https://jsonutils.com/
+
+    [DataContract]
+    public class Url
+    {
+
+        [DataMember(Name = "type")]
+        public string Type { get; set; }
+
+        [DataMember(Name = "template")]
+        public string Template { get; set; }
+    }
+
+    [DataContract]
+    public class NextPage
+    {
+
+        [DataMember(Name = "title")]
+        public string Title { get; set; }
+
+        [DataMember(Name = "totalResults")]
+        public long TotalResults { get; set; }
+
+        [DataMember(Name = "searchTerms")]
+        public string SearchTerms { get; set; }
+
+        [DataMember(Name = "count")]
+        public int Count { get; set; }
+
+        [DataMember(Name = "startIndex")]
+        public int StartIndex { get; set; }
+
+        [DataMember(Name = "inputEncoding")]
+        public string InputEncoding { get; set; }
+
+        [DataMember(Name = "outputEncoding")]
+        public string OutputEncoding { get; set; }
+
+        [DataMember(Name = "cx")]
+        public string Cx { get; set; }
+    }
+
+    [DataContract]
+    public class Request
+    {
+
+        [DataMember(Name = "title")]
+        public string Title { get; set; }
+
+        [DataMember(Name = "totalResults")]
+        public long TotalResults { get; set; }
+
+        [DataMember(Name = "searchTerms")]
+        public string SearchTerms { get; set; }
+
+        [DataMember(Name = "count")]
+        public int Count { get; set; }
+
+        [DataMember(Name = "startIndex")]
+        public int StartIndex { get; set; }
+
+        [DataMember(Name = "inputEncoding")]
+        public string InputEncoding { get; set; }
+
+        [DataMember(Name = "outputEncoding")]
+        public string OutputEncoding { get; set; }
+
+        [DataMember(Name = "cx")]
+        public string Cx { get; set; }
+    }
+
+    [DataContract]
+    public class Queries
+    {
+
+        [DataMember(Name = "nextPage")]
+        public IList<NextPage> NextPage { get; set; }
+
+        [DataMember(Name = "request")]
+        public IList<Request> Request { get; set; }
+
+        [DataMember]
+        public IList<NextPage> PreviousPage { get; set; }
+    }
+
+    [DataContract]
+    public class Context
+    {
+
+        [DataMember(Name = "title")]
+        public string Title { get; set; }
+    }
+
+    [DataContract]
+    public class RTO
+    {
+
+        [DataMember(Name = "format")]
+        public string Format { get; set; }
+
+        [DataMember(Name = "group_impression_tag")]
+        public string GroupImpressionTag { get; set; }
+
+        [DataMember(Name = "Opt::max_rank_top")]
+        public string OptMaxRankTop { get; set; }
+
+        [DataMember(Name = "Opt::threshold_override")]
+        public string OptThresholdOverride { get; set; }
+
+        [DataMember(Name = "Opt::disallow_same_domain")]
+        public string OptDisallowSameDomain { get; set; }
+
+        [DataMember(Name = "Output::title")]
+        public string OutputTitle { get; set; }
+
+        [DataMember(Name = "Output::want_title_on_right")]
+        public string OutputWantTitleOnRight { get; set; }
+
+        [DataMember(Name = "Output::num_lines1")]
+        public string OutputNumLines1 { get; set; }
+
+        [DataMember(Name = "Output::text1")]
+        public string OutputText1 { get; set; }
+
+        [DataMember(Name = "Output::gray1b")]
+        public string OutputGray1b { get; set; }
+
+        [DataMember(Name = "Output::no_clip1b")]
+        public string OutputNoClip1b { get; set; }
+
+        [DataMember(Name = "UrlOutput::url2")]
+        public string UrlOutputUrl2 { get; set; }
+
+        [DataMember(Name = "Output::link2")]
+        public string OutputLink2 { get; set; }
+
+        [DataMember(Name = "Output::text2b")]
+        public string OutputText2b { get; set; }
+
+        [DataMember(Name = "UrlOutput::url2c")]
+        public string UrlOutputUrl2c { get; set; }
+
+        [DataMember(Name = "Output::link2c")]
+        public string OutputLink2c { get; set; }
+
+        [DataMember(Name = "result_group_header")]
+        public string ResultGroupHeader { get; set; }
+
+        [DataMember(Name = "Output::image_url")]
+        public string OutputImageUrl { get; set; }
+
+        [DataMember(Name = "image_size")]
+        public string ImageSize { get; set; }
+
+        [DataMember(Name = "Output::inline_image_width")]
+        public string OutputInlineImageWidth { get; set; }
+
+        [DataMember(Name = "Output::inline_image_height")]
+        public string OutputInlineImageHeight { get; set; }
+
+        [DataMember(Name = "Output::image_border")]
+        public string OutputImageBorder { get; set; }
+    }
+
+    [DataContract]
+    public class Pagemap
+    {
+
+        [DataMember(Name = "RTO")]
+        public IList<RTO> RTO { get; set; }
+    }
+
+    [DataContract]
+    public class Item
+    {
+
+        [DataMember(Name = "kind")]
+        public string Kind { get; set; }
+
+        [DataMember(Name = "title")]
+        public string Title { get; set; }
+
+        [DataMember(Name = "htmlTitle")]
+        public string HtmlTitle { get; set; }
+
+        [DataMember(Name = "link")]
+        public string Link { get; set; }
+
+        [DataMember(Name = "displayLink")]
+        public string DisplayLink { get; set; }
+
+        [DataMember(Name = "snippet")]
+        public string Snippet { get; set; }
+
+        [DataMember(Name = "htmlSnippet")]
+        public string HtmlSnippet { get; set; }
+
+        [DataMember(Name = "pagemap")]
+        public Pagemap Pagemap { get; set; }
+    }
 
     [DataContract]
     public class GoogleSearchResult
     {
-        //    [DataContract]
-        //    public class Url
-        //    {
-        //        [DataMember]
-        //        public string type { get; set; }
-        //        [DataMember]
-        //        public string template { get; set; }
-        //    }
 
-        //    [DataContract]
-        //    public class NextPage
-        //    {
-        //        public string title { get; set; }
-        //        public int totalResults { get; set; }
-        //        public string searchTerms { get; set; }
-        //        public int count { get; set; }
-        //        public int startIndex { get; set; }
-        //        public string inputEncoding { get; set; }
-        //        public string outputEncoding { get; set; }
-        //        public string cx { get; set; }
-        //    }
+        [DataMember(Name = "kind")]
+        public string Kind { get; set; }
 
-        //    [DataContract]
-        //    public class Request
-        //    {
-        //        public string title { get; set; }
-        //        public int totalResults { get; set; }
-        //        public string searchTerms { get; set; }
-        //        public int count { get; set; }
-        //        public int startIndex { get; set; }
-        //        public string inputEncoding { get; set; }
-        //        public string outputEncoding { get; set; }
-        //        public string cx { get; set; }
-        //    }
+        [DataMember(Name = "url")]
+        public Url Url { get; set; }
 
-        //    [DataContract]
-        //    public class Queries
-        //    {
-        //        public List<NextPage> nextPage { get; set; }
-        //        public List<Request> request { get; set; }
-        //    }
+        [DataMember(Name = "queries")]
+        public Queries Queries { get; set; }
 
-        //    [DataContract]
-        //    public class Context
-        //    {
-        //        public string title { get; set; }
-        //    }
+        [DataMember(Name = "context")]
+        public Context Context { get; set; }
 
-        //    [DataContract]
-        //    public class Context
-        //    {
-        //        public string title { get; set; }
-        //    }
-
-        //    [DataContract]
-        //    public class RTO
-        //    {
-        //        public string format { get; set; }
-        //        public string group_impression_tag { get; set; }
-        //        public string __invalid_name__Opt::max_rank_top { get; set; }
-        //        public string __invalid_name__Opt::threshold_override { get; set; }
-        //        public string __invalid_name__Opt::disallow_same_domain { get; set; }
-        //        public string __invalid_name__Output::title { get; set; }
-        //        public string __invalid_name__Output::want_title_on_right { get; set; }
-        //        public string __invalid_name__Output::num_lines1 { get; set; }
-        //        public string __invalid_name__Output::text1 { get; set; }
-        //        public string __invalid_name__Output::gray1b { get; set; }
-        //        public string __invalid_name__Output::no_clip1b { get; set; }
-        //        public string __invalid_name__UrlOutput::url2 { get; set; }
-        //        public string __invalid_name__Output::link2 { get; set; }
-        //        public string __invalid_name__Output::text2b { get; set; }
-        //        public string __invalid_name__UrlOutput::url2c { get; set; }
-        //        public string __invalid_name__Output::link2c { get; set; }
-        //        public string result_group_header { get; set; }
-        //        public string __invalid_name__Output::image_url { get; set; }
-        //        public string image_size { get; set; }
-        //        public string __invalid_name__Output::inline_image_width { get; set; }
-        //        public string __invalid_name__Output::inline_image_height { get; set; }
-        //        public string __invalid_name__Output::image_border { get; set; }
-        //    }
-
-        //    [DataContract]
-        //    public class Pagemap
-        //    {
-        //        public List<RTO> RTO { get; set; }
-        //    }
-
-        //    [DataContract]
-        //    public class Item
-        //    {
-        //        public string kind { get; set; }
-        //        public string title { get; set; }
-        //        public string htmlTitle { get; set; }
-        //        public string link { get; set; }
-        //        public string displayLink { get; set; }
-        //        public string snippet { get; set; }
-        //        public string htmlSnippet { get; set; }
-        //        public Pagemap pagemap { get; set; }
-        //    }
-        //}
-
-        //public string kind { get; set; }
-        //public Url url { get; set; }
-        //public Queries queries { get; set; }
-        //public Context context { get; set; }
-        //public List<Item> items { get; set; }
+        [DataMember(Name = "items")]
+        public IList<Item> Items { get; set; }
     }
+
+
 }
