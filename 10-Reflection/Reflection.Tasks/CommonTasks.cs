@@ -16,8 +16,8 @@ namespace Reflection.Tasks
         /// <param name="assemblyName">name of assembly</param>
         /// <returns>List of public but obsolete classes</returns>
         public static IEnumerable<string> GetPublicObsoleteClasses(string assemblyName) {
-            // TODO : Implement GetPublicObsoleteClasses method
-            throw new NotImplementedException();
+			Assembly assembly = Assembly.Load(assemblyName);
+			return assembly.ExportedTypes.Where(item => item.IsClass && item.IsDefined(typeof(ObsoleteAttribute), true) ).Select(item => item.Name);
         }
 
         /// <summary>
@@ -38,9 +38,15 @@ namespace Reflection.Tasks
         /// <param name="propertyPath">dot-separated property path</param>
         /// <returns>property value of obj for required propertyPath</returns>
         public static T GetPropertyValue<T>(this object obj, string propertyPath) {
-            // TODO : Implement GetPropertyValue method
-            throw new NotImplementedException();
-        }
+			var result = obj;
+			var properties = propertyPath.Split('.');
+
+			foreach (var prop in properties)
+			{
+				result = result.GetType().GetProperty(prop).GetValue(result);
+			}
+			return (T)result;
+		}
 
 
         /// <summary>
@@ -60,10 +66,21 @@ namespace Reflection.Tasks
         /// <param name="propertyPath">dot-separated property path</param>
         /// <param name="value">assigned value</param>
         public static void SetPropertyValue(this object obj, string propertyPath, object value) {
-            // TODO : Implement SetPropertyValue method
-            throw new NotImplementedException();
-        }
+			var result = obj;
+			var properties = propertyPath.Split('.');
 
+			if (properties.Length > 1)
+				result = result.GetPropertyValue<object>(string.Join(".", properties.Take(properties.Length - 1)));
 
+			var type = result.GetType();
+			var setProperty = type.GetProperty(properties.Last());
+			while (type.BaseType != null && !setProperty.CanWrite )
+			{
+				type = type.BaseType;
+				setProperty = type.GetProperty(properties.Last());
+			}
+
+			setProperty.SetValue(result, value, null);
+		}
     }
 }

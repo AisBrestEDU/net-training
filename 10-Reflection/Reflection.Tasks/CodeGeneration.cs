@@ -23,9 +23,24 @@ namespace Reflection.Tasks
         ///   The generated dynamic method should be equal to static MultuplyVectors (see below).   
         /// </returns>
         public static Func<T[], T[], T> GetVectorMultiplyFunction<T>() where T : struct {
-            // TODO : Implement GetVectorMultiplyFunction<T>.
-            throw new NotImplementedException();
-        } 
+			// TODO : Implement GetVectorMultiplyFunction<T>.
+			Expression<Func<T[], T[], T>> ex = (first, second) =>
+			//Enumerable.Repeat(first.Cast<double>().AsEnumerable().Zip(second.Cast<double>(), (item1, item2) => item1 * item2).Sum(),2).Cast<T>().First();
+			{
+				T a, b,buff = default(T);
+				for (int i = 0; i< first.Length; i++)
+				{
+					a = first[i];
+					b = second[i];
+
+					buff += a * b;
+				}
+
+				return buff;
+			};
+			
+			return ex.Compile();
+		} 
 
 
         // Static solution to check performance benchmarks
