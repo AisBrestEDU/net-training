@@ -16,8 +16,13 @@ namespace Reflection.Tasks
         /// <param name="assemblyName">name of assembly</param>
         /// <returns>List of public but obsolete classes</returns>
         public static IEnumerable<string> GetPublicObsoleteClasses(string assemblyName) {
-            // TODO : Implement GetPublicObsoleteClasses method
-            throw new NotImplementedException();
+            Assembly assembly = Assembly.Load(assemblyName);
+
+            IEnumerable <string> classes = assembly.GetTypes().
+                Where(type => type.IsClass && type.IsPublic && type.GetCustomAttributes().
+                Any(attr => attr.GetType().Name.Equals("ObsoleteAttribute"))).
+                Select(type => type.Name);
+            return classes;
         }
 
         /// <summary>
@@ -37,9 +42,28 @@ namespace Reflection.Tasks
         /// <param name="obj">source object to get property from</param>
         /// <param name="propertyPath">dot-separated property path</param>
         /// <returns>property value of obj for required propertyPath</returns>
-        public static T GetPropertyValue<T>(this object obj, string propertyPath) {
-            // TODO : Implement GetPropertyValue method
-            throw new NotImplementedException();
+        public static T GetPropertyValue<T>(this object obj, string propertyPath)
+        {
+            string[] partsOfPropertyPath = propertyPath.Split('.');
+            string path = propertyPath;
+            object root = obj;
+
+
+            if (partsOfPropertyPath.Length > 1)
+            {
+                //set the current path to the last one of arrays of pathes
+                path = partsOfPropertyPath[partsOfPropertyPath.Length - 1];
+                //get values from array except the last one
+                partsOfPropertyPath = partsOfPropertyPath.TakeWhile((p, i) => i < partsOfPropertyPath.Length - 1)
+                    .ToArray();
+                //create the new path
+                string path2 = String.Join(".", partsOfPropertyPath);
+                //invoke method while one element left in the path
+                root = obj.GetPropertyValue<object>(path2);
+            }
+            //return the value of specified property
+            var sourceType = root.GetType();
+            return (T) sourceType.GetProperty(path)?.GetValue(root, null);
         }
 
 
@@ -59,9 +83,10 @@ namespace Reflection.Tasks
         /// <param name="obj">source object to set property to</param>
         /// <param name="propertyPath">dot-separated property path</param>
         /// <param name="value">assigned value</param>
-        public static void SetPropertyValue(this object obj, string propertyPath, object value) {
-            // TODO : Implement SetPropertyValue method
-            throw new NotImplementedException();
+        public static void SetPropertyValue(this object obj, string propertyPath, object value)
+        {
+            var property = obj.GetType().BaseType.GetProperty(propertyPath, BindingFlags.Instance | BindingFlags.NonPublic);
+            property?.SetValue(obj, value);
         }
 
 
