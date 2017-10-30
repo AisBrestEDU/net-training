@@ -63,7 +63,9 @@ namespace Reflection.Tasks
             }
             //return the value of specified property
             var sourceType = root.GetType();
-            return (T) sourceType.GetProperty(path)?.GetValue(root, null);
+            return (T)sourceType.GetProperty(path)?.GetValue(root, null);
+
+
         }
 
 
