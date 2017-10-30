@@ -23,34 +23,62 @@ namespace Reflection.Tasks
         ///   The generated dynamic method should be equal to static MultuplyVectors (see below).   
         /// </returns>
         public static Func<T[], T[], T> GetVectorMultiplyFunction<T>() where T : struct {
-			// TODO : Implement GetVectorMultiplyFunction<T>.
-			Expression<Func<T[], T[], T>> ex = (first, second) =>
-			//Enumerable.Repeat(first.Cast<double>().AsEnumerable().Zip(second.Cast<double>(), (item1, item2) => item1 * item2).Sum(),2).Cast<T>().First();
-			{
-				T a, b,buff = default(T);
-				for (int i = 0; i< first.Length; i++)
-				{
-					a = first[i];
-					b = second[i];
-
-					buff += a * b;
-				}
-
-				return buff;
-			};
 			
-			return ex.Compile();
-		} 
+			ParameterExpression array1 = Expression.Parameter(typeof(T[]), "array1");
+			ParameterExpression array2 = Expression.Parameter(typeof(T[]), "arrray2");
+			ParameterExpression result = Expression.Parameter(typeof(T), "result");
+			UnaryExpression length = Expression.ArrayLength(array1);
+			ParameterExpression i = Expression.Variable(typeof(int), "i");
+
+			LabelTarget label = Expression.Label(typeof(T));
+			BinaryExpression value1 = Expression.ArrayIndex(array1, i);
+			BinaryExpression value2 = Expression.ArrayIndex(array2, i);
+
+			BlockExpression block = Expression.Block(
+				new[] { result, i },
+				Expression.Assign(result, Expression.Constant(default(T))),
+				Expression.Assign(i, Expression.Constant(0)),
+				Expression.Loop(
+					Expression.IfThenElse(
+						Expression.LessThan(i, length),
+						Expression.Block(
+							Expression.AddAssign(result, Expression.Multiply(value1, value2)),
+							Expression.AddAssign(i, Expression.Constant(1))
+						),
+						Expression.Break(label, result)
+					), label));
+
+			return Expression.Lambda<Func<T[], T[], T>>(block, array1, array2).Compile();
 
 
-        // Static solution to check performance benchmarks
-        public static int MultuplyVectors(int[] first, int[] second) {
+			// another solution without expression
+			// but expression works faster
+			//
+			//Func<T[], T[], T> f = (first, second) =>
+			//{
+			//	T a, b, buff = default(T);
+			//	for (int i = 0; i < first.Length; i++)
+			//	{
+			//		a = first[i];
+			//		b = second[i];
+
+			//		buff += (dynamic)a * (dynamic)b;
+			//	}
+
+			//	return buff;
+			//};
+
+			//return f;
+		}
+
+
+		// Static solution to check performance benchmarks
+		public static int MultuplyVectors(int[] first, int[] second) {
             int result = 0;
             for (int i = 0; i < first.Length; i++) {
                 result += first[i] * second[i];
             }
             return result;
         }
-
-    }
+	}
 }
