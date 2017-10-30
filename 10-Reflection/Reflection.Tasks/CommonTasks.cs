@@ -85,8 +85,21 @@ namespace Reflection.Tasks
         /// <param name="value">assigned value</param>
         public static void SetPropertyValue(this object obj, string propertyPath, object value)
         {
-            var property = obj.GetType().BaseType.GetProperty(propertyPath, BindingFlags.Instance | BindingFlags.NonPublic);
-            property?.SetValue(obj, value);
+            string[] parts = propertyPath.Split('.');
+            string path = propertyPath;
+            object root = obj;
+
+            if (parts.Length > 1)
+            {
+                path = parts[parts.Length - 1];
+                parts = parts.TakeWhile((p, i) => i < parts.Length - 1).ToArray();
+
+                string path2 = String.Join(".",parts);
+                root = obj.GetPropertyValue<object>(path2);
+            }
+
+            var property = root.GetType().BaseType.GetProperty(path);
+            property?.SetValue(root, value, null);
         }
 
 
