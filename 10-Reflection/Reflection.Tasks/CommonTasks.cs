@@ -17,7 +17,11 @@ namespace Reflection.Tasks
         /// <returns>List of public but obsolete classes</returns>
         public static IEnumerable<string> GetPublicObsoleteClasses(string assemblyName) {
             // TODO : Implement GetPublicObsoleteClasses method
-            throw new NotImplementedException();
+            Assembly assemblyUnit = Assembly.Load(assemblyName);
+            IEnumerable < string> types2 = assemblyUnit.GetTypes().Where( a=> a.IsClass && a.IsPublic)
+                .Where(b=>b.GetCustomAttributes().Any(a=>a.GetType().Name.Equals("ObsoleteAttribute"))).Select(a=> a.Name);
+
+            return types2;
         }
 
         /// <summary>
@@ -39,7 +43,28 @@ namespace Reflection.Tasks
         /// <returns>property value of obj for required propertyPath</returns>
         public static T GetPropertyValue<T>(this object obj, string propertyPath) {
             // TODO : Implement GetPropertyValue method
-            throw new NotImplementedException();
+            //string[] simpleProp = propertyPath.Split('.');
+
+            //// var managerObj = obj;
+
+            //if (propertyPath.Contains('.'))
+            //{
+            //    var managerPath = simpleProp.Last();
+            //    var managerObj = obj.GetType().GetPropertyValue<object>(simpleProp.First());
+            //    GetPropertyValue<T>(managerObj, managerPath);
+
+            //}
+            //var simpleResult = obj.GetType().GetProperty(propertyPath);
+            //return (T)simpleResult.GetValue(obj, null);
+            var result = obj;
+            var properties = propertyPath.Split('.');
+
+            foreach (var item in properties)
+            {
+                result = result.GetType().GetProperty(item).GetValue(result);
+            }
+            return (T)result;
+
         }
 
 
@@ -60,8 +85,21 @@ namespace Reflection.Tasks
         /// <param name="propertyPath">dot-separated property path</param>
         /// <param name="value">assigned value</param>
         public static void SetPropertyValue(this object obj, string propertyPath, object value) {
-            // TODO : Implement SetPropertyValue method
-            throw new NotImplementedException();
+            var result = obj;
+            var properties = propertyPath.Split('.');
+
+            if (properties.Length > 1)
+                result = result.GetPropertyValue<object>(string.Join(".", properties.Take(properties.Length - 1)));
+
+            var type = result.GetType();
+            var setProperty = type.GetProperty(properties.Last());
+            while (type.BaseType != null && !setProperty.CanWrite)
+            {
+                type = type.BaseType;
+                setProperty = type.GetProperty(properties.Last());
+            }
+
+            setProperty.SetValue(result, value, null);
         }
 
 
