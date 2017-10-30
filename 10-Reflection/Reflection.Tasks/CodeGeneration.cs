@@ -24,7 +24,17 @@ namespace Reflection.Tasks
         /// </returns>
         public static Func<T[], T[], T> GetVectorMultiplyFunction<T>() where T : struct {
             // TODO : Implement GetVectorMultiplyFunction<T>.
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+
+            //var first = Expression.Parameter(typeof(T[]));
+            //var second = Expression.Parameter(typeof(T[]));
+            //var summ = Expression.Variable(typeof(T));
+
+            //var label = Expression.Label();
+
+
+
+
         } 
 
 
