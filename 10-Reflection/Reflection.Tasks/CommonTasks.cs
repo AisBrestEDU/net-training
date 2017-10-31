@@ -76,25 +76,25 @@ namespace Reflection.Tasks
 			// TODO : Implement SetPropertyValue method
 			//throw new NotImplementedException();
 
-			var ass = obj.GetType();
-			var propertyPaths = propertyPath.Split('.');
+	        var propertyPaths = propertyPath.Split('.');
 
-			if (propertyPaths.Length == 1)
+			if (propertyPath.Contains('.'))
 			{
-				obj.GetType().BaseType.GetProperty(propertyPath).SetValue(obj, value);
+				var paths = propertyPaths.Take(propertyPaths.Length - 1);
+				var path = String.Join(".", paths);
+				obj = obj.GetPropertyValue<object>(path);
 			}
 
-			else
-			{
-				for (int i = 0; i < propertyPaths.Length - 1; i++)
-				{
-					PropertyInfo propertyToGet = obj.GetType().GetProperty(propertyPaths[i]);
-					obj = propertyToGet.GetValue(obj, null);
-				}
+	        var type = obj.GetType();
+			var propInfo = type.GetProperty(propertyPaths.Last());
 
-				PropertyInfo propertyToSet = obj.GetType().GetProperty(propertyPaths.Last());
-				propertyToSet.SetValue(obj, value, null);
+			while (type != null && !propInfo.CanWrite)
+			{
+				propInfo = type.GetProperty(propertyPaths.Last());
+				type = type.BaseType;
 			}
+
+			propInfo.SetValue(obj, value, null);
 		}
-    }
+	}
 }
