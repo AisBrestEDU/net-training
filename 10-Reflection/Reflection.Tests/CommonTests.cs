@@ -48,6 +48,11 @@ namespace Reflection.Tests
             public Programmer(string firstName, string lastName):base(firstName, lastName) {}
         }
 
+        class Programmer : Manager
+        {
+            public Programmer(string firstName, string lastName) :  base(firstName, lastName) {}
+        }
+
         class Worker : Employee {
             public Manager Manager { get; private set; }
             public Worker(string firstName, string lastName, Manager manager) : base(firstName, lastName) {
@@ -115,11 +120,18 @@ namespace Reflection.Tests
         {
             var manager = new Manager("Joe", "Smith", new Programmer("Andrew", "Likhtar"));
             var expected = "Johnson";
-
+            
             manager.SetPropertyValue("LastName", expected);
 
             var actual = manager.LastName;
             Assert.AreEqual(expected, actual);
+
+
+            var programmer = new Programmer("Mirtofan", "Govorushko");
+            programmer.SetPropertyValue("LastName", expected);
+            actual = programmer.LastName;
+            Assert.AreEqual(expected, actual);
+
         }
         #endregion SetProperty tests
     }

@@ -93,14 +93,21 @@ namespace Reflection.Tasks
 
             if (parts.Length > 1)
             {
-                path = parts[parts.Length - 1];
-                parts = parts.TakeWhile((p, i) => i < parts.Length - 1).ToArray();
-
-                string path2 = String.Join(".",parts);
-                root = obj.GetPropertyValue<object>(path2);
+                string [] newParts = parts.TakeWhile((p, i) => i < parts.Length - 1).ToArray();
+                string newPath = String.Join(".", newParts);
+                root = obj.GetPropertyValue<object>(newPath);
             }
 
-            var property = root.GetType().BaseType.GetProperty(path);
+            Type rootType = root.GetType();
+
+            path = parts.Last();
+
+            while (!rootType.GetProperty(path).CanWrite)
+            {
+                rootType = rootType.BaseType;
+            }
+
+            var property = rootType.GetProperty(path);
             property?.SetValue(root, value, null);
         }
 
