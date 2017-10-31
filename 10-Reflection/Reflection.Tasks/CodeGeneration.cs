@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Net;
 using System.Text;
 
 namespace Reflection.Tasks
@@ -22,11 +24,40 @@ namespace Reflection.Tasks
         ///   The function that return scalar product of two vectors
         ///   The generated dynamic method should be equal to static MultuplyVectors (see below).   
         /// </returns>
-        public static Func<T[], T[], T> GetVectorMultiplyFunction<T>() where T : struct {
-            // TODO : Implement GetVectorMultiplyFunction<T>.
-            throw new NotImplementedException();
-        } 
+        public static Func<T[], T[], T> GetVectorMultiplyFunction<T>() where T : struct
+        {
+            ParameterExpression firstVector = Expression.Parameter(typeof(T[]), "firstVector");
+            ParameterExpression secondVector = Expression.Parameter(typeof(T[]), "secondVector");
 
+            ParameterExpression result = Expression.Variable(typeof(T), "result");
+
+            ParameterExpression index = Expression.Variable(typeof(int), "index");
+
+
+            LabelTarget label = Expression.Label(typeof(T));
+
+            BlockExpression block = Expression.Block(
+
+                new[] {result, index},
+
+                Expression.Assign(result, Expression.Constant(default(T))),
+                Expression.Assign(index, Expression.Constant(0)),
+
+                Expression.Loop(
+                    Expression.IfThenElse(
+                        Expression.LessThan(index, Expression.ArrayLength(firstVector)),
+                        Expression.AddAssign(result,
+                            Expression.Multiply(Expression.ArrayIndex(firstVector, index),
+                                Expression.ArrayIndex(secondVector, Expression.PostIncrementAssign(index)))),
+                            Expression.Break(label, result)
+                        ),
+
+                            label
+                            )
+                );
+            
+            return Expression.Lambda<Func<T[], T[], T>>(block, firstVector, secondVector).Compile();
+        }
 
         // Static solution to check performance benchmarks
         public static int MultuplyVectors(int[] first, int[] second) {
