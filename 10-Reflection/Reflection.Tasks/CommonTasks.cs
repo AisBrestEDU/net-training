@@ -17,7 +17,11 @@ namespace Reflection.Tasks
         /// <returns>List of public but obsolete classes</returns>
         public static IEnumerable<string> GetPublicObsoleteClasses(string assemblyName) {
             // TODO : Implement GetPublicObsoleteClasses method
-            throw new NotImplementedException();
+            // throw new NotImplementedException();
+
+            return Assembly.Load(assemblyName).GetTypes()
+                .Where(t => t.IsClass)
+                .Where(t => t.IsDefined(typeof(ObsoleteAttribute))).Select(t=>t.Name);
         }
 
         /// <summary>
@@ -39,7 +43,30 @@ namespace Reflection.Tasks
         /// <returns>property value of obj for required propertyPath</returns>
         public static T GetPropertyValue<T>(this object obj, string propertyPath) {
             // TODO : Implement GetPropertyValue method
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+
+            Type type;
+            PropertyInfo field;
+            Object buff = obj;
+
+            var propertys = propertyPath.Split('.');
+            foreach (var p in propertys.Take(propertys.Count() - 1))
+            {
+
+                type = obj.GetType();
+                field = type.GetProperty(p, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+                obj = field.GetValue(obj);
+            }
+
+            type = obj.GetType();
+            field = type.GetProperty(propertys.Last(), BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+
+            while (!field.CanRead)
+            {
+                type = type.BaseType;
+                field = type.GetProperty(propertys.Last(), BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+            }
+            return (T)field.GetValue(obj);
         }
 
 
@@ -61,7 +88,30 @@ namespace Reflection.Tasks
         /// <param name="value">assigned value</param>
         public static void SetPropertyValue(this object obj, string propertyPath, object value) {
             // TODO : Implement SetPropertyValue method
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+
+            Type type;
+            PropertyInfo field;
+            Object buff = obj;
+
+            var propertys = propertyPath.Split('.');
+            foreach (var p in propertys.Take(propertys.Count() - 1))
+            {
+                
+                type = obj.GetType();
+                field = type.GetProperty(p, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+                obj = field.GetValue(obj);
+            }
+
+            type = obj.GetType();
+            field = type.GetProperty(propertys.Last(), BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+
+            while (!field.CanWrite)
+            {
+                type=type.BaseType;
+                field = type.GetProperty(propertys.Last(), BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+            }
+            field.SetValue(obj, value);
         }
 
 

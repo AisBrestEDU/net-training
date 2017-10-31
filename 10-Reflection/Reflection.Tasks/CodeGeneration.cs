@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+//using System.Linq.Dynamic;
 using System.Linq.Expressions;
 using System.Text;
 
@@ -24,7 +25,39 @@ namespace Reflection.Tasks
         /// </returns>
         public static Func<T[], T[], T> GetVectorMultiplyFunction<T>() where T : struct {
             // TODO : Implement GetVectorMultiplyFunction<T>.
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+
+            var first = Expression.Parameter(typeof(T[]), "first");
+            var second = Expression.Parameter(typeof(T[]), "second");
+            var summ = Expression.Variable(typeof(T), "summ");
+            var length1 = Expression.ArrayLength(first);
+            var length2 = Expression.ArrayLength(second);
+
+            var chekLength = Expression.IfThen(
+                            Expression.NotEqual(length1, length2),
+                            Expression.Throw(Expression.Constant(new ArgumentException()))
+                            );
+
+            var label = Expression.Label(typeof(T));
+            var index = Expression.Variable(typeof(int), "index");
+
+            var mainExpression = Expression.Block(
+                new[] {summ, index},
+                chekLength,
+                Expression.Loop(     
+                    Expression.IfThenElse(
+                        Expression.LessThan(index, length1),
+                        Expression.AddAssign(
+                            summ,
+                            Expression.Multiply(
+                                Expression.ArrayIndex(first, index),
+                                Expression.ArrayIndex(second, Expression.PostIncrementAssign(index))
+                             )),
+                        Expression.Break(label,summ)), label));
+
+            var lambda=Expression.Lambda(mainExpression, first, second);
+
+            return (Func<T[], T[], T>) lambda.Compile();
         } 
 
 
