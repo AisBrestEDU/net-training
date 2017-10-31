@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 
 namespace Reflection.Tasks
 {
@@ -17,30 +16,44 @@ namespace Reflection.Tasks
         /// <returns>List of public but obsolete classes</returns>
         public static IEnumerable<string> GetPublicObsoleteClasses(string assemblyName) {
             // TODO : Implement GetPublicObsoleteClasses method
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+
+	        var obsoleteClasses = Assembly.Load(assemblyName).ExportedTypes
+		        .Where(n => n.IsClass && n.IsDefined(typeof(ObsoleteAttribute), true)).Select(n => n.Name);
+
+	        return obsoleteClasses;
         }
 
-        /// <summary>
-        /// Returns the value for required property path
-        /// </summary>
-        /// <example>
-        ///  1) 
-        ///  string value = instance.GetPropertyValue("Property1")
-        ///  The result should be equal to invoking statically
-        ///  string value = instance.Property1;
-        ///  2) 
-        ///  string name = instance.GetPropertyValue("Property1.Property2.FirstName")
-        ///  The result should be equal to invoking statically
-        ///  string name = instance.Property1.Property2.FirstName;
-        /// </example>
-        /// <typeparam name="T">property type</typeparam>
-        /// <param name="obj">source object to get property from</param>
-        /// <param name="propertyPath">dot-separated property path</param>
-        /// <returns>property value of obj for required propertyPath</returns>
-        public static T GetPropertyValue<T>(this object obj, string propertyPath) {
+		/// <summary>
+		/// Returns the value for required property path
+		/// </summary>
+		/// <example>
+		///  1) 
+		///  string value = instance.GetPropertyValue("Property1")
+		///  The result should be equal to invoking statically
+		///  string value = instance.Property1;
+		///  2) 
+		///  string name = instance.GetPropertyValue("Property1.Property2.FirstName")
+		///  The result should be equal to invoking statically
+		///  string name = instance.Property1.Property2.FirstName;
+		/// </example>
+		/// <typeparam name="T">property type</typeparam>
+		/// <param name="obj">source object to get property from</param>
+		/// <param name="propertyPath">dot-separated property path</param>
+		/// <returns>property value of obj for required propertyPath</returns>
+		public static T GetPropertyValue<T>(this object obj, string propertyPath) {
             // TODO : Implement GetPropertyValue method
-            throw new NotImplementedException();
-        }
+            //throw new NotImplementedException();
+
+			var result = obj;
+
+			foreach (var path in propertyPath.Split('.'))
+			{
+				result = obj.GetType().GetProperty(path)?.GetValue(result);
+			}
+
+			return (T) result;
+		}
 
 
         /// <summary>
@@ -60,10 +73,28 @@ namespace Reflection.Tasks
         /// <param name="propertyPath">dot-separated property path</param>
         /// <param name="value">assigned value</param>
         public static void SetPropertyValue(this object obj, string propertyPath, object value) {
-            // TODO : Implement SetPropertyValue method
-            throw new NotImplementedException();
-        }
+			// TODO : Implement SetPropertyValue method
+			//throw new NotImplementedException();
 
+	        var propertyPaths = propertyPath.Split('.');
 
-    }
+			if (propertyPath.Contains('.'))
+			{
+				var paths = propertyPaths.Take(propertyPaths.Length - 1);
+				var path = String.Join(".", paths);
+				obj = obj.GetPropertyValue<object>(path);
+			}
+
+	        var type = obj.GetType();
+			var propInfo = type.GetProperty(propertyPaths.Last());
+
+			while (type != null && !propInfo.CanWrite)
+			{
+				propInfo = type.GetProperty(propertyPaths.Last());
+				type = type.BaseType;
+			}
+
+			propInfo.SetValue(obj, value, null);
+		}
+	}
 }
