@@ -61,16 +61,12 @@ namespace Reflection.Tasks
             type = obj.GetType();
             field = type.GetProperty(propertys.Last(), BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
 
-            while (true)
+            while (!field.CanRead)
             {
-                if (field.CanRead)
-                {
-                    return (T) field.GetValue(obj);
-                }
-
                 type = type.BaseType;
                 field = type.GetProperty(propertys.Last(), BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
             }
+            return (T)field.GetValue(obj);
         }
 
 
