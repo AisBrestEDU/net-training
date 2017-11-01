@@ -9,28 +9,33 @@ namespace IQueryableTask
     {
         public IQueryable CreateQuery(Expression expression)
         {
-            // TODO: Implement CreateQuery
-            throw new NotImplementedException();
+            Type type = expression.Type;
+            try
+            {
+                return (IQueryable)Activator
+                    .CreateInstance(
+                    typeof(People).MakeGenericType(type), new object[] { this, expression }
+                    );
+            }
+            catch (System.Reflection.TargetInvocationException ex)
+            {
+                throw ex.InnerException;
+            }
         }
 
         public IQueryable<TResult> CreateQuery<TResult>(Expression expression)
         {
-            // TODO: Implement CreateQuery
-            throw new NotImplementedException();
+            return (IQueryable<TResult>)new People(expression);
         }
 
         public object Execute(Expression expression)
         {
-            // TODO: Implement Execute
-            throw new NotImplementedException();
+            return new PersonService().Search(GetSqlQuery(expression));
         }
 
         public TResult Execute<TResult>(Expression expression)
         {
-            // TODO: Implement Execute
-            throw new NotImplementedException();
-
-            // HINT: Use GetSqlQuery to build query and pass the query to PersonService
+            return (TResult)Execute(expression);
         }
 
         /// <summary>
@@ -40,12 +45,7 @@ namespace IQueryableTask
         /// <returns></returns>
         public string GetSqlQuery(Expression expression)
         {
-            // TODO: Implement GetYqlQuery
-            throw new NotImplementedException();
-
-            // HINT: This method is not part of IQueryProvider interface and is used here only for tests.
-            // HINT: To transform expression to sql query create a class derived from ExpressionVisitor
-            // HINT: Read the tutorial https://msdn.microsoft.com/en-us/library/bb546158.aspx for more info
+            return new SqlExpressionVisitor().Translate(expression);
         }
     }
 }
