@@ -26,16 +26,46 @@ namespace IOStreams
 		/// <returns>sequence of PlanetInfo</returns>
 		public static IEnumerable<PlanetInfo> ReadPlanetInfoFromXlsx(string xlsxFileName)
 		{
-			// TODO : Implement ReadPlanetInfoFromXlsx method using System.IO.Packaging + Linq-2-Xml
+            // TODO : Implement ReadPlanetInfoFromXlsx method using System.IO.Packaging + Linq-2-Xml
 
-			// HINT : Please be as simple & clear as possible.
-			//        No complex and common use cases, just this specified file.
-			//        Required data are stored in Planets.xlsx archive in 2 files:
-			//         /xl/sharedStrings.xml      - dictionary of all string values
-			//         /xl/worksheets/sheet1.xml  - main worksheet
+            // HINT : Please be as simple & clear as possible.
+            //        No complex and common use cases, just this specified file.
+            //        Required data are stored in Planets.xlsx archive in 2 files:
+            //         /xl/sharedStrings.xml      - dictionary of all string values
+            //         /xl/worksheets/sheet1.xml  - main worksheet
 
-			throw new NotImplementedException();
-		}
+            string[] names;
+            double[] radius;
+            using (var package = Package.Open(xlsxFileName))
+            {
+                using (var stream = package.GetPart(new Uri(@"/xl/sharedStrings.xml", UriKind.Relative)).GetStream())
+                {
+                    names = XDocument
+                        .Load(stream)
+                        .Root
+                        .Descendants()
+                        .Where(x => x.Name.LocalName == "t")
+                        .Select(x => x.Value)
+                        .ToArray();
+                }
+                using (var stream = package.GetPart(new Uri(@"/xl/worksheets/sheet1.xml", UriKind.Relative)).GetStream())
+                {
+                    radius = XDocument
+                        .Load(stream)
+                        .Root
+                        .Descendants()
+                        .Where(x => x.Name.LocalName == "v" && x.Parent.Attribute("r").Value.ToString()[0] == 'B')
+                        .Skip(1)
+                        .Select(x => Double.Parse(x.Value))
+                        .ToArray();
+                }
+            }
+
+            return Enumerable
+                .Zip(names, radius, (x, y) =>
+                    new PlanetInfo { Name = x, MeanRadius = y }
+                );
+        }
 
 
 		/// <summary>
@@ -46,9 +76,13 @@ namespace IOStreams
 		/// <returns></returns>
 		public static string CalculateHash(this Stream stream, string hashAlgorithmName)
 		{
-			// TODO : Implement CalculateHash method
-			throw new NotImplementedException();
-		}
+            // TODO : Implement CalculateHash method
+            var hashAlgorithm = HashAlgorithm.Create(hashAlgorithmName);
+
+            return hashAlgorithm != null
+                ? BitConverter.ToString(hashAlgorithm.ComputeHash(stream)).Replace("-", "")
+                : throw new ArgumentException();
+        }
 
 
 		/// <summary>
@@ -59,9 +93,18 @@ namespace IOStreams
 		/// <returns>output stream</returns>
 		public static Stream DecompressStream(string fileName, DecompressionMethods method)
 		{
-			// TODO : Implement DecompressStream method
-			throw new NotImplementedException();
-		}
+            // TODO : Implement DecompressStream method
+            var stream = new FileStream(fileName, FileMode.Open);
+            if (method == DecompressionMethods.Deflate)
+            {
+                return new DeflateStream(stream, CompressionMode.Decompress);
+            }
+            if (method == DecompressionMethods.GZip)
+            {
+                return new GZipStream(stream, CompressionMode.Decompress);
+            }
+            return stream;
+        }
 
 
 		/// <summary>
@@ -72,9 +115,9 @@ namespace IOStreams
 		/// <returns>Unicoded file content</returns>
 		public static string ReadEncodedText(string fileName, string encoding)
 		{
-			// TODO : Implement ReadEncodedText method
-			throw new NotImplementedException();
-		}
+            // TODO : Implement ReadEncodedText method
+            return File.ReadAllText(fileName, Encoding.GetEncoding(encoding));
+        }
 	}
 
 
