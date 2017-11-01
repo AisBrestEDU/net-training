@@ -9,18 +9,7 @@ namespace IQueryableTask
     {
         public IQueryable CreateQuery(Expression expression)
         {
-            Type type = expression.Type;
-            try
-            {
-                return (IQueryable)Activator
-                    .CreateInstance(
-                    typeof(People).MakeGenericType(type), new object[] { this, expression }
-                    );
-            }
-            catch (System.Reflection.TargetInvocationException ex)
-            {
-                throw ex.InnerException;
-            }
+            return new People(expression);
         }
 
         public IQueryable<TResult> CreateQuery<TResult>(Expression expression)
