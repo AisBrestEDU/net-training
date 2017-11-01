@@ -16,7 +16,29 @@ namespace LinqToXml
         /// <returns>Xml representation (refer to CreateHierarchyResultFile.xml in Resources)</returns>
         public static string CreateHierarchy(string xmlRepresentation)
         {
-            throw new NotImplementedException();
+            XDocument xDocument = XDocument.Parse(xmlRepresentation);
+            XElement xRoot = xDocument.Element("Root");
+            xRoot.Element("TaxRate").Remove();
+            var categories = xRoot.Elements().Select(x => x.Element("Category").Value);
+            categories = categories.Distinct().OrderBy(x => x);
+            var groups = categories.Select(x => {
+                XElement group = (
+                    new XElement("Group",
+                        new XAttribute("ID", x),
+                        xRoot
+                        .Elements()
+                        .Where(y => y.Element("Category").Value == x)
+                        .Select(
+                            y => new XElement("Data",
+                            new XElement("Quantity", y.Element("Quantity").Value),
+                            new XElement("Price", y.Element("Price").Value) )
+                        )
+                    )
+             );
+                return group;
+            });
+            xRoot.ReplaceAll(groups);
+            return xDocument.ToString();
         }
 
         /// <summary>
@@ -29,7 +51,13 @@ namespace LinqToXml
         /// </example>
         public static string GetPurchaseOrders(string xmlRepresentation)
         {
-            throw new NotImplementedException();
+            XDocument xDocument = XDocument.Parse(xmlRepresentation);
+            XElement xRoot = xDocument.Root;
+            var orderNemberOfShiping = xRoot
+                .Elements()
+                .Where(x => x.Elements().First().Elements().Skip(3).FirstOrDefault().Value == "NY")
+                .Select(x => x.FirstAttribute.Value);
+            return string.Join(",", orderNemberOfShiping);
         }
 
         /// <summary>
@@ -39,7 +67,26 @@ namespace LinqToXml
         /// <returns>Xml customers representation (refer to XmlFromCsvResultFile.xml in Resources)</returns>
         public static string ReadCustomersFromCsv(string customers)
         {
-            throw new NotImplementedException();
+            var csvCustomers = customers.Split("\r\n".ToArray()).Where((x, i) => i % 2 == 0).ToArray();
+            XElement xCustomers = new XElement("Root",
+                from customer in csvCustomers
+                let fields = customer.Split(',')
+                select new XElement("Customer",
+                    new XAttribute("CustomerID", fields[0]),
+                    new XElement("CompanyName", fields[1]),
+                    new XElement("ContactName", fields[2]),
+                    new XElement("ContactTitle", fields[3]),
+                    new XElement("Phone", fields[4]),
+                    new XElement("FullAddress",
+                        new XElement("Address", fields[5]),
+                        new XElement("City", fields[6]),
+                        new XElement("Region", fields[7]),
+                        new XElement("PostalCode", fields[8]),
+                        new XElement("Country", fields[9])
+                        )
+                    )
+                );
+            return xCustomers.ToString();
         }
 
         /// <summary>
@@ -49,7 +96,14 @@ namespace LinqToXml
         /// <returns>Concatenation of all this element values.</returns>
         public static string GetConcatenationString(string xmlRepresentation)
         {
-            throw new NotImplementedException();
+            XDocument xDocument = XDocument.Parse(xmlRepresentation);
+            XElement xRoot = xDocument.Root;
+            return string
+                .Concat(
+                    xRoot
+                    .Elements()
+                    .SelectMany(x => x.Value)
+                );
         }
 
         /// <summary>
@@ -59,7 +113,16 @@ namespace LinqToXml
         /// <returns>Xml representation with contacts (refer to ReplaceCustomersWithContactsResult.xml in Resources)</returns>
         public static string ReplaceAllCustomersWithContacts(string xmlRepresentation)
         {
-            throw new NotImplementedException();
+            XDocument xDocument = XDocument.Parse(xmlRepresentation);
+            XElement xRoot = xDocument.Root;
+            var contacts = xRoot.Elements()
+                                .Select(x => new XElement("contact",
+                                                 new XElement("name", x.Element("name").Value),
+                                                 new XElement("lastname", x.Element("lastname").Value)
+                                                 )
+                                 );
+            xRoot.ReplaceAll(contacts);
+            return xRoot.ToString();
         }
 
         /// <summary>
@@ -69,7 +132,12 @@ namespace LinqToXml
         /// <returns>Sequence of channels ids</returns>
         public static IEnumerable<int> FindChannelsIds(string xmlRepresentation)
         {
-            throw new NotImplementedException();
+            XDocument xDocument = XDocument.Parse(xmlRepresentation);
+            XElement xRoot = xDocument.Root;
+            var channels = xRoot.Elements()
+                                .Where(x => x.Elements().Count() >= 2 && x.DescendantNodes().OfType<XComment>().Count() > 0)
+                                .Select(x => x.Attribute("id").Value);
+            return channels.Select(x => int.Parse(x));
         }
 
         /// <summary>
@@ -79,7 +147,14 @@ namespace LinqToXml
         /// <returns>Sorted customers representation (refer to GeneralCustomersResultFile.xml in Resources)</returns>
         public static string SortCustomers(string xmlRepresentation)
         {
-            throw new NotImplementedException();
+            XDocument xDocument = XDocument.Parse(xmlRepresentation);
+            XElement xRoot = xDocument.Root;
+
+            var orderCustomers = xRoot.Elements()
+                                      .OrderBy(x => x.Element("FullAddress").Element("Country").Value)
+                                      .ThenBy(x => x.Element("FullAddress").Element("City").Value);
+            xRoot.ReplaceAll(orderCustomers);
+            return xRoot.ToString();
         }
 
         /// <summary>
@@ -92,7 +167,9 @@ namespace LinqToXml
         /// </example>
         public static string GetFlattenString(XElement xmlRepresentation)
         {
-            throw new NotImplementedException();
+            return string.IsNullOrEmpty(xmlRepresentation.ToString()) 
+                ? null 
+                : xmlRepresentation.ToString();
         }
 
         /// <summary>
@@ -102,7 +179,19 @@ namespace LinqToXml
         /// <returns>Total purchase value</returns>
         public static int GetOrdersValue(string xmlRepresentation)
         {
-            throw new NotImplementedException();
+            XDocument xDocument = XDocument.Parse(xmlRepresentation);
+            XElement xRoot = xDocument.Root;
+
+            int totalPurchaseValue = 0;
+            var ordersOfProduct = xRoot.Element("Orders").Elements()
+                                       .Select(x => x.Element("product").Value);
+            var products = xRoot.Element("products").Elements()
+                                .Select(x => new { id = x.Attribute("Id").Value, value = x.Attribute("Value").Value });
+            foreach (var order in ordersOfProduct)
+            {
+                totalPurchaseValue += int.Parse(products.FirstOrDefault(x => x.id == order).value);
+            }
+            return totalPurchaseValue;
         }
     }
 }
