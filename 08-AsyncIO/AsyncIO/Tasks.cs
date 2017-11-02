@@ -21,7 +21,7 @@ namespace AsyncIO
         public static IEnumerable<string> GetUrlContent(this IEnumerable<Uri> uris) 
         {
             // TODO : Implement GetUrlContent
-            throw new NotImplementedException();
+            return uris.Select(x => new MyWebClient().DownloadString(x));
         }
 
 
@@ -37,8 +37,16 @@ namespace AsyncIO
         /// <returns>The sequence of downloaded url content</returns>
         public static IEnumerable<string> GetUrlContentAsync(this IEnumerable<Uri> uris, int maxConcurrentStreams)
         {
-            // TODO : Implement GetUrlContentAsync
-            throw new NotImplementedException();
+            List<Task<string>> tasks = new List<Task<string>>();
+            foreach(var uri in uris)
+                {
+                    if (tasks.Where(task => task != null).Count() >= maxConcurrentStreams)
+                    {
+                        Task.WaitAll(tasks.Where(task => task != null).ToArray());
+                    }
+                    tasks.Add(new MyWebClient().DownloadStringTaskAsync(uri));
+                }
+            return tasks.Select(task => task.Result);
         }
 
 
@@ -50,14 +58,27 @@ namespace AsyncIO
         /// </summary>
         /// <param name="resource">Uri of resource</param>
         /// <returns>MD5 hash</returns>
-        public static Task<string> GetMD5Async(this Uri resource)
+        public static async Task<string> GetMD5Async(this Uri resource)
         {
             // TODO : Implement GetMD5Async
-            throw new NotImplementedException();
+            return BitConverter
+                .ToString(MD5.Create().ComputeHash(await new WebClient().DownloadDataTaskAsync(resource)))
+                .Replace("-", "");
         }
 
     }
 
+
+    //Override GetWebRequest to decomress gzip;
+    class MyWebClient : WebClient
+    {
+        protected override WebRequest GetWebRequest(Uri address)
+        {
+            HttpWebRequest request = base.GetWebRequest(address) as HttpWebRequest;
+            request.AutomaticDecompression = DecompressionMethods.GZip;
+            return request;
+        }
+    }
 
 
 }
