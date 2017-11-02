@@ -21,7 +21,7 @@ namespace AsyncIO
         public static IEnumerable<string> GetUrlContent(this IEnumerable<Uri> uris) 
         {
             // TODO : Implement GetUrlContent
-            throw new NotImplementedException();
+            return uris.Select(x => new MyWebClient().DownloadString(x));
         }
 
 
@@ -38,7 +38,22 @@ namespace AsyncIO
         public static IEnumerable<string> GetUrlContentAsync(this IEnumerable<Uri> uris, int maxConcurrentStreams)
         {
             // TODO : Implement GetUrlContentAsync
-            throw new NotImplementedException();
+            Task<string>[] tasks = new Task<string>[maxConcurrentStreams];
+            int countConcurrentStreams = 0;
+            tasks = uris.Select(uri =>
+            {
+                if (countConcurrentStreams < maxConcurrentStreams)
+                {
+                    countConcurrentStreams++;
+                    return Task.Run(async () => await new MyWebClient().DownloadStringTaskAsync(uri));
+                }
+                else
+                {
+                    Task.WaitAny(tasks.Where(task => task != null).ToArray());
+                    return Task.Run(async () => await new MyWebClient().DownloadStringTaskAsync(uri));
+                }
+            }).ToArray();
+            return tasks.Select(task => task.Result);
         }
 
 
@@ -50,14 +65,27 @@ namespace AsyncIO
         /// </summary>
         /// <param name="resource">Uri of resource</param>
         /// <returns>MD5 hash</returns>
-        public static Task<string> GetMD5Async(this Uri resource)
+        public static async Task<string> GetMD5Async(this Uri resource)
         {
             // TODO : Implement GetMD5Async
-            throw new NotImplementedException();
+            return BitConverter
+                .ToString(MD5.Create().ComputeHash(await new WebClient().DownloadDataTaskAsync(resource)))
+                .Replace("-", "");
         }
 
     }
 
+
+    //Override GetWebRequest to decomress gzip;
+    class MyWebClient : WebClient
+    {
+        protected override WebRequest GetWebRequest(Uri address)
+        {
+            HttpWebRequest request = base.GetWebRequest(address) as HttpWebRequest;
+            request.AutomaticDecompression = DecompressionMethods.GZip;
+            return request;
+        }
+    }
 
 
 }
