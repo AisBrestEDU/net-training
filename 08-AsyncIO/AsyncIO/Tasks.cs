@@ -37,22 +37,15 @@ namespace AsyncIO
         /// <returns>The sequence of downloaded url content</returns>
         public static IEnumerable<string> GetUrlContentAsync(this IEnumerable<Uri> uris, int maxConcurrentStreams)
         {
-            // TODO : Implement GetUrlContentAsync
-            Task<string>[] tasks = new Task<string>[maxConcurrentStreams];
-            int countConcurrentStreams = 0;
-            tasks = uris.Select(uri =>
-            {
-                if (countConcurrentStreams < maxConcurrentStreams)
+            List<Task<string>> tasks = new List<Task<string>>();
+            foreach(var uri in uris)
                 {
-                    countConcurrentStreams++;
-                    return Task.Run(async () => await new MyWebClient().DownloadStringTaskAsync(uri));
+                    if (tasks.Where(task => task != null).Count() >= maxConcurrentStreams)
+                    {
+                        Task.WaitAll(tasks.Where(task => task != null).ToArray());
+                    }
+                    tasks.Add(new MyWebClient().DownloadStringTaskAsync(uri));
                 }
-                else
-                {
-                    Task.WaitAny(tasks.Where(task => task != null).ToArray());
-                    return Task.Run(async () => await new MyWebClient().DownloadStringTaskAsync(uri));
-                }
-            }).ToArray();
             return tasks.Select(task => task.Result);
         }
 
