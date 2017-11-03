@@ -106,35 +106,17 @@ namespace Task.Generics {
             where T2: IComparable
             where T3: IComparable
         {
-                switch (sortedColumn)
-                {
-                    case 0:
-                        Array.Sort(array, (x, y) =>
-                        {
-                            return x.Item1.CompareTo(y.Item1);
-                        });
-
-                        break;
-
-                    case 1:
-                        Array.Sort(array, (x, y) =>
-                        {
-                            return x.Item2.CompareTo(y.Item2);
-                        });
-
-                        break;
-
-                    case 2:
-                        Array.Sort(array, (x, y) =>
-                        {
-                            return x.Item3.CompareTo(y.Item3);
-                        });
-
-                        break;
-
-                    default: throw new IndexOutOfRangeException();
-                }
-                if (!ascending)
+            if (sortedColumn < 0 || sortedColumn > 2)
+            {
+                throw new IndexOutOfRangeException();
+            }
+            Array.Sort(array, (x, y) => sortedColumn == 0
+                                    ? x.Item1.CompareTo(y.Item1)
+                                    : sortedColumn == 1
+                                    ? x.Item2.CompareTo(y.Item2)
+                                    : x.Item3.CompareTo(y.Item3)
+                                    );
+            if (!ascending)
                 {
                     Array.Reverse(array);
                 }
@@ -150,22 +132,24 @@ namespace Task.Generics {
 	///   This code should return the same MyService object every time:
 	///   MyService singleton = Singleton<MyService>.Instance;
 	/// </example>
-	public static class Singleton<T> where T: class, new() {
-        private static T instance = null;
+	public static class Singleton<T> 
+    where T: class, new()
+    {
+        private static T instance;
+
+        static Singleton()
+        {
+            instance = new T();
+        }
 
         public static T Instance
         {
-             get
-             {
-                if (instance == null)
-                {
-                    instance = new T();
-                }
-                return instance;
-                throw new NotImplementedException();
+            get
+            {
+               return instance;
+            }
         }
-        }
-}
+    }
 
 
 
@@ -197,6 +181,10 @@ namespace Task.Generics {
                 }
                 catch (System.Net.WebException exc)
                 {
+                    if(i == 2)
+                    {
+                        throw;
+                    }
                     System.Diagnostics.Debug.WriteLine(exc);
                 }
             }
