@@ -81,9 +81,12 @@ namespace EnumerableTask {
         /// </example>
         public IEnumerable<long> GetMovingSumSequence(IEnumerable<int> data)
         {
-            long result = 0;
             return data
-                .Select(x => result += x);
+                .Select(
+                (x, indexOfX) => (long)data
+                                .Where((y, indexOfY) => indexOfY <= indexOfX)
+                                .Sum()
+                );
         }
 
 
