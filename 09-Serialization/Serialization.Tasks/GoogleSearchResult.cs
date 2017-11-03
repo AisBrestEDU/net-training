@@ -183,19 +183,19 @@ namespace Serialization.Tasks
     public class GoogleSearchResult
     {
         [DataMember(Name = "kind")]
-        public string Kind;
+        public string Kind { get; set; }
 
         [DataMember(Name = "url")]
-        public Url Url;
+        public Url Url { get; set; }
 
         [DataMember(Name = "queries")]
-        public Queries Queries;
+        public Queries Queries { get; set; }
 
         [DataMember(Name = "context")]
-        public Context Context;
+        public Context Context { get; set; }
 
         [DataMember(Name = "items")]
-        public Item[] Items;
+        public Item[] Items { get; set; }
     }
 
 
