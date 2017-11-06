@@ -42,11 +42,7 @@ namespace EnumerableTask {
         public IEnumerable<int> GetStringsLength(IEnumerable<string> data)
         {
             return data
-                .Select(x => string.IsNullOrEmpty(x) 
-                ? 0 
-                : x.Length
-                );
-        }
+                .Select(x => x?.Length ?? 0);        }
 
         /// <summary>Transforms int sequence to its square sequence, f(x) = x * x </summary>
         /// <param name="data">source int sequence</param>
@@ -81,12 +77,31 @@ namespace EnumerableTask {
         /// </example>
         public IEnumerable<long> GetMovingSumSequence(IEnumerable<int> data)
         {
-            return data
-                .Select(
-                (x, indexOfX) => (long)data
-                                .Where((y, indexOfY) => indexOfY <= indexOfX)
-                                .Sum()
-                );
+            ///this method will be work with multithreading
+            ///, because yield generate other class, what return iterator, where class save current state and previous state and work with them,
+            ///when called movenext(), yield save current as previous and calculated current, and yield have variable state, which controls when to continue or break
+            long sum = 0;
+            foreach (var el in data)
+            {
+                yield return sum += el;
+            }
+
+
+            ///will not work with multithreading
+            ///, because at first, Select will call the GetEnumerator() method in the collection and then sum the value to the external variable sum.
+            //long sum = 0;
+            //return data.Select(x => sum += x);
+
+
+
+            ///this method will be work with multithreading
+            ///, because this method override Select and we dont use any external variable to sum values
+            //return data
+            //    .Select(
+            //    (x, indexOfX) => (long)data
+            //                    .Where((y, indexOfY) => indexOfY <= indexOfX)
+            //                    .Sum()
+            //    );
         }
 
 
@@ -293,13 +308,19 @@ namespace EnumerableTask {
         /// </example>
         public int GetCountOfStringsWithMaxLength(IEnumerable<string> data)
         {
-            var returnCount = data
-                .Where(x => !string.IsNullOrEmpty(x) && x.Length == data.OrderBy(y => y)
-                .LastOrDefault().Length)
-                .Count();
-            return returnCount > 0 
-                ? returnCount 
-                : data.Count();
+            return data.Any()
+                ? data
+                .OrderBy(x => x?.Length ?? 0)
+                .GroupBy(x => x?.Length ?? 0)
+                .LastOrDefault()
+                .Select(x => x).Count()
+                : 0;
+            //var returnCount = data
+            //    .Where(x => !string.IsNullOrEmpty(x) && x.Length == data.LastOrDefault().Length)
+            //    .Count();
+            //return returnCount > 0 
+            //    ? returnCount 
+            //    : data.Count();
         }
 
 
