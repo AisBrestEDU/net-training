@@ -106,20 +106,31 @@ namespace Task.Generics {
             where T2: IComparable
             where T3: IComparable
         {
+            Func<Tuple<T1, T2, T3>, IComparable> column = tuple => {
+                if (sortedColumn == 0)
+                    return tuple.Item1;
+                else if (sortedColumn == 1)
+                    return tuple.Item2;
+                else return tuple.Item3;
+            };
+
+            var comparer = Comparer<Tuple<T1, T2, T3>>
+                .Create((x, y) => column
+                    .Invoke(x)
+                    .CompareTo(column.Invoke(y))
+                );
+
             if (sortedColumn < 0 || sortedColumn > 2)
             {
                 throw new IndexOutOfRangeException();
             }
-            Array.Sort(array, (x, y) => sortedColumn == 0
-                                    ? x.Item1.CompareTo(y.Item1)
-                                    : sortedColumn == 1
-                                    ? x.Item2.CompareTo(y.Item2)
-                                    : x.Item3.CompareTo(y.Item3)
-                                    );
+
+            Array.Sort(array, comparer);
+
             if (!ascending)
-                {
-                    Array.Reverse(array);
-                }
+            {
+                Array.Reverse(array);
+            }
             }
         }
 
@@ -135,18 +146,13 @@ namespace Task.Generics {
 	public static class Singleton<T> 
     where T: class, new()
     {
-        private static T instance;
-
-        static Singleton()
-        {
-            instance = new T();
-        }
+        private static Lazy<T> instance = new Lazy<T>();
 
         public static T Instance
         {
             get
             {
-               return instance;
+               return instance.Value;
             }
         }
     }
