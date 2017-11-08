@@ -79,7 +79,12 @@ namespace Reflection.Tasks
                     }
                     else
                     {
-                        obj.GetType().BaseType.GetProperty(property).SetValue(obj, value);
+                        var type = obj.GetType();
+                        while (!type.GetProperty(property).CanWrite)
+                        {
+                            type = type.BaseType;
+                        }
+                        type.GetProperty(property).SetValue(obj, value);
                     }
                 }
             }
