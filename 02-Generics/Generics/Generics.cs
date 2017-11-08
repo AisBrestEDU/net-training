@@ -106,18 +106,17 @@ namespace Task.Generics {
             where T2: IComparable
             where T3: IComparable
         {
-            Func<Tuple<T1, T2, T3>, IComparable> column = tuple => {
-                if (sortedColumn == 0)
-                    return tuple.Item1;
-                else if (sortedColumn == 1)
-                    return tuple.Item2;
-                else return tuple.Item3;
-            };
+            Func<Tuple<T1, T2, T3>, IComparable>[] column =
+                {
+                    tuple => tuple.Item1
+                    , tuple => tuple.Item2
+                    , tuple => tuple.Item3
+                };
 
             var comparer = Comparer<Tuple<T1, T2, T3>>
-                .Create((x, y) => column
+                .Create((x, y) => column[sortedColumn]
                     .Invoke(x)
-                    .CompareTo(column.Invoke(y))
+                    .CompareTo(column[sortedColumn].Invoke(y))
                 );
 
             if (sortedColumn < 0 || sortedColumn > 2)
