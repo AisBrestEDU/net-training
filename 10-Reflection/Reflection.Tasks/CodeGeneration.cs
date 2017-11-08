@@ -22,14 +22,43 @@ namespace Reflection.Tasks
         ///   The function that return scalar product of two vectors
         ///   The generated dynamic method should be equal to static MultuplyVectors (see below).   
         /// </returns>
-        public static Func<T[], T[], T> GetVectorMultiplyFunction<T>() where T : struct {
-            // TODO : Implement GetVectorMultiplyFunction<T>.
-            throw new NotImplementedException();
+        public static Func<T[], T[], T> GetVectorMultiplyFunction<T>() 
+            where T : struct
+        {
+            ParameterExpression first = Expression.Parameter(typeof(T[]))
+                , second = Expression.Parameter(typeof(T[]))
+                , result = Expression.Parameter(typeof(T))
+                , index  = Expression.Parameter(typeof(int));
+
+            LabelTarget label = Expression.Label(typeof(T));
+            
+            BlockExpression block = Expression.Block
+                (
+                    new[] { result, index }
+                    , Expression.Assign(index, Expression.Constant(0))
+                    , Expression.Loop
+                    (
+                        Expression.IfThenElse
+                        (
+                            Expression.LessThan(index, Expression.ArrayLength(first))
+                            , Expression.AddAssignChecked(result
+                                , Expression.Multiply(Expression.ArrayAccess(first, index)
+                                    , Expression.ArrayAccess(second, Expression.PostIncrementAssign(index))
+                                )
+                            )
+                            , Expression.Break(label, result)
+                        )
+                        , label
+                    )
+                );
+
+            return Expression.Lambda<Func<T[], T[], T>>(block, first, second).Compile();
         } 
 
 
         // Static solution to check performance benchmarks
-        public static int MultuplyVectors(int[] first, int[] second) {
+        public static int MultuplyVectors(int[] first, int[] second)
+        {
             int result = 0;
             for (int i = 0; i < first.Length; i++) {
                 result += first[i] * second[i];

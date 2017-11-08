@@ -16,16 +16,11 @@ namespace Reflection.Tasks
         /// <param name="assemblyName">name of assembly</param>
         /// <returns>List of public but obsolete classes</returns>
         public static IEnumerable<string> GetPublicObsoleteClasses(string assemblyName) {
-            // TODO : Implement GetPublicObsoleteClasses method
             return Assembly
                 .Load(assemblyName)
                 .GetTypes()
-                .Where(type => type.IsClass
-                        && type.IsPublic
-                        && type.GetCustomAttributes()
-                            .Where(attribute => attribute.GetType() == typeof(ObsoleteAttribute))
-                            .Any())
-                .Select(type => type.Name);
+                .Where(x => x.IsClass && x.IsPublic && x.GetCustomAttributes(typeof(ObsoleteAttribute)).Any())
+                .Select(x => x.Name);
         }
 
         /// <summary>
@@ -46,8 +41,9 @@ namespace Reflection.Tasks
         /// <param name="propertyPath">dot-separated property path</param>
         /// <returns>property value of obj for required propertyPath</returns>
         public static T GetPropertyValue<T>(this object obj, string propertyPath) {
-            // TODO : Implement GetPropertyValue method
-            throw new NotImplementedException();
+            return (T)propertyPath
+                .Split('.')
+                .Aggregate(obj, (x, y) => x.GetType().GetProperty(y).GetValue(x));
         }
 
 
@@ -68,8 +64,25 @@ namespace Reflection.Tasks
         /// <param name="propertyPath">dot-separated property path</param>
         /// <param name="value">assigned value</param>
         public static void SetPropertyValue(this object obj, string propertyPath, object value) {
-            // TODO : Implement SetPropertyValue method
-            throw new NotImplementedException();
+            var properties = propertyPath.Split('.');
+            foreach (var property in properties)
+            {
+                if (property != properties.Last())
+                {
+                    obj = obj.GetType().GetProperty(property).GetValue(obj);
+                }
+                else
+                {
+                    if (obj.GetType().GetProperty(property).CanWrite)
+                    {
+                        obj.GetType().GetProperty(property).SetValue(obj, value);
+                    }
+                    else
+                    {
+                        obj.GetType().BaseType.GetProperty(property).SetValue(obj, value);
+                    }
+                }
+            }
         }
 
 
