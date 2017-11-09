@@ -73,19 +73,12 @@ namespace Reflection.Tasks
                 }
                 else
                 {
-                    if (obj.GetType().GetProperty(property).CanWrite)
+                    var type = obj.GetType();
+                    while (!type.GetProperty(property).CanWrite)
                     {
-                        obj.GetType().GetProperty(property).SetValue(obj, value);
+                        type = type.BaseType;
                     }
-                    else
-                    {
-                        var type = obj.GetType();
-                        while (!type.GetProperty(property).CanWrite)
-                        {
-                            type = type.BaseType;
-                        }
-                        type.GetProperty(property).SetValue(obj, value);
-                    }
+                    type.GetProperty(property).SetValue(obj, value);
                 }
             }
         }
